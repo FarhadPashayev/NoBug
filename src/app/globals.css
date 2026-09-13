@@ -1,26 +1,339 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ── Tokens — design_handoff_nobug_site/README.md ─────────────────────
+   Near-monochrome, one accent. No gradients, no shadows, radius 0 or 2px. */
+@theme {
+  --color-navy: #0b1f3a; /* logo navy — dark surfaces AND body ink */
+  --color-navy-line: #24354f; /* 1px rules on navy */
+  --color-paper: #edebe5; /* page background, text on navy */
+  --color-surface: #f6f4ef; /* hover / recessed bands */
+  --color-hairline: #d9d6cf; /* every 1px rule on paper */
+  --color-muted: #6b6862; /* secondary text, mono labels */
+  --color-muted-navy: #9a968e; /* mono labels on navy */
+  --color-body-navy: #c9c5bd; /* body text on navy */
+  --color-accent: #b3121d; /* < 5% of any screen */
+
+  --font-sans: var(--font-inter-tight), "Inter Tight", system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), Newsreader, Georgia, serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+
+  --ease-brand: cubic-bezier(0.2, 0, 0, 1);
+  --radius-xs: 2px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Type ───────────────────────────────────────────────────────────── */
+@utility mono-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+@utility type-h1 {
+  font-size: clamp(36px, 5.4vw, 76px);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+@utility type-h2 {
+  font-size: clamp(26px, 3.2vw, 34px);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+@utility type-figure {
+  font-size: clamp(30px, 3.4vw, 52px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+@utility type-body {
+  font-size: 17px;
+  line-height: 1.55;
+}
+@utility type-small {
+  font-size: 15px;
+  line-height: 1.55;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ── Layout ─────────────────────────────────────────────────────────── */
+@utility container-site {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5.5vw, 80px);
+}
+@utility section-pad {
+  padding-block: clamp(56px, 7vw, 112px);
+}
+
+/* ── Interactive primitives ─────────────────────────────────────────── */
+/* underline that grows from the left (nav / footer links) */
+@utility link-rule {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 3px;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 180ms var(--ease-brand);
+  }
+  &:hover::after,
+  &:focus-visible::after {
+    transform: scaleX(1);
+  }
+}
+/* inline text link: offset 4 → 2, colour → accent */
+@utility text-link {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-navy);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: currentColor;
+  transition:
+    color 140ms var(--ease-brand),
+    text-underline-offset 140ms var(--ease-brand);
+  &:hover,
+  &:focus-visible {
+    color: var(--color-accent);
+    text-underline-offset: 2px;
+  }
+}
+/* primary button: navy fill, accent wipes up from the bottom on hover */
+@utility btn-primary {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding-inline: 24px;
+  border: 1px solid var(--color-navy);
+  border-radius: 2px;
+  background: var(--color-navy);
+  color: var(--color-paper);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--color-accent);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 200ms var(--ease-brand);
+  }
+  &:hover::before,
+  &:focus-visible::before {
+    transform: scaleY(1);
+  }
+  &:disabled {
+    background: transparent;
+    border-color: var(--color-hairline);
+    color: var(--color-muted);
+    cursor: not-allowed;
+    &::before {
+      display: none;
+    }
+  }
+}
+/* same button on a navy band: paper fill */
+@utility btn-primary-paper {
+  background: var(--color-paper);
+  border-color: var(--color-paper);
+  color: var(--color-navy);
+  &:hover,
+  &:focus-visible {
+    color: var(--color-surface);
+  }
+}
+/* secondary: border 20% → 100% ink, bg → 4% ink */
+@utility btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding-inline: 20px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--color-navy);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 200ms var(--ease-brand),
+    background 200ms var(--ease-brand);
+  &:hover,
+  &:focus-visible {
+    border-color: var(--color-navy);
+    background: rgba(11, 31, 58, 0.04);
+  }
+}
+/* sorğu option chip */
+@utility chip {
+  min-height: 44px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--color-navy);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 140ms var(--ease-brand),
+    background 140ms var(--ease-brand);
+  &:hover {
+    background: var(--color-surface);
+  }
+  &[data-selected="true"] {
+    border-color: var(--color-accent);
+    background: var(--color-surface);
+  }
+}
+/* underline-only input */
+@utility field-underline {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-hairline);
+  border-radius: 0;
+  font-size: 17px;
+  color: var(--color-navy);
+  outline: none;
+  transition: border-color 140ms var(--ease-brand);
+  &::placeholder {
+    color: var(--color-muted);
+  }
+  &:focus {
+    border-bottom-color: var(--color-navy);
+  }
+}
+@utility field-underline-navy {
+  border-bottom-color: var(--color-navy-line);
+  color: var(--color-paper);
+  &::placeholder {
+    color: var(--color-muted-navy);
+  }
+  &:focus {
+    border-bottom-color: var(--color-paper);
+  }
+}
+/* image block: container clips, image scales 1 → 1.03 over 650ms */
+@utility img-block {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  & img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 650ms var(--ease-brand);
+  }
+  &:hover img {
+    transform: scale(1.03);
   }
 }
 
+/* ── Scroll reveal (state set by <Reveal>) ──────────────────────────── */
+@utility reveal-fade {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 320ms var(--ease-brand) var(--reveal-delay, 0ms),
+    transform 320ms var(--ease-brand) var(--reveal-delay, 0ms);
+  &[data-shown="true"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility reveal-rule {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 500ms var(--ease-brand);
+  &[data-shown="true"] {
+    transform: scaleX(1);
+  }
+}
+@utility reveal-clip {
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 700ms var(--ease-brand);
+  &[data-shown="true"] {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* ── Base ───────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-navy);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+th {
+  text-align: left;
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility hero-in {
+  animation: hero-in 320ms var(--ease-brand) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
+  .reveal-fade,
+  .reveal-rule,
+  .reveal-clip {
+    opacity: 1;
+    clip-path: none;
+  }
 }

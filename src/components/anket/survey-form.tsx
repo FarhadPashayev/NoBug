@@ -1,0 +1,278 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import type { Locale } from "@/lib/i18n/config";
+import { CHANNEL_IDS, getSurvey, parseServiceIndex, type AnketPayload } from "@/lib/anket/survey";
+
+type Step = 1 | 2 | 3;
+type Answers = Record<number, string | string[] | null>;
+
+export function SurveyForm({ lang }: { lang: Locale }) {
+  const sv = getSurvey(lang);
+  const router = useRouter();
+  const params = useSearchParams();
+  const preselected = parseServiceIndex(params.get("xidmet"));
+
+  const [step, setStep] = useState<Step>(preselected !== null ? 2 : 1);
+  const [service, setService] = useState<number | null>(preselected);
+  const [answers, setAnswers] = useState<Answers>({});
+  const [name, setName] = useState("");
+  const [chan, setChan] = useState<number | null>(null);
+  const [val, setVal] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [website, setWebsite] = useState(""); // honeypot
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState(false);
+  const [sent, setSent] = useState(false);
+  const openedAt = useRef(0);
+  useEffect(() => {
+    openedAt.current = Date.now();
+  }, []);
+
+  const questions = service === null ? [] : sv.q[service];
+  const channel = chan === null ? null : sv.channels[chan];
+  const canSend = !!name.trim() && !!channel && !!val.trim() && consent && !sending;
+  const pct = sent ? 100 : step * 33.34;
+
+  function pickService(i: number) {
+    setService(i);
+    setAnswers({});
+    setStep(2);
+    router.replace(`/${lang}/anket?xidmet=${i}`, { scroll: false });
+  }
+
+  function pickAnswer(qi: number, opt: string, multi: boolean) {
+    setAnswers((prev) => {
+      const next = { ...prev };
+      if (multi) {
+        const cur = Array.isArray(prev[qi]) ? (prev[qi] as string[]) : [];
+        next[qi] = cur.includes(opt) ? cur.filter((o) => o !== opt) : [...cur, opt];
+      } else {
+        next[qi] = prev[qi] === opt ? null : opt;
+      }
+      return next;
+    });
+  }
+
+  function reset() {
+    setSent(false);
+    setStep(1);
+    setService(null);
+    setAnswers({});
+    setName("");
+    setChan(null);
+    setVal("");
+    setConsent(false);
+    setError(false);
+    router.replace(`/${lang}/anket`, { scroll: false });
+  }
+
+  async function submit() {
+    if (!canSend || service === null || chan === null) return;
+    setSending(true);
+    setError(false);
+    const payload: AnketPayload = {
+      lang,
+      service,
+      answers,
+      name: name.trim(),
+      channel: CHANNEL_IDS[chan],
+      contact: val.trim(),
+      consent,
+      website,
+      openedAt: openedAt.current,
+    };
+    try {
+      const res = await fetch("/api/anket", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      if (!res.ok) throw new Error(String(res.status));
+      setSent(true);
+    } catch {
+      setError(true);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  const serviceName = service === null ? "" : sv.services[service];
+
+  return (
+    <div className="flex flex-wrap items-start gap-[clamp(24px,4vw,64px)]">
+      {/* left: eyebrow, H1, note, step + progress rule */}
+      <div className="min-w-0 max-w-[340px] flex-[1_1_240px]">
+        <div className="mono-label text-muted">{sv.eyebrow}</div>
+        <h1 className="mt-3 text-[clamp(26px,2.8vw,36px)] font-medium leading-[1.1] tracking-[-0.025em]">{sv.title}</h1>
+        <p className="type-small mt-4 text-muted">{sv.note}</p>
+        <div className="mt-6 flex items-center gap-4">
+          <div className="mono-label flex-none text-muted">{sent ? "—" : `${sv.step} ${step} / 3`}</div>
+          <div className="h-0.5 min-w-[80px] flex-1 bg-hairline" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
+            <div className="h-full bg-accent transition-[width] duration-[320ms] ease-[var(--ease-brand)]" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+      </div>
+
+      {/* right: the active step */}
+      <div className="min-w-0 flex-[2_1_420px]">
+        {sent ? (
+          <div className="border-t border-navy pt-8">
+            <div className="text-[clamp(22px,2.2vw,34px)] font-medium leading-[1.2] tracking-[-0.02em]">{sv.sentTitle}</div>
+            <p className="type-body mt-4 max-w-[56ch]">{sv.sentText}</p>
+            <div className="mt-8 flex flex-wrap gap-3 *:flex-1 sm:*:flex-none">
+              <Link href={`/${lang}`} className="btn-primary">
+                {sv.home}
+              </Link>
+              <button type="button" onClick={reset} className="btn-secondary">
+                {sv.again}
+              </button>
+            </div>
+          </div>
+        ) : step === 1 ? (
+          <div>
+            <div className="border-b border-navy pb-3 text-[17px] font-medium leading-[1.4]">{sv.pick}</div>
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-x-[clamp(16px,3vw,40px)]">
+              {sv.services.map((title, i) => (
+                <button
+                  key={title}
+                  type="button"
+                  onClick={() => pickService(i)}
+                  data-selected={service === i}
+                  className="group relative flex min-h-11 w-full items-baseline gap-4 border-0 border-b border-hairline bg-transparent px-3 py-[11px] text-left transition-colors duration-200 ease-[var(--ease-brand)] hover:bg-surface data-[selected=true]:bg-surface"
+                >
+                  <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 origin-left scale-x-0 bg-accent transition-transform duration-200 ease-[var(--ease-brand)] group-hover:scale-x-100 group-data-[selected=true]:scale-x-100" />
+                  <span className="w-6 flex-none font-mono text-xs tracking-[0.08em] text-muted transition-colors group-hover:text-navy group-data-[selected=true]:text-navy">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="min-w-0 text-base font-medium leading-[1.3]">{title}</span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-4 text-sm leading-[1.5] text-muted">{sv.pickNote}</p>
+          </div>
+        ) : step === 2 && service !== null ? (
+          <div>
+            <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-navy pb-4">
+              <div className="mono-label text-muted">
+                {sv.summary} — {serviceName}
+              </div>
+              <button type="button" onClick={() => setStep(1)} className="text-link">
+                {sv.change}
+              </button>
+            </div>
+
+            <div className="mt-8 flex flex-col gap-9">
+              {questions.map(([label, options, multiFlag], qi) => {
+                const multi = multiFlag === 1;
+                const v = answers[qi];
+                const selected = multi ? (Array.isArray(v) ? v : []) : v;
+                return (
+                  <fieldset key={label} className="m-0 border-0 p-0">
+                    <legend className="flex flex-wrap items-baseline gap-4 p-0">
+                      <span className="font-mono text-xs tracking-[0.08em] text-muted">0{qi + 1}</span>
+                      <span className="text-[17px] font-medium leading-[1.4]">{label}</span>
+                      {multi && <span className="mono-label text-muted">{sv.multi}</span>}
+                    </legend>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {options.map((o) => {
+                        const isSel = multi ? (selected as string[]).includes(o) : selected === o;
+                        return (
+                          <button key={o} type="button" onClick={() => pickAnswer(qi, o, multi)} data-selected={isSel} aria-pressed={isSel} className="chip">
+                            {o}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
+                );
+              })}
+            </div>
+
+            <div className="mt-10 flex flex-wrap gap-3 *:flex-1 sm:*:flex-none">
+              <button type="button" onClick={() => setStep(1)} className="btn-secondary">
+                {sv.back}
+              </button>
+              <button type="button" onClick={() => setStep(3)} className="btn-primary">
+                {sv.next}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-navy pb-4">
+              <div className="text-[17px] font-medium leading-[1.4]">{sv.contactTitle}</div>
+              <div className="mono-label text-muted">{serviceName}</div>
+            </div>
+
+            <div className="mt-8 flex flex-col gap-8">
+              <div>
+                <label htmlFor="sq-name" className="mono-label mb-2 block text-muted">
+                  {sv.name}
+                </label>
+                <input id="sq-name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={sv.namePh} autoComplete="name" className="field-underline" />
+              </div>
+
+              <fieldset className="m-0 border-0 p-0">
+                <legend className="mono-label mb-3 p-0 text-muted">{sv.channel}</legend>
+                <div className="flex flex-wrap gap-2">
+                  {sv.channels.map(([label], i) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => {
+                        setChan(i);
+                        setVal("");
+                      }}
+                      data-selected={chan === i}
+                      aria-pressed={chan === i}
+                      className="chip"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {channel && (
+                  <input
+                    key={chan}
+                    type={chan === 0 ? "email" : "tel"}
+                    inputMode={chan === 0 ? "email" : "tel"}
+                    autoComplete={chan === 0 ? "email" : "tel"}
+                    value={val}
+                    onChange={(e) => setVal(e.target.value)}
+                    placeholder={channel[1]}
+                    aria-label={channel[0]}
+                    className="field-underline mt-4"
+                    autoFocus
+                  />
+                )}
+              </fieldset>
+
+              <label className="flex cursor-pointer items-start gap-3">
+                <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 h-5 w-5 flex-none cursor-pointer accent-navy" />
+                <span className="type-small max-w-[62ch]">{sv.consent}</span>
+              </label>
+
+              {/* honeypot — invisible to people */}
+              <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+                <label htmlFor="sq-website">Website</label>
+                <input id="sq-website" type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+              </div>
+            </div>
+
+            {error && (
+              <p className="type-small mt-6 text-accent" role="alert">
+                {sv.error}
+              </p>
+            )}
+
+            <div className="mt-10 flex flex-wrap gap-3 *:flex-1 sm:*:flex-none">
+              <button type="button" onClick={() => setStep(2)} className="btn-secondary">
+                {sv.back}
+              </button>
+              <button type="button" onClick={submit} disabled={!canSend} className="btn-primary">
+                {sending ? sv.sending : sv.send}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
