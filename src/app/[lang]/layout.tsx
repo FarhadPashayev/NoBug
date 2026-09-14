@@ -48,6 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       languages: { ...Object.fromEntries(LOCALES.map((l) => [l, absoluteUrl(`/${l}`)])), "x-default": absoluteUrl("/az") },
     },
     openGraph: { title: t.meta.title, description: t.meta.description, url: absoluteUrl(`/${locale}`), siteName: "nobug", locale, type: "website" },
+    twitter: { card: "summary_large_image", title: t.meta.title, description: t.meta.description },
     other: { "contact:email": CONTACT_EMAIL },
   };
 }
