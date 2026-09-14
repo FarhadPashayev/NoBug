@@ -43,7 +43,7 @@ export type SurveyLocale = {
   confirmBody: (name: string, service: string) => string;
 };
 
-export const SERVICE_COUNT = 12;
+export { resolveService } from "@/lib/services";
 export const CHANNEL_IDS = ["email", "phone", "whatsapp"] as const;
 export type ChannelId = (typeof CHANNEL_IDS)[number];
 
@@ -197,16 +197,11 @@ const ru: SurveyLocale = {
 export const SURVEY: Record<Locale, SurveyLocale> = { az, en, ru };
 export const getSurvey = (locale: Locale) => SURVEY[locale];
 
-export function parseServiceIndex(raw: string | null | undefined): number | null {
-  if (raw == null || raw === "") return null;
-  const n = Number(raw);
-  return Number.isInteger(n) && n >= 0 && n < SERVICE_COUNT ? n : null;
-}
 
 // Wire format for POST /api/anket
 export type AnketPayload = {
   lang: Locale;
-  service: number; // 0…11
+  service: number | string; // stable id ("web") or legacy index (3) — see lib/services.ts
   answers: Record<number, string | string[] | null>; // keyed by question index
   name: string;
   channel: ChannelId;

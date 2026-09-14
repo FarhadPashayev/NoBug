@@ -2,12 +2,15 @@ import { notFound } from "next/navigation";
 import { isLocale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { Header } from "@/components/site/header";
+import { SectionIndex } from "@/components/site/section-index";
 import { Hero } from "@/components/site/hero";
 import { CineBand } from "@/components/site/cine-band";
 import { Services } from "@/components/site/services";
 import { About } from "@/components/site/about";
+import { Projects } from "@/components/site/projects";
+import { CaseStudy } from "@/components/site/case-study";
 import { Technology } from "@/components/site/technology";
-import { Careers, Clients, Divider } from "@/components/site/clients-careers";
+import { Careers, Divider } from "@/components/site/clients-careers";
 import { Contact } from "@/components/site/contact";
 import { Footer } from "@/components/site/footer";
 
@@ -16,17 +19,18 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   if (!isLocale(lang)) notFound();
   const t = getDict(lang);
 
-  // Section order is final (README §"Korporativ sayt — section by section").
   return (
     <>
       <Header lang={lang} t={t} />
+      <SectionIndex lang={lang} entries={t.sectionIndex} />
       <main>
         <Hero lang={lang} t={t} />
         <CineBand t={t} />
         <Services lang={lang} t={t} />
         <About t={t} />
+        <Projects t={t} />
+        <CaseStudy t={t} />
         <Technology t={t} />
-        <Clients t={t} />
         <Divider />
         <Careers lang={lang} t={t} />
         <Contact lang={lang} t={t} />

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { CHANNEL_IDS, getSurvey, parseServiceIndex, type AnketPayload, type ChannelId } from "@/lib/anket/survey";
+import { CHANNEL_IDS, getSurvey, resolveService, type AnketPayload, type ChannelId } from "@/lib/anket/survey";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { clientIp, isRateLimited, looksLikeBot } from "@/lib/anti-spam";
 import { escapeHtml, formatDate, isEmail, MAIL_TO, sendMail } from "@/lib/mail/send";
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   const lang: Locale = typeof body.lang === "string" && isLocale(body.lang) ? body.lang : "az";
   const sv = getSurvey(lang);
 
-  const serviceIdx = parseServiceIndex(String(body.service ?? ""));
+  const serviceIdx = resolveService(String(body.service ?? ""));
   if (serviceIdx === null) return bad("Unknown service");
   const serviceName = sv.services[serviceIdx];
   const questions = sv.q[serviceIdx];

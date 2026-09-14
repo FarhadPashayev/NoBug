@@ -1,4 +1,5 @@
 import type { Dictionary } from "@/lib/i18n/dict";
+import { figureCaption } from "@/lib/figures";
 import { Figure } from "@/components/ui/figure";
 
 /**
@@ -42,7 +43,7 @@ export function Technology({ t }: { t: Dictionary }) {
       </div>
       <div className="mt-4 font-mono text-[11px] tracking-[0.08em] text-muted">{t.techFootnote}</div>
 
-      <Figure src="/assets/IMG-07_data-field_16x9.png" alt={t.alt07} caption={t.cap07} ratio="16 / 9" className="mt-[clamp(40px,5vw,72px)]" sizes="(min-width: 1440px) 1280px, 100vw" />
+      <Figure src="/assets/IMG-07_data-field_16x9.png" alt={t.alt07} caption={figureCaption(t, "tech")} ratio="16 / 9" className="mt-[clamp(40px,5vw,72px)]" sizes="(min-width: 1440px) 1280px, 100vw" />
     </section>
   );
 }

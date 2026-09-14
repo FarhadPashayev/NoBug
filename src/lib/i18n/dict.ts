@@ -12,12 +12,8 @@ export type Dictionary = {
   h1: string;
   heroText: string;
   heroLink: string;
-  cap01: string;
-  cap02: string;
-  cap03: string;
-  cap04: string;
-  cap05: string;
-  cap07: string;
+  figLabel: string; // "Şək." / "Fig." / "Рис." — numbers come from lib/figures.ts
+  captions: Record<"hero" | "band" | "services" | "about" | "tech" | "careers", string>;
   alt01: string;
   alt02: string;
   alt03: string;
@@ -27,7 +23,17 @@ export type Dictionary = {
   figures: [string, string, string][]; // value, label, source
   servicesTitle: string;
   servicesMeta: string;
-  services: [string, string][]; // title, one-line description — index = ?xidmet
+  servicesSecondary: string; // eyebrow of the quieter 8-item list
+  services: [string, string][]; // title, one-line description — indexed in LEGACY_ORDER (lib/services.ts)
+  projects: { eyebrow: string; title: string; items: [string, string, string][] }; // label, description, year
+  caseStudy: {
+    eyebrow: string;
+    title: string;
+    labels: [string, string, string, string]; // Müştəri / Müddət / İş / İl
+    facts: [string, string, string, string];
+    blocks: [string, string][]; // heading, paragraph
+  };
+  sectionIndex: [string, string][]; // anchor, label — vertical index in the left margin
   quoteEyebrow: string;
   quote: string;
   quoteName: string;
@@ -39,17 +45,15 @@ export type Dictionary = {
   techHead: [string, string, string, string];
   techRows: [string, string, string, string][];
   techFootnote: string;
-  clientsLabel: string;
-  clients: string[];
   careersTitle: string;
   careersText: string;
-  careersCount: string;
-  careersCountLabel: string;
   careersLink: string;
   contactEyebrow: string;
   contactTitle: string;
   contactText: string;
-  contactRows: [string, string][];
+  contactEmailLabel: string;
+  contactRows: [string, string][]; // address, hours — email comes from lib/site.ts
+  contactReplyNote: string;
   formLabel: string;
   fieldName: string;
   fieldEmail: string;
@@ -58,9 +62,9 @@ export type Dictionary = {
   formSending: string;
   formSent: string;
   formError: string;
-  footerCols: [string, string[]][];
+  footerCols: [string, string[]][]; // Xidmətlər (from FOOTER_SERVICES) · Şirkət · Hüquqi
+  footerContact: string; // "Əlaqə" column title — items come from lib/site.ts
   legal: string[];
-  menu: string;
   home: string;
 };
 
@@ -75,12 +79,15 @@ const az: Dictionary = {
   h1: "Təhvil verdiyimiz sistem işləyir.",
   heroText: "Proqram təminatı, infrastruktur və analitika üzrə uçdan-uca icra. Planlaşdırma, tətbiq və təhvildən sonrakı dəstək tək komanda tərəfindən aparılır.",
   heroLink: "Layihəni müzakirə et",
-  cap01: "Şək. 01 — Kommutator rafı, əməliyyat mərkəzi",
-  cap02: "Şək. 02 — Server otağı, Bakı",
-  cap03: "Şək. 03 — Struktur kabel sistemi",
-  cap04: "Şək. 04 — Bakı. nobug burada fəaliyyət göstərir",
-  cap05: "Şək. 05 — Fasad gridi, ofis binası",
-  cap07: "Şək. 07 — Monitorinq göstəriciləri, aylıq kəsik",
+  figLabel: "Şək.",
+  captions: {
+    hero: "Kommutator rafı, əməliyyat mərkəzi",
+    band: "Server otağı, Bakı",
+    services: "Struktur kabel sistemi",
+    about: "Bakı. nobug burada fəaliyyət göstərir",
+    tech: "Monitorinq göstəriciləri, aylıq kəsik",
+    careers: "Fasad gridi, ofis binası",
+  },
   alt01: "Tünd port matrisi: sıra-sıra şəbəkə portları, üçü aksent rəngdə işıqlı",
   alt02: "Data zalının tək nöqtəli perspektivi: iki tərəfdə server rafları, tavanda işıq zolağı",
   alt03: "Şəbəkə topologiyası: nöqtələr və nazik xətlər, sahəni kəsən bir aksent marşrut",
@@ -93,7 +100,8 @@ const az: Dictionary = {
     ["< 2 saat", "dəstək müqaviləsində birinci cavab öhdəliyi", "2026 · SLA şərtləri"],
   ],
   servicesTitle: "Xidmət indeksi",
-  servicesMeta: "Bölmə 01 · 01—12",
+  servicesMeta: "Bölmə 01 · 12 xidmət",
+  servicesSecondary: "Əlavə xidmətlər",
   services: [
     ["IT infrastrukturu", "Server, şəbəkə və iş stansiyalarının qurulması, miqrasiyası və aylıq dəstəyi."],
     ["CRM və ERP tətbiqi", "Bitrix24, Odoo və fərdi sistemlərin tətbiqi; satış, anbar və maliyyə proseslərinin birləşdirilməsi."],
@@ -108,6 +116,27 @@ const az: Dictionary = {
     ["Konsultasiya", "Mövcud sistemlərin auditi, texnoloji seçim və rəqəmsallaşma planının hazırlanması — saatlıq və ya layihə üzrə."],
     ["Günlük kirayə idarəetməsi", "Rezervasiya, qonaq kommunikasiyası, qiymətləndirmə və təmizlik qrafikinin uzaqdan idarəsi."],
   ],
+  projects: {
+    eyebrow: "Bölmə 02 · Layihələr",
+    title: "İstehsalatda olan layihələr",
+    items: [
+      ["Korporativ sayt və məzmun paneli", "Landing page-dən tam saytadək; müştəri komandası məzmunu özü idarə edir.", "2026"],
+      ["bbq.az", "Ölkə üzrə fəaliyyət göstərən marketinq agentliyinin korporativ saytı.", "2026"],
+      ["yins.az", "AAYD üçün daxili ERP/CRM sistemi.", "2026"],
+    ],
+  },
+  caseStudy: {
+    eyebrow: "Bölmə 03 · Layihə icmalı",
+    title: "Korporativ sayt və məzmun idarəetmə paneli",
+    labels: ["Müştəri", "Müddət", "İş", "İl"],
+    facts: ["Bakıda fəaliyyət göstərən şirkət", "3 ay", "Korporativ sayt və məzmun idarəetmə paneli", "2026"],
+    blocks: [
+      ["Vəziyyət", "Müştərinin yalnız bir səhifəlik landing page-i var idi. Məzmun statik idi — hər dəyişiklik üçün kənar icraçıya müraciət etmək lazım gəlirdi. Xəbər, elan və ya genişləndirilmiş məhsul məlumatı yerləşdirmək praktiki olaraq mümkün deyildi."],
+      ["Yanaşma", "İşə görüşlə başladıq: kimin nəyi, hansı tezliklə redaktə edəcəyini və mövcud iş axınının harada dayandığını müəyyən etdik. Sonra dizayn, ardınca tam sayt və admin panel. Panel rollara görə giriş, səhifə və xəbər redaktoru, media kitabxanası ilə təhvil verildi."],
+      ["Nəticə", "Məzmun dəyişikliyi artıq kənar asılılıq deyil — müştəri komandası saytı özü redaktə edir. Xəbər bölməsi işə düşdü; şirkət istifadəçilərinə əvvəllər saytda yer verə bilmədiyi ətraflı məlumatı indi özü yerləşdirir."],
+    ],
+  },
+  sectionIndex: [["#xidmetler", "Xidmətlər"], ["#layiheler", "Layihələr"], ["#layihe-icmali", "Layihə icmalı"], ["#texnologiya", "Standartlar"], ["#karyera", "Karyera"], ["#elaqe", "Əlaqə"]],
   quoteEyebrow: "Mövqe",
   quote: "Bizim işimizin ölçüsü təqdimat deyil — altıncı aydan sonra sistemin neçə dəfə dayandığıdır.",
   quoteName: "nobug",
@@ -125,17 +154,15 @@ const az: Dictionary = {
     ["ISO/IEC 27001", "Sertifikatlaşma", "—", "Planlaşdırılır"],
   ],
   techFootnote: "Sertifikat əldə olunduqca cədvələ nömrə və etibarlılıq tarixi əlavə olunur.",
-  clientsLabel: "Müştərilər",
-  clients: ["beic.az", "bbq.az", "yins.az"],
   careersTitle: "Komandaya qoşulmaq",
-  careersText: "Hazırda açıq vakansiya yoxdur. Mühəndis, QA və dəstək istiqamətləri üzrə müraciətlər il boyu qəbul olunur və növbəti açılışda nəzərə alınır.",
-  careersCount: "—",
-  careersCountLabel: "açıq vakansiya, 2026",
+  careersText: "Hazırda açıq vakansiya yoxdur. Mühəndislik, QA və dəstək istiqamətləri üzrə müraciətlər il boyu qəbul olunur və növbəti açılışda nəzərdən keçirilir.",
   careersLink: "Müraciət göndər",
   contactEyebrow: "Əlaqə",
   contactTitle: "Layihənin ilkin qiymətləndirməsi",
   contactText: "İlk görüş və ilkin qiymətləndirmə ödənişsizdir. Adətən bir iş günü ərzində cavab veririk.",
-  contactRows: [["E-poçt", "no.bug.mmc@gmail.com"], ["Ünvan", "Bakı, Azərbaycan"], ["İş saatları", "B.e — Cümə, 09:00 — 18:00"]],
+  contactEmailLabel: "E-poçt",
+  contactRows: [["Ünvan", "Bakı, Azərbaycan"], ["İş saatları", "B.e — Cümə, 09:00 — 18:00"]],
+  contactReplyNote: "Yazılı müraciətlərə bir iş günü ərzində cavab veririk.",
   formLabel: "Qısa sorğu",
   fieldName: "Ad Soyad",
   fieldEmail: "E-poçt",
@@ -148,10 +175,9 @@ const az: Dictionary = {
     ["Xidmətlər", ["IT infrastrukturu", "CRM və ERP", "Mobil tətbiqlər", "Süni intellekt həlləri", "AI ilə video", "Konsultasiya"]],
     ["Şirkət", ["Haqqında", "Karyera", "Əlaqə"]],
     ["Hüquqi", ["Məxfilik siyasəti", "İstifadə şərtləri", "Məlumatların emalı"]],
-    ["Əlaqə", ["no.bug.mmc@gmail.com", "LinkedIn"]],
   ],
+  footerContact: "Əlaqə",
   legal: ['"nobug" MMC', "Bakı, Azərbaycan", "© 2026"],
-  menu: "Menyu",
   home: "Ana səhifə",
 };
 
@@ -166,12 +192,15 @@ const en: Dictionary = {
   h1: "The system we hand over runs.",
   heroText: "End-to-end delivery across software, infrastructure and analytics. Planning, implementation and post-handover support are carried out by one team.",
   heroLink: "Discuss a project",
-  cap01: "Fig. 01 — Switch rack, operations floor",
-  cap02: "Fig. 02 — Server room, Baku",
-  cap03: "Fig. 03 — Structured cabling system",
-  cap04: "Fig. 04 — Baku. nobug operates from here",
-  cap05: "Fig. 05 — Facade grid, office building",
-  cap07: "Fig. 07 — Monitoring readings, monthly cut",
+  figLabel: "Fig.",
+  captions: {
+    hero: "Switch rack, operations floor",
+    band: "Server room, Baku",
+    services: "Structured cabling system",
+    about: "Baku. nobug operates from here",
+    tech: "Monitoring readings, monthly cut",
+    careers: "Facade grid, office building",
+  },
   alt01: "Dark port matrix: rows of network ports, three lit in the accent colour",
   alt02: "One-point perspective of a data hall: server racks on both sides, a light strip on the ceiling",
   alt03: "Network topology: nodes and hairline edges, one accent route crossing the field",
@@ -184,7 +213,8 @@ const en: Dictionary = {
     ["< 2 hours", "first-response commitment in the support agreement", "2026 · SLA terms"],
   ],
   servicesTitle: "Service index",
-  servicesMeta: "Section 01 · 01—12",
+  servicesMeta: "Section 01 · 12 services",
+  servicesSecondary: "Additional services",
   services: [
     ["IT infrastructure", "Deployment, migration and monthly support of servers, networks and workstations."],
     ["CRM and ERP implementation", "Bitrix24, Odoo and custom systems; consolidating sales, inventory and finance."],
@@ -199,6 +229,27 @@ const en: Dictionary = {
     ["Consulting", "Audits of existing systems, technology selection and digitalisation planning — hourly or per project."],
     ["Short-term rental management", "Remote handling of reservations, guest communication, pricing and cleaning schedules."],
   ],
+  projects: {
+    eyebrow: "Section 02 · Projects",
+    title: "Projects in production",
+    items: [
+      ["Corporate site and content panel", "From a landing page to a full site; the client's team manages the content themselves.", "2026"],
+      ["bbq.az", "Corporate site of a marketing agency operating nationwide.", "2026"],
+      ["yins.az", "Internal ERP/CRM system for AAYD.", "2026"],
+    ],
+  },
+  caseStudy: {
+    eyebrow: "Section 03 · Case study",
+    title: "Corporate site and content management panel",
+    labels: ["Client", "Duration", "Work", "Year"],
+    facts: ["A company based in Baku", "3 months", "Corporate site and content management panel", "2026"],
+    blocks: [
+      ["Situation", "The client had a single-page landing page. The content was static — every change meant going back to an external contractor. Publishing news, announcements or extended product information was practically impossible."],
+      ["Approach", "We started with a meeting: who edits what, how often, and where the existing workflow broke down. Then design, followed by the full site and the admin panel. The panel was handed over with role-based access, a page and news editor, and a media library."],
+      ["Result", "Content changes are no longer an external dependency — the client's team edits the site themselves. The news section is live; the company now publishes the detailed information it previously had no place for on the site."],
+    ],
+  },
+  sectionIndex: [["#xidmetler", "Services"], ["#layiheler", "Projects"], ["#layihe-icmali", "Case study"], ["#texnologiya", "Standards"], ["#karyera", "Careers"], ["#elaqe", "Contact"]],
   quoteEyebrow: "Position",
   quote: "Our work is not measured by the presentation — it is measured by how many times the system stopped after month six.",
   quoteName: "nobug",
@@ -216,17 +267,15 @@ const en: Dictionary = {
     ["ISO/IEC 27001", "Certification", "—", "Planned"],
   ],
   techFootnote: "Certificate numbers and validity dates will be added to this table as they are issued.",
-  clientsLabel: "Clients",
-  clients: ["beic.az", "bbq.az", "yins.az"],
   careersTitle: "Joining the team",
   careersText: "There are no open positions at the moment. Applications for engineering, QA and support are accepted year-round and considered at the next opening.",
-  careersCount: "—",
-  careersCountLabel: "open positions, 2026",
   careersLink: "Send an application",
   contactEyebrow: "Contact",
   contactTitle: "Initial project assessment",
   contactText: "The first meeting and initial assessment are free of charge. We usually reply within one business day.",
-  contactRows: [["Email", "no.bug.mmc@gmail.com"], ["Address", "Baku, Azerbaijan"], ["Hours", "Mon — Fri, 09:00 — 18:00"]],
+  contactEmailLabel: "Email",
+  contactRows: [["Address", "Baku, Azerbaijan"], ["Hours", "Mon — Fri, 09:00 — 18:00"]],
+  contactReplyNote: "We reply to written enquiries within one business day.",
   formLabel: "Short enquiry",
   fieldName: "Full name",
   fieldEmail: "Email",
@@ -239,10 +288,9 @@ const en: Dictionary = {
     ["Solutions", ["IT infrastructure", "CRM and ERP", "Mobile development", "AI solutions", "AI video", "Consulting"]],
     ["Company", ["About", "Careers", "Contact"]],
     ["Legal", ["Privacy policy", "Terms of use", "Data processing"]],
-    ["Contact", ["no.bug.mmc@gmail.com", "LinkedIn"]],
   ],
+  footerContact: "Contact",
   legal: ['"nobug" LLC', "Baku, Azerbaijan", "© 2026"],
-  menu: "Menu",
   home: "Home",
 };
 
@@ -257,12 +305,15 @@ const ru: Dictionary = {
   h1: "Сданная нами система работает.",
   heroText: "Реализация под ключ в разработке, инфраструктуре и аналитике. Планирование, внедрение и поддержку после сдачи ведёт одна команда.",
   heroLink: "Обсудить проект",
-  cap01: "Рис. 01 — Стойка коммутаторов, операционный зал",
-  cap02: "Рис. 02 — Серверная, Баку",
-  cap03: "Рис. 03 — Структурированная кабельная система",
-  cap04: "Рис. 04 — Баку. nobug работает отсюда",
-  cap05: "Рис. 05 — Фасадная сетка, офисное здание",
-  cap07: "Рис. 07 — Показатели мониторинга, месячный срез",
+  figLabel: "Рис.",
+  captions: {
+    hero: "Стойка коммутаторов, операционный зал",
+    band: "Серверная, Баку",
+    services: "Структурированная кабельная система",
+    about: "Баку. nobug работает отсюда",
+    tech: "Показатели мониторинга, месячный срез",
+    careers: "Фасадная сетка, офисное здание",
+  },
   alt01: "Тёмная матрица портов: ряды сетевых портов, три подсвечены акцентным цветом",
   alt02: "Одноточечная перспектива дата-зала: серверные стойки по обеим сторонам, световая полоса на потолке",
   alt03: "Сетевая топология: узлы и тонкие связи, один акцентный маршрут через поле",
@@ -275,7 +326,8 @@ const ru: Dictionary = {
     ["< 2 часов", "обязательство по первому ответу в договоре поддержки", "2026 · условия SLA"],
   ],
   servicesTitle: "Указатель услуг",
-  servicesMeta: "Раздел 01 · 01—12",
+  servicesMeta: "Раздел 01 · 12 услуг",
+  servicesSecondary: "Дополнительные услуги",
   services: [
     ["IT-инфраструктура", "Развёртывание, миграция и месячная поддержка серверов, сетей и рабочих станций."],
     ["Внедрение CRM и ERP", "Bitrix24, Odoo и индивидуальные системы; объединение продаж, склада и финансов."],
@@ -290,6 +342,27 @@ const ru: Dictionary = {
     ["Консультации", "Аудит существующих систем, выбор технологий и план цифровизации — почасово или в рамках проекта."],
     ["Управление посуточной арендой", "Удалённое ведение бронирований, общения с гостем, цен и графика уборки."],
   ],
+  projects: {
+    eyebrow: "Раздел 02 · Проекты",
+    title: "Проекты в эксплуатации",
+    items: [
+      ["Корпоративный сайт и панель контента", "От лендинга до полноценного сайта; команда клиента управляет контентом сама.", "2026"],
+      ["bbq.az", "Корпоративный сайт маркетингового агентства, работающего по всей стране.", "2026"],
+      ["yins.az", "Внутренняя ERP/CRM-система для AAYD.", "2026"],
+    ],
+  },
+  caseStudy: {
+    eyebrow: "Раздел 03 · Обзор проекта",
+    title: "Корпоративный сайт и панель управления контентом",
+    labels: ["Клиент", "Срок", "Работа", "Год"],
+    facts: ["Компания, работающая в Баку", "3 месяца", "Корпоративный сайт и панель управления контентом", "2026"],
+    blocks: [
+      ["Ситуация", "У клиента был только одностраничный лендинг. Контент был статичным — для каждого изменения приходилось обращаться к внешнему исполнителю. Разместить новость, объявление или расширенную информацию о продукте было практически невозможно."],
+      ["Подход", "Начали со встречи: определили, кто и что редактирует, с какой периодичностью и где останавливается текущий рабочий процесс. Затем дизайн, потом полный сайт и админ-панель. Панель сдана с ролевым доступом, редактором страниц и новостей и медиатекой."],
+      ["Результат", "Изменение контента больше не внешняя зависимость — команда клиента редактирует сайт сама. Раздел новостей запущен; компания теперь сама публикует подробную информацию, для которой раньше не было места на сайте."],
+    ],
+  },
+  sectionIndex: [["#xidmetler", "Услуги"], ["#layiheler", "Проекты"], ["#layihe-icmali", "Обзор проекта"], ["#texnologiya", "Стандарты"], ["#karyera", "Карьера"], ["#elaqe", "Контакты"]],
   quoteEyebrow: "Позиция",
   quote: "Нашу работу измеряет не презентация, а то, сколько раз система остановилась после шестого месяца.",
   quoteName: "nobug",
@@ -307,17 +380,15 @@ const ru: Dictionary = {
     ["ISO/IEC 27001", "Сертификация", "—", "Планируется"],
   ],
   techFootnote: "Номера сертификатов и сроки действия будут добавлены в таблицу по мере их получения.",
-  clientsLabel: "Клиенты",
-  clients: ["beic.az", "bbq.az", "yins.az"],
   careersTitle: "Работа в команде",
-  careersText: "Открытых вакансий сейчас нет. Заявки на позиции разработки, QA и поддержки принимаются круглый год и рассматриваются при следующем наборе.",
-  careersCount: "—",
-  careersCountLabel: "открытые позиции, 2026",
+  careersText: "Открытых вакансий сейчас нет. Заявки по направлениям разработки, QA и поддержки принимаются круглый год и рассматриваются при следующем наборе.",
   careersLink: "Отправить заявку",
   contactEyebrow: "Контакты",
   contactTitle: "Предварительная оценка проекта",
   contactText: "Первая встреча и предварительная оценка бесплатны. Обычно отвечаем в течение одного рабочего дня.",
-  contactRows: [["E-mail", "no.bug.mmc@gmail.com"], ["Адрес", "Баку, Азербайджан"], ["Часы работы", "Пн — Пт, 09:00 — 18:00"]],
+  contactEmailLabel: "E-mail",
+  contactRows: [["Адрес", "Баку, Азербайджан"], ["Часы работы", "Пн — Пт, 09:00 — 18:00"]],
+  contactReplyNote: "На письменные обращения отвечаем в течение одного рабочего дня.",
   formLabel: "Короткий запрос",
   fieldName: "Имя и фамилия",
   fieldEmail: "E-mail",
@@ -330,17 +401,14 @@ const ru: Dictionary = {
     ["Услуги", ["IT-инфраструктура", "CRM и ERP", "Мобильная разработка", "Решения на основе ИИ", "Видео с ИИ", "Консультации"]],
     ["Компания", ["О компании", "Карьера", "Контакты"]],
     ["Юридическое", ["Политика конфиденциальности", "Условия использования", "Обработка данных"]],
-    ["Контакты", ["no.bug.mmc@gmail.com", "LinkedIn"]],
   ],
+  footerContact: "Контакты",
   legal: ['ООО "nobug"', "Баку, Азербайджан", "© 2026"],
-  menu: "Меню",
   home: "Главная",
 };
 
 export const DICT: Record<Locale, Dictionary> = { az, en, ru };
 export const getDict = (locale: Locale) => DICT[locale];
 
-// Footer "Xidmətlər" column → service index (for the ?xidmet= deep link)
-export const FOOTER_SERVICE_INDEX = [0, 1, 6, 8, 9, 10];
 // Footer "Şirkət" column → anchors
 export const FOOTER_COMPANY_ANCHORS = ["#haqqinda", "#karyera", "#elaqe"];

@@ -1,5 +1,6 @@
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dict";
+import { CONTACT_EMAIL } from "@/lib/site";
 import { ContactForm } from "./contact-form";
 
 /** Əlaqə — navy band: intro · contact index · 3-field underline form. */
@@ -14,18 +15,21 @@ export function Contact({ lang, t }: { lang: Locale; t: Dictionary }) {
         </div>
 
         <dl className="m-0 grid min-w-0 gap-6">
-          {t.contactRows.map(([label, value], i) => (
+          {/* the single contact channel carries the weight: email + reply commitment */}
+          <div className="border-t border-navy-line pt-3">
+            <dt className="mono-label text-muted-navy">{t.contactEmailLabel}</dt>
+            <dd className="m-0 mt-2 text-[17px] leading-[1.5]">
+              <a href={`mailto:${CONTACT_EMAIL}`} className="link-rule text-paper">
+                {CONTACT_EMAIL}
+              </a>
+            </dd>
+            <dd className="type-small m-0 mt-2 text-body-navy">{t.contactReplyNote}</dd>
+          </div>
+          {/* TODO: phone + WhatsApp when the number is issued */}
+          {t.contactRows.map(([label, value]) => (
             <div key={label} className="border-t border-navy-line pt-3">
               <dt className="mono-label text-muted-navy">{label}</dt>
-              <dd className="m-0 mt-2 text-[17px] leading-[1.5]">
-                {i === 0 ? (
-                  <a href={`mailto:${value}`} className="link-rule text-paper">
-                    {value}
-                  </a>
-                ) : (
-                  value
-                )}
-              </dd>
+              <dd className="m-0 mt-2 text-[17px] leading-[1.5]">{value}</dd>
             </div>
           ))}
         </dl>

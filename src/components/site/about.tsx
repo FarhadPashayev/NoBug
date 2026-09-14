@@ -1,4 +1,5 @@
 import type { Dictionary } from "@/lib/i18n/dict";
+import { figureCaption } from "@/lib/figures";
 import { Figure } from "@/components/ui/figure";
 import { Reveal } from "@/components/ui/reveal";
 
@@ -20,7 +21,7 @@ export function About({ t }: { t: Dictionary }) {
             <p className="type-body mt-5">{t.aboutP2}</p>
           </Reveal>
         </div>
-        <Figure src="/assets/IMG-04_contour-field_16x9.png" alt={t.alt04} caption={t.cap04} ratio="16 / 9" className="mt-[clamp(40px,5vw,72px)]" sizes="(min-width: 1440px) 1280px, 100vw" />
+        <Figure src="/assets/IMG-04_contour-field_16x9.png" alt={t.alt04} caption={figureCaption(t, "about")} ratio="16 / 9" className="mt-[clamp(40px,5vw,72px)]" sizes="(min-width: 1440px) 1280px, 100vw" />
       </div>
     </section>
   );

@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, Inter_Tight, Newsreader } from "next/font/google";
 import { notFound } from "next/navigation";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
+import { CONTACT_EMAIL, SITE_URL, absoluteUrl } from "@/lib/site";
 import "../globals.css";
 
 const interTight = Inter_Tight({
@@ -37,11 +38,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params;
   const locale: Locale = isLocale(lang) ? lang : "az";
   const t = getDict(locale);
+  // Every absolute URL derives from SITE_URL (NEXT_PUBLIC_SITE_URL) — never a hardcoded host.
   return {
+    metadataBase: new URL(SITE_URL),
     title: { default: t.meta.title, template: "%s — nobug" },
     description: t.meta.description,
-    alternates: { languages: Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])) },
-    openGraph: { title: t.meta.title, description: t.meta.description, locale, type: "website" },
+    alternates: {
+      canonical: absoluteUrl(`/${locale}`),
+      languages: { ...Object.fromEntries(LOCALES.map((l) => [l, absoluteUrl(`/${l}`)])), "x-default": absoluteUrl("/az") },
+    },
+    openGraph: { title: t.meta.title, description: t.meta.description, url: absoluteUrl(`/${locale}`), siteName: "nobug", locale, type: "website" },
+    other: { "contact:email": CONTACT_EMAIL },
   };
 }
 
@@ -49,9 +56,21 @@ export default async function LangLayout({ children, params }: Props) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
 
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "nobug",
+    url: SITE_URL,
+    email: CONTACT_EMAIL,
+    address: { "@type": "PostalAddress", addressLocality: "Baku", addressCountry: "AZ" },
+  };
+
   return (
     <html lang={lang} className={`${interTight.variable} ${newsreader.variable} ${plexMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
+      </body>
     </html>
   );
 }

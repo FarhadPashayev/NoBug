@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { CONTACT_EMAIL } from "@/lib/site";
 
 export type MailMessage = {
   to: string | string[];
@@ -16,7 +17,7 @@ export type MailMessage = {
 //            is printed to the server log. Use until the nobug.az domain exists.
 //   "send" — deliver via Resend (needs RESEND_API_KEY).
 // Unset → "send" when RESEND_API_KEY is present, otherwise "off".
-export const MAIL_TO = process.env.MAIL_TO ?? "no.bug.mmc@gmail.com";
+export const MAIL_TO = process.env.MAIL_TO ?? CONTACT_EMAIL;
 export const MAIL_FROM = process.env.MAIL_FROM ?? "nobug <anket@nobug.az>";
 
 export function mailMode(): "off" | "send" {

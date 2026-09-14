@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/i18n/config";
-import { CHANNEL_IDS, getSurvey, parseServiceIndex, type AnketPayload } from "@/lib/anket/survey";
+import { CHANNEL_IDS, getSurvey, resolveService, type AnketPayload } from "@/lib/anket/survey";
+import { LEGACY_ORDER } from "@/lib/services";
 
 type Step = 1 | 2 | 3;
 type Answers = Record<number, string | string[] | null>;
@@ -13,7 +14,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
   const sv = getSurvey(lang);
   const router = useRouter();
   const params = useSearchParams();
-  const preselected = parseServiceIndex(params.get("xidmet"));
+  const preselected = resolveService(params.get("xidmet"));
 
   const [step, setStep] = useState<Step>(preselected !== null ? 2 : 1);
   const [service, setService] = useState<number | null>(preselected);
@@ -40,7 +41,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
     setService(i);
     setAnswers({});
     setStep(2);
-    router.replace(`/${lang}/anket?xidmet=${i}`, { scroll: false });
+    router.replace(`/${lang}/anket?xidmet=${LEGACY_ORDER[i]}`, { scroll: false });
   }
 
   function pickAnswer(qi: number, opt: string, multi: boolean) {
@@ -75,7 +76,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
     setError(false);
     const payload: AnketPayload = {
       lang,
-      service,
+      service: LEGACY_ORDER[service],
       answers,
       name: name.trim(),
       channel: CHANNEL_IDS[chan],
