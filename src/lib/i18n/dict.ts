@@ -65,6 +65,7 @@ export type Dictionary = {
   footerCols: [string, string[]][]; // Xidmətlər (from FOOTER_SERVICES) · Şirkət · Hüquqi
   footerContact: string; // "Əlaqə" column title — items come from lib/site.ts
   legal: string[];
+  menu: string;
   home: string;
 };
 
@@ -177,6 +178,7 @@ const az: Dictionary = {
   ],
   footerContact: "Əlaqə",
   legal: ['"nobug" MMC', "Bakı, Azərbaycan", "© 2026"],
+  menu: "Menyu",
   home: "Ana səhifə",
 };
 
@@ -289,6 +291,7 @@ const en: Dictionary = {
   ],
   footerContact: "Contact",
   legal: ['"nobug" LLC', "Baku, Azerbaijan", "© 2026"],
+  menu: "Menu",
   home: "Home",
 };
 
@@ -401,6 +404,7 @@ const ru: Dictionary = {
   ],
   footerContact: "Контакты",
   legal: ['ООО "nobug"', "Баку, Азербайджан", "© 2026"],
+  menu: "Меню",
   home: "Главная",
 };
 
