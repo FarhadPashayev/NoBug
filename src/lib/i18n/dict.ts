@@ -96,7 +96,7 @@ const az: Dictionary = {
   alt07: "Sütunlu data sahəsi: aylıq dəyərlər, bir sütun aksent rəngdə",
   figures: [
     ["12", "xidmət istiqaməti", "2026 · xidmət kataloqu"],
-    ["3", "istifadədə olan layihə", "2026 · beic.az, bbq.az, yins.az"],
+    ["2", "istifadədə olan layihə", "2026 · beic.az, bbq.az"],
     ["< 2 saat", "dəstək müqaviləsində birinci cavab öhdəliyi", "2026 · SLA şərtləri"],
   ],
   servicesTitle: "Xidmət indeksi",
@@ -122,7 +122,6 @@ const az: Dictionary = {
     items: [
       ["Korporativ sayt və məzmun paneli", "Landing page-dən tam saytadək; müştəri komandası məzmunu özü idarə edir.", "2026"],
       ["bbq.az", "Ölkə üzrə fəaliyyət göstərən marketinq agentliyinin korporativ saytı.", "2026"],
-      ["yins.az", "AAYD üçün daxili ERP/CRM sistemi.", "2026"],
     ],
   },
   caseStudy: {
@@ -141,7 +140,7 @@ const az: Dictionary = {
   quote: "Bizim işimizin ölçüsü təqdimat deyil — altıncı aydan sonra sistemin neçə dəfə dayandığıdır.",
   quoteName: "nobug",
   quoteTitle: "Mövqe · Bakı, 2026",
-  aboutP1: "nobug 2026-cı ildə Bakıda quruldu. Komanda mühəndislik, QA və dəstək istiqamətlərini əhatə edir. İlk layihələrimiz beic.az, bbq.az və yins.az saytlarıdır.",
+  aboutP1: "nobug 2026-cı ildə Bakıda quruldu. Komanda mühəndislik, QA və dəstək istiqamətlərini əhatə edir. İlk layihələrimiz beic.az və bbq.az saytlarıdır.",
   aboutP2: "Layihələri bir neçə podratçı arasında bölmürük. Analitika, tətbiq və təhvildən sonrakı dəstək eyni komandanın məsuliyyətindədir; hər mərhələnin təhvil sənədi və müddəti müqavilədə göstərilir.",
   techTitle: "Standartlar və sertifikatlar",
   techNote: "Sertifikatlaşma prosesi hələ başlamamışdır. Aşağıda işdə istifadə etdiyimiz praktika və alətlər göstərilib.",
@@ -209,7 +208,7 @@ const en: Dictionary = {
   alt07: "Bar data field: monthly values, one bar in the accent colour",
   figures: [
     ["12", "service areas", "2026 · service catalogue"],
-    ["3", "projects in production", "2026 · beic.az, bbq.az, yins.az"],
+    ["2", "projects in production", "2026 · beic.az, bbq.az"],
     ["< 2 hours", "first-response commitment in the support agreement", "2026 · SLA terms"],
   ],
   servicesTitle: "Service index",
@@ -235,7 +234,6 @@ const en: Dictionary = {
     items: [
       ["Corporate site and content panel", "From a landing page to a full site; the client's team manages the content themselves.", "2026"],
       ["bbq.az", "Corporate site of a marketing agency operating nationwide.", "2026"],
-      ["yins.az", "Internal ERP/CRM system for AAYD.", "2026"],
     ],
   },
   caseStudy: {
@@ -254,7 +252,7 @@ const en: Dictionary = {
   quote: "Our work is not measured by the presentation — it is measured by how many times the system stopped after month six.",
   quoteName: "nobug",
   quoteTitle: "Position · Baku, 2026",
-  aboutP1: "nobug was founded in Baku in 2026. The team covers engineering, QA and support. Our first projects are the beic.az, bbq.az and yins.az sites.",
+  aboutP1: "nobug was founded in Baku in 2026. The team covers engineering, QA and support. Our first projects are the beic.az and bbq.az sites.",
   aboutP2: "We do not split projects across several contractors. Analysis, implementation and post-handover support sit with the same team; each stage's deliverable and deadline is named in the contract.",
   techTitle: "Standards and certifications",
   techNote: "Certification has not yet started. The table lists the practices and tooling we work with.",
@@ -322,7 +320,7 @@ const ru: Dictionary = {
   alt07: "Столбчатое поле данных: месячные значения, один столбец акцентного цвета",
   figures: [
     ["12", "направлений услуг", "2026 · каталог услуг"],
-    ["3", "проекта в работе", "2026 · beic.az, bbq.az, yins.az"],
+    ["2", "проекта в работе", "2026 · beic.az, bbq.az"],
     ["< 2 часов", "обязательство по первому ответу в договоре поддержки", "2026 · условия SLA"],
   ],
   servicesTitle: "Указатель услуг",
@@ -348,7 +346,6 @@ const ru: Dictionary = {
     items: [
       ["Корпоративный сайт и панель контента", "От лендинга до полноценного сайта; команда клиента управляет контентом сама.", "2026"],
       ["bbq.az", "Корпоративный сайт маркетингового агентства, работающего по всей стране.", "2026"],
-      ["yins.az", "Внутренняя ERP/CRM-система для AAYD.", "2026"],
     ],
   },
   caseStudy: {
@@ -367,7 +364,7 @@ const ru: Dictionary = {
   quote: "Нашу работу измеряет не презентация, а то, сколько раз система остановилась после шестого месяца.",
   quoteName: "nobug",
   quoteTitle: "Позиция · Баку, 2026",
-  aboutP1: "nobug основан в Баку в 2026 году. Команда закрывает разработку, QA и поддержку. Наши первые проекты — сайты beic.az, bbq.az и yins.az.",
+  aboutP1: "nobug основан в Баку в 2026 году. Команда закрывает разработку, QA и поддержку. Наши первые проекты — сайты beic.az и bbq.az.",
   aboutP2: "Мы не делим проекты между несколькими подрядчиками. Аналитика, внедрение и поддержка после сдачи — ответственность одной команды; результат и срок каждого этапа зафиксированы в договоре.",
   techTitle: "Стандарты и сертификаты",
   techNote: "Сертификация ещё не начата. В таблице перечислены практики и инструменты, с которыми мы работаем.",
