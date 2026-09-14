@@ -13,7 +13,7 @@ export function Hero({ lang, t }: { lang: Locale; t: Dictionary }) {
           <div className="mono-label hero-in text-muted">{t.eyebrow}</div>
           <h1 className="type-h1 hero-in mt-6 text-balance [animation-delay:60ms]">{t.h1}</h1>
           <p className="type-body hero-in mt-6 max-w-[62ch] [animation-delay:120ms]">{t.heroText}</p>
-          <Link href={`/${lang}/anket`} className="text-link hero-in mt-8 [animation-delay:180ms]">
+          <Link href={`/${lang}/anket`} className="btn-primary hero-in mt-8 [animation-delay:180ms]">
             {t.heroLink}
           </Link>
         </div>
