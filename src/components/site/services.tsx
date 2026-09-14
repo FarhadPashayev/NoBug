@@ -22,7 +22,7 @@ export function Services({ lang, t }: { lang: Locale; t: Dictionary }) {
         <div className="top-24 min-w-0 max-w-[360px] flex-[1_1_240px] self-start lg:sticky">
           <div className="mono-label text-muted">{t.servicesMeta}</div>
           <h2 className="type-h2 mt-4 max-w-[16ch]">{t.servicesTitle}</h2>
-          <Figure src="/assets/IMG-03_topology_4x3.png" alt={t.alt03} caption={figureCaption(t, "services")} ratio="4 / 3" className="mt-8" sizes="(min-width: 1024px) 360px, 100vw" />
+          <Figure src="/assets/photo/services.webp" alt={t.alt03} caption={figureCaption(t, "services")} ratio="4 / 3" className="mt-8" sizes="(min-width: 1024px) 360px, 100vw" />
         </div>
 
         <div className="min-w-0 flex-[2_1_420px]">

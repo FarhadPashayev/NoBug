@@ -20,7 +20,7 @@ export function Careers({ lang, t }: { lang: Locale; t: Dictionary }) {
   return (
     <section id="karyera" className="container-site section-pad scroll-mt-20">
       <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] items-end gap-[clamp(32px,4vw,64px)]">
-        <Figure src="/assets/IMG-05_facade-grid_3x2.png" alt={t.alt05} caption={figureCaption(t, "careers")} ratio="3 / 2" className="min-w-0" />
+        <Figure src="/assets/photo/careers.webp" alt={t.alt05} caption={figureCaption(t, "careers")} ratio="3 / 2" className="min-w-0" />
         <div className="min-w-0">
           <h2 className="type-h2 m-0 max-w-[24ch]">{t.careersTitle}</h2>
           <p className="type-body mt-5 max-w-[52ch]">{t.careersText}</p>

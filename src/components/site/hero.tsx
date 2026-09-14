@@ -20,7 +20,7 @@ export function Hero({ lang, t }: { lang: Locale; t: Dictionary }) {
         </div>
         <div className="col-span-12 w-full max-w-[420px] md:col-span-5 md:justify-self-end">
           {/* pre-cropped on whole port rows — the box matches 1200/1195 exactly */}
-          <Figure src="/assets/IMG-01_port-matrix_hero.png" alt={t.alt01} caption={figureCaption(t, "hero")} ratio="1200 / 1195" priority sizes="(min-width: 1024px) 420px, 100vw" bg="bg-navy" />
+          <Figure src="/assets/photo/hero.webp" alt={t.alt01} caption={figureCaption(t, "hero")} ratio="1200 / 1195" priority sizes="(min-width: 1024px) 420px, 100vw" bg="bg-navy" />
         </div>
       </div>
 
