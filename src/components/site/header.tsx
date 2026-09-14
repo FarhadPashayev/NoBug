@@ -37,7 +37,7 @@ export function Header({ lang, t }: { lang: Locale; t: Dictionary }) {
 }
 
 /** Mono 11px; active = paper text + accent underline. Keeps the current path. */
-export function LangSwitcher({ current, path = "" }: { current: Locale; path?: string }) {
+export function LangSwitcher({ current, path = "", paths }: { current: Locale; path?: string; paths?: Record<Locale, string> }) {
   return (
     <div className="flex items-center gap-3" role="group" aria-label="Language">
       {LOCALES.map((code) => {
@@ -45,7 +45,7 @@ export function LangSwitcher({ current, path = "" }: { current: Locale; path?: s
         return (
           <Link
             key={code}
-            href={`/${code}${path}`}
+            href={`/${code}${paths ? paths[code] : path}`}
             hrefLang={code}
             title={LOCALE_LABELS[code].name}
             aria-current={active ? "true" : undefined}

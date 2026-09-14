@@ -3,6 +3,7 @@ import type { Locale } from "@/lib/i18n/config";
 import { FOOTER_COMPANY_ANCHORS, type Dictionary } from "@/lib/i18n/dict";
 import { FOOTER_SERVICES, serviceHref, serviceIndex } from "@/lib/services";
 import { CONTACT_EMAIL, LINKEDIN_URL } from "@/lib/site";
+import { LEGAL_KEYS, legalHref } from "@/lib/legal";
 import { Logo } from "@/components/ui/logo";
 
 const LINK = "link-rule text-[15px] leading-[1.5] text-body-navy";
@@ -37,12 +38,11 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
             ))}
           </Col>
 
-          {/* Legal pages do not exist yet — hrefs stay "#top" until they are created. */}
           <Col title={legalCol[0]}>
-            {legalCol[1].map((label) => (
-              <li key={label}>
-                <Link href={`/${lang}#top`} className={LINK}>
-                  {label}
+            {LEGAL_KEYS.map((key, i) => (
+              <li key={key}>
+                <Link href={legalHref(lang, key)} className={LINK}>
+                  {legalCol[1][i]}
                 </Link>
               </li>
             ))}
