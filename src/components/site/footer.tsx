@@ -5,6 +5,7 @@ import { FOOTER_SERVICES, serviceHref, serviceIndex } from "@/lib/services";
 import { CONTACT_EMAIL, LINKEDIN_URL } from "@/lib/site";
 import { LEGAL_KEYS, legalHref } from "@/lib/legal";
 import { Logo } from "@/components/ui/logo";
+import { TrackedAnchor } from "@/components/ui/tracked";
 
 const LINK = "link-rule text-[15px] leading-[1.5] text-body-navy";
 
@@ -50,9 +51,9 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
 
           <Col title={t.footerContact}>
             <li>
-              <a href={`mailto:${CONTACT_EMAIL}`} className={LINK}>
+              <TrackedAnchor href={`mailto:${CONTACT_EMAIL}`} event={{ name: "contact_email_click", params: { locale: lang } }} className={LINK}>
                 {CONTACT_EMAIL}
-              </a>
+              </TrackedAnchor>
             </li>
             {/* TODO: phone + WhatsApp when the number is issued */}
             <li>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { LOCALES, LOCALE_LABELS, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dict";
 import { Logo } from "@/components/ui/logo";
+import { track } from "@/lib/analytics";
 
 /**
  * Sticky navy header: logo · language switcher · one CTA. No horizontal nav —
@@ -49,6 +50,9 @@ export function LangSwitcher({ current, path = "", paths }: { current: Locale; p
             hrefLang={code}
             title={LOCALE_LABELS[code].name}
             aria-current={active ? "true" : undefined}
+            onClick={() => {
+              if (!active) track({ name: "language_switch", params: { from: current, to: code } });
+            }}
             className={`mono-label border-b py-1 transition-colors duration-140 ${active ? "border-accent text-paper" : "border-transparent text-muted-navy hover:text-paper"}`}
           >
             {LOCALE_LABELS[code].code}

@@ -40,7 +40,6 @@ export default async function Image({ params }: { params: Promise<{ lang: string
           fontFamily: "Inter Tight",
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={wordmarkSrc} alt="" width={254} height={72} style={{ width: 254, height: 72 }} />
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
           <div style={{ width: 96, height: 2, background: "#B3121D" }} />

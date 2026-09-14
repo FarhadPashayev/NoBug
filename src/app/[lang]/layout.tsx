@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Inter_Tight, Newsreader } from "next/font/google";
 import { notFound } from "next/navigation";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { CONTACT_EMAIL, SITE_URL, absoluteUrl } from "@/lib/site";
@@ -71,6 +72,8 @@ export default async function LangLayout({ children, params }: Props) {
       <body>
         {children}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
+        {/* GA4 — loaded after hydration (afterInteractive); off entirely when the ID is unset */}
+        {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
       </body>
     </html>
   );

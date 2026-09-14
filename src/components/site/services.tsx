@@ -1,9 +1,9 @@
-import Link from "next/link";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dict";
 import { figureCaption } from "@/lib/figures";
 import { PRIMARY_SERVICES, SECONDARY_SERVICES, serviceHref, serviceIndex } from "@/lib/services";
 import { Figure } from "@/components/ui/figure";
+import { TrackedLink } from "@/components/ui/tracked";
 
 // Row hover: background → surface, 2px accent bar slides in at the left, number muted → ink, arrow fades in.
 const ROW = "group relative flex flex-wrap items-baseline border-b border-hairline transition-colors duration-200 ease-[var(--ease-brand)] hover:bg-surface focus-visible:bg-surface";
@@ -32,13 +32,13 @@ export function Services({ lang, t }: { lang: Locale; t: Dictionary }) {
               const [title, text] = t.services[serviceIndex(id)];
               return (
                 <li key={id}>
-                  <Link href={serviceHref(lang, id)} className={`${ROW} gap-x-[clamp(14px,2.5vw,40px)] gap-y-2 py-[clamp(20px,2.4vw,28px)] pl-4 pr-10`}>
+                  <TrackedLink href={serviceHref(lang, id)} event={{ name: "service_click", params: { service_id: id, position: "primary", locale: lang } }} className={`${ROW} gap-x-[clamp(14px,2.5vw,40px)] gap-y-2 py-[clamp(20px,2.4vw,28px)] pl-4 pr-10`}>
                     <span aria-hidden="true" className={BAR} />
                     <span className="w-7 flex-none font-mono text-xs tracking-[0.08em] text-muted transition-colors duration-200 group-hover:text-navy">{String(n + 1).padStart(2, "0")}</span>
                     <span className="min-w-0 flex-[1_1_220px] text-[clamp(22px,2.2vw,34px)] font-medium leading-[1.18] tracking-[-0.02em]">{title}</span>
                     <span className="type-small min-w-0 flex-[1_1_260px] text-muted">{text}</span>
                     <span aria-hidden="true" className={`${ARROW} top-[clamp(20px,2.4vw,28px)]`}>→</span>
-                  </Link>
+                  </TrackedLink>
                 </li>
               );
             })}
@@ -51,11 +51,11 @@ export function Services({ lang, t }: { lang: Locale; t: Dictionary }) {
               const [title] = t.services[serviceIndex(id)];
               return (
                 <li key={id}>
-                  <Link href={serviceHref(lang, id)} className={`${ROW} min-h-11 py-3 pl-4 pr-10`}>
+                  <TrackedLink href={serviceHref(lang, id)} event={{ name: "service_click", params: { service_id: id, position: "secondary", locale: lang } }} className={`${ROW} min-h-11 py-3 pl-4 pr-10`}>
                     <span aria-hidden="true" className={BAR} />
                     <span className="min-w-0 text-[17px] font-medium leading-[1.35]">{title}</span>
                     <span aria-hidden="true" className={`${ARROW} top-3`}>→</span>
-                  </Link>
+                  </TrackedLink>
                 </li>
               );
             })}

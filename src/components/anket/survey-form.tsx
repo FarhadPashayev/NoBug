@@ -6,9 +6,15 @@ import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/i18n/config";
 import { CHANNEL_IDS, getSurvey, resolveService, type AnketPayload } from "@/lib/anket/survey";
 import { LEGACY_ORDER } from "@/lib/services";
+import { legalHref } from "@/lib/legal";
+import { CONTACT_EMAIL } from "@/lib/site";
+import { track } from "@/lib/analytics";
 
 type Step = 1 | 2 | 3;
 type Answers = Record<number, string | string[] | null>;
+type FieldErrors = Partial<Record<"name" | "contact" | "consent", string>>;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export function SurveyForm({ lang }: { lang: Locale }) {
   const sv = getSurvey(lang);
@@ -16,31 +22,42 @@ export function SurveyForm({ lang }: { lang: Locale }) {
   const params = useSearchParams();
   const preselected = resolveService(params.get("xidmet"));
 
-  const [step, setStep] = useState<Step>(preselected !== null ? 2 : 1);
+  const [step, setStepState] = useState<Step>(preselected !== null ? 2 : 1);
   const [service, setService] = useState<number | null>(preselected);
   const [answers, setAnswers] = useState<Answers>({});
   const [name, setName] = useState("");
   const [chan, setChan] = useState<number | null>(null);
   const [val, setVal] = useState("");
+  const [phone, setPhone] = useState("");
+  const [message, setMessage] = useState("");
   const [consent, setConsent] = useState(false);
   const [website, setWebsite] = useState(""); // honeypot
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [sent, setSent] = useState(false);
   const openedAt = useRef(0);
   useEffect(() => {
     openedAt.current = Date.now();
   }, []);
 
+  const serviceId = service === null ? null : LEGACY_ORDER[service];
   const questions = service === null ? [] : sv.q[service];
   const channel = chan === null ? null : sv.channels[chan];
-  const canSend = !!name.trim() && !!channel && !!val.trim() && consent && !sending;
+  const channelId = chan === null ? null : CHANNEL_IDS[chan];
   const pct = sent ? 100 : step * 33.34;
+  const serviceName = service === null ? "" : sv.services[service];
+
+  function setStep(next: Step) {
+    setStepState(next);
+    if (serviceId) track({ name: "enquiry_step", params: { step: next, service_id: serviceId } });
+  }
 
   function pickService(i: number) {
     setService(i);
     setAnswers({});
-    setStep(2);
+    setStepState(2);
+    track({ name: "enquiry_start", params: { service_id: LEGACY_ORDER[i], locale: lang } });
     router.replace(`/${lang}/anket?xidmet=${LEGACY_ORDER[i]}`, { scroll: false });
   }
 
@@ -59,28 +76,48 @@ export function SurveyForm({ lang }: { lang: Locale }) {
 
   function reset() {
     setSent(false);
-    setStep(1);
+    setStepState(1);
     setService(null);
     setAnswers({});
     setName("");
     setChan(null);
     setVal("");
+    setPhone("");
+    setMessage("");
     setConsent(false);
-    setError(false);
+    setErrors({});
+    setFailed(false);
     router.replace(`/${lang}/anket`, { scroll: false });
   }
 
+  function validate(): FieldErrors {
+    const e: FieldErrors = {};
+    if (!name.trim()) e.name = sv.errors.name;
+    if (!channel || !val.trim()) e.contact = sv.errors.contact;
+    else if (channelId === "email" && !EMAIL_RE.test(val.trim())) e.contact = sv.errors.email;
+    if (!consent) e.consent = sv.errors.consent;
+    return e;
+  }
+
   async function submit() {
-    if (!canSend || service === null || chan === null) return;
+    if (sending || service === null || serviceId === null) return;
+    const e = validate();
+    setErrors(e);
+    if (Object.keys(e).length || channelId === null) {
+      document.getElementById(e.name ? "sq-name" : e.contact ? "sq-contact" : "sq-consent")?.focus();
+      return;
+    }
     setSending(true);
-    setError(false);
+    setFailed(false);
     const payload: AnketPayload = {
       lang,
-      service: LEGACY_ORDER[service],
+      service: serviceId,
       answers,
       name: name.trim(),
-      channel: CHANNEL_IDS[chan],
+      channel: channelId,
       contact: val.trim(),
+      phone: channelId === "email" && phone.trim() ? phone.trim() : undefined,
+      message: message.trim() || undefined,
       consent,
       website,
       openedAt: openedAt.current,
@@ -89,14 +126,13 @@ export function SurveyForm({ lang }: { lang: Locale }) {
       const res = await fetch("/api/anket", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       if (!res.ok) throw new Error(String(res.status));
       setSent(true);
+      track({ name: "enquiry_submit", params: { service_id: serviceId, locale: lang } });
     } catch {
-      setError(true);
+      setFailed(true);
     } finally {
       setSending(false);
     }
   }
-
-  const serviceName = service === null ? "" : sv.services[service];
 
   return (
     <div className="flex flex-wrap items-start gap-[clamp(24px,4vw,64px)]">
@@ -106,7 +142,9 @@ export function SurveyForm({ lang }: { lang: Locale }) {
         <h1 className="mt-3 text-[clamp(26px,2.8vw,36px)] font-medium leading-[1.1] tracking-[-0.025em]">{sv.title}</h1>
         <p className="type-small mt-4 text-muted">{sv.note}</p>
         <div className="mt-6 flex items-center gap-4">
-          <div className="mono-label flex-none text-muted">{sent ? "—" : `${sv.step} ${step} / 3`}</div>
+          <div className="mono-label flex-none text-muted" aria-live="polite">
+            {sent ? "—" : `${sv.step} ${step} / 3`}
+          </div>
           <div className="h-0.5 min-w-[80px] flex-1 bg-hairline" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
             <div className="h-full bg-accent transition-[width] duration-[320ms] ease-[var(--ease-brand)]" style={{ width: `${pct}%` }} />
           </div>
@@ -116,9 +154,10 @@ export function SurveyForm({ lang }: { lang: Locale }) {
       {/* right: the active step */}
       <div className="min-w-0 flex-[2_1_420px]">
         {sent ? (
-          <div className="border-t border-navy pt-8">
-            <div className="text-[clamp(22px,2.2vw,34px)] font-medium leading-[1.2] tracking-[-0.02em]">{sv.sentTitle}</div>
+          <div className="border-t border-navy pt-8" role="status">
+            <h2 className="text-[clamp(22px,2.2vw,34px)] font-medium leading-[1.2] tracking-[-0.02em]">{sv.sentTitle}</h2>
             <p className="type-body mt-4 max-w-[56ch]">{sv.sentText}</p>
+            <p className="type-body mt-3 max-w-[56ch] text-muted">{sv.sentNext}</p>
             <div className="mt-8 flex flex-wrap gap-3 *:flex-1 sm:*:flex-none">
               <Link href={`/${lang}`} className="btn-primary">
                 {sv.home}
@@ -130,7 +169,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
           </div>
         ) : step === 1 ? (
           <div>
-            <div className="border-b border-navy pb-3 text-[17px] font-medium leading-[1.4]">{sv.pick}</div>
+            <h2 className="border-b border-navy pb-3 text-[17px] font-medium leading-[1.4]">{sv.pick}</h2>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-x-[clamp(16px,3vw,40px)]">
               {sv.services.map((title, i) => (
                 <button
@@ -151,9 +190,9 @@ export function SurveyForm({ lang }: { lang: Locale }) {
         ) : step === 2 && service !== null ? (
           <div>
             <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-navy pb-4">
-              <div className="mono-label text-muted">
+              <h2 className="mono-label text-muted">
                 {sv.summary} — {serviceName}
-              </div>
+              </h2>
               <button type="button" onClick={() => setStep(1)} className="text-link">
                 {sv.change}
               </button>
@@ -196,20 +235,41 @@ export function SurveyForm({ lang }: { lang: Locale }) {
             </div>
           </div>
         ) : (
-          <div>
+          <form
+            noValidate
+            onSubmit={(e) => {
+              e.preventDefault();
+              void submit();
+            }}
+          >
             <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-navy pb-4">
-              <div className="text-[17px] font-medium leading-[1.4]">{sv.contactTitle}</div>
+              <h2 className="text-[17px] font-medium leading-[1.4]">{sv.contactTitle}</h2>
               <div className="mono-label text-muted">{serviceName}</div>
             </div>
 
             <div className="mt-8 flex flex-col gap-8">
+              {/* name */}
               <div>
                 <label htmlFor="sq-name" className="mono-label mb-2 block text-muted">
                   {sv.name}
                 </label>
-                <input id="sq-name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={sv.namePh} autoComplete="name" className="field-underline" />
+                <input
+                  id="sq-name"
+                  name="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={sv.namePh}
+                  autoComplete="name"
+                  required
+                  aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? "sq-name-err" : undefined}
+                  className="field-underline"
+                />
+                {errors.name && <FieldError id="sq-name-err">{errors.name}</FieldError>}
               </div>
 
+              {/* channel + exactly one matching field */}
               <fieldset className="m-0 border-0 p-0">
                 <legend className="mono-label mb-3 p-0 text-muted">{sv.channel}</legend>
                 <div className="flex flex-wrap gap-2">
@@ -220,6 +280,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
                       onClick={() => {
                         setChan(i);
                         setVal("");
+                        setErrors((e) => ({ ...e, contact: undefined }));
                       }}
                       data-selected={chan === i}
                       aria-pressed={chan === i}
@@ -230,25 +291,75 @@ export function SurveyForm({ lang }: { lang: Locale }) {
                   ))}
                 </div>
                 {channel && (
-                  <input
-                    key={chan}
-                    type={chan === 0 ? "email" : "tel"}
-                    inputMode={chan === 0 ? "email" : "tel"}
-                    autoComplete={chan === 0 ? "email" : "tel"}
-                    value={val}
-                    onChange={(e) => setVal(e.target.value)}
-                    placeholder={channel[1]}
-                    aria-label={channel[0]}
-                    className="field-underline mt-4"
-                    autoFocus
-                  />
+                  <>
+                    <label htmlFor="sq-contact" className="sr-only">
+                      {channel[0]}
+                    </label>
+                    <input
+                      key={chan}
+                      id="sq-contact"
+                      name={channelId === "email" ? "email" : "tel"}
+                      type={channelId === "email" ? "email" : "tel"}
+                      inputMode={channelId === "email" ? "email" : "tel"}
+                      autoComplete={channelId === "email" ? "email" : "tel"}
+                      value={val}
+                      onChange={(e) => setVal(e.target.value)}
+                      placeholder={channel[1]}
+                      required
+                      aria-invalid={!!errors.contact}
+                      aria-describedby={errors.contact ? "sq-contact-err" : undefined}
+                      className="field-underline mt-4"
+                      autoFocus
+                    />
+                  </>
                 )}
+                {errors.contact && <FieldError id="sq-contact-err">{errors.contact}</FieldError>}
               </fieldset>
 
-              <label className="flex cursor-pointer items-start gap-3">
-                <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-0.5 h-5 w-5 flex-none cursor-pointer accent-navy" />
-                <span className="type-small max-w-[62ch]">{sv.consent}</span>
-              </label>
+              {/* optional phone — only when the chosen channel is email (otherwise the number is already captured) */}
+              {channelId === "email" && (
+                <div>
+                  <label htmlFor="sq-phone" className="mono-label mb-2 block text-muted">
+                    {sv.phone} <span className="normal-case tracking-normal">({sv.optional})</span>
+                  </label>
+                  <input id="sq-phone" name="tel" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+994 XX XXX XX XX" className="field-underline" />
+                </div>
+              )}
+
+              {/* optional message */}
+              <div>
+                <label htmlFor="sq-message" className="mono-label mb-2 block text-muted">
+                  {sv.message} <span className="normal-case tracking-normal">({sv.optional})</span>
+                </label>
+                <textarea id="sq-message" name="message" rows={3} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={2000} className="field-underline resize-y leading-[1.5]" />
+              </div>
+
+              {/* consent — required, links to the privacy policy */}
+              <div>
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input
+                    id="sq-consent"
+                    name="consent"
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => {
+                      setConsent(e.target.checked);
+                      if (e.target.checked) setErrors((er) => ({ ...er, consent: undefined }));
+                    }}
+                    required
+                    aria-invalid={!!errors.consent}
+                    aria-describedby={errors.consent ? "sq-consent-err" : undefined}
+                    className="mt-0.5 h-5 w-5 flex-none cursor-pointer accent-navy"
+                  />
+                  <span className="type-small max-w-[62ch]">
+                    {sv.consent}{" "}
+                    <Link href={legalHref(lang, "privacy")} className="text-link" target="_blank" rel="noopener">
+                      {sv.consentLink}
+                    </Link>
+                  </span>
+                </label>
+                {errors.consent && <FieldError id="sq-consent-err">{errors.consent}</FieldError>}
+              </div>
 
               {/* honeypot — invisible to people */}
               <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
@@ -257,23 +368,34 @@ export function SurveyForm({ lang }: { lang: Locale }) {
               </div>
             </div>
 
-            {error && (
+            {failed && (
               <p className="type-small mt-6 text-accent" role="alert">
-                {sv.error}
+                {sv.errorDirect}{" "}
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-link text-accent">
+                  {CONTACT_EMAIL}
+                </a>
               </p>
             )}
 
             <div className="mt-10 flex flex-wrap gap-3 *:flex-1 sm:*:flex-none">
-              <button type="button" onClick={() => setStep(2)} className="btn-secondary">
+              <button type="button" onClick={() => setStep(2)} className="btn-secondary" disabled={sending}>
                 {sv.back}
               </button>
-              <button type="button" onClick={submit} disabled={!canSend} className="btn-primary">
+              <button type="submit" disabled={sending} aria-busy={sending} className="btn-primary">
                 {sending ? sv.sending : sv.send}
               </button>
             </div>
-          </div>
+          </form>
         )}
       </div>
     </div>
+  );
+}
+
+function FieldError({ id, children }: { id: string; children: React.ReactNode }) {
+  return (
+    <p id={id} className="type-small mt-2 text-accent" role="alert">
+      {children}
+    </p>
   );
 }

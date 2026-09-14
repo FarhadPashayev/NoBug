@@ -26,9 +26,16 @@ export type SurveyLocale = {
   namePh: string;
   channel: string;
   channels: [string, string][]; // label, placeholder — index: 0 email · 1 phone · 2 whatsapp
-  consent: string;
+  phone: string; // optional phone field (shown when the chosen channel is email)
+  message: string; // optional free-text field
+  optional: string; // "(istəyə bağlı)"
+  consent: string; // consent sentence; the privacy-policy title is rendered as a link after it
+  consentLink: string;
+  errors: { name: string; contact: string; email: string; consent: string };
   sentTitle: string;
   sentText: string;
+  sentNext: string; // what happens next
+  errorDirect: string; // "… or write to us directly:" (email follows)
   again: string;
   summary: string;
   services: string[];
@@ -67,9 +74,16 @@ const az: SurveyLocale = {
   namePh: "Ad, soyad",
   channel: "Əlaqə kanalı",
   channels: [["E-poçt", "ad@sirket.az"], ["Telefon", "+994 XX XXX XX XX"], ["WhatsApp", "WhatsApp nömrəsi"]],
-  consent: "Cavablarımın nobug tərəfindən müraciətimin müzakirəsi məqsədilə istifadə edilməsinə və e-poçt vasitəsilə ötürülməsinə razıyam.",
+  phone: "Telefon",
+  message: "Mesaj",
+  optional: "istəyə bağlı",
+  consent: "Məlumatlarımın müraciətə cavab vermək üçün emalına razıyam.",
+  consentLink: "Məxfilik siyasəti",
+  errors: { name: "Adınızı yazın.", contact: "Əlaqə məlumatını yazın.", email: "E-poçt ünvanı düzgün deyil.", consent: "Davam etmək üçün razılıq lazımdır." },
   sentTitle: "Sorğu qeydə alındı.",
-  sentText: "Adətən bir iş günü ərzində əlaqə saxlayırıq. Cavablarınız seçilmiş xidmətlə birlikdə anket poçt qutusuna göndərildi.",
+  sentText: "Cavablarınız seçilmiş xidmətlə birlikdə bizə çatdı.",
+  sentNext: "Növbəti addım: bir iş günü ərzində seçdiyiniz kanalla sizinlə əlaqə saxlayır, qısa görüş təyin edir və ilkin qiymətləndirmə veririk.",
+  errorDirect: "Göndərmək alınmadı. Yenidən cəhd edin və ya birbaşa yazın:",
   again: "Yeni sorğu",
   summary: "Seçilmiş xidmət",
   services: ["IT infrastrukturu", "CRM və ERP tətbiqi", "Data analitikası", "Veb və e-ticarət", "Rəqəmsal marketinq", "Keyfiyyət təminatı", "Mobil tətbiqlərin hazırlanması", "Bot həlləri", "Süni intellekt həlləri", "AI ilə video hazırlanması", "Konsultasiya", "Günlük kirayə idarəetməsi"],
@@ -116,9 +130,16 @@ const en: SurveyLocale = {
   namePh: "First and last name",
   channel: "Contact channel",
   channels: [["Email", "name@company.com"], ["Phone", "+994 XX XXX XX XX"], ["WhatsApp", "WhatsApp number"]],
-  consent: "I agree that my answers may be used by nobug to discuss my enquiry and transmitted by email.",
+  phone: "Phone",
+  message: "Message",
+  optional: "optional",
+  consent: "I agree to the processing of my data in order to respond to my enquiry.",
+  consentLink: "Privacy policy",
+  errors: { name: "Enter your name.", contact: "Enter your contact details.", email: "The email address is not valid.", consent: "Consent is required to continue." },
   sentTitle: "Your enquiry has been logged.",
-  sentText: "We usually make contact within one business day. Your answers were sent to the enquiry mailbox together with the selected service.",
+  sentText: "Your answers reached us together with the selected service.",
+  sentNext: "What happens next: within one business day we contact you through the channel you chose, arrange a short call and give an initial assessment.",
+  errorDirect: "Sending failed. Try again or write to us directly:",
   again: "New enquiry",
   summary: "Selected service",
   services: ["IT infrastructure", "CRM and ERP implementation", "Data analytics", "Web and e-commerce", "Digital marketing", "Quality assurance", "Mobile development", "Bot solutions", "AI solutions", "AI-assisted video production", "Consulting", "Short-term rental management"],
@@ -165,9 +186,16 @@ const ru: SurveyLocale = {
   namePh: "Имя и фамилия",
   channel: "Канал связи",
   channels: [["E-mail", "name@company.com"], ["Телефон", "+994 XX XXX XX XX"], ["WhatsApp", "Номер WhatsApp"]],
-  consent: "Согласен, что мои ответы будут использованы nobug для обсуждения обращения и переданы по электронной почте.",
+  phone: "Телефон",
+  message: "Сообщение",
+  optional: "необязательно",
+  consent: "Я согласен(а) на обработку моих данных для ответа на запрос.",
+  consentLink: "Политика конфиденциальности",
+  errors: { name: "Укажите имя.", contact: "Укажите контактные данные.", email: "Адрес электронной почты указан неверно.", consent: "Для продолжения нужно согласие." },
   sentTitle: "Запрос зафиксирован.",
-  sentText: "Обычно связываемся в течение одного рабочего дня. Ваши ответы отправлены в почтовый ящик заявок вместе с выбранной услугой.",
+  sentText: "Ваши ответы дошли до нас вместе с выбранной услугой.",
+  sentNext: "Что дальше: в течение одного рабочего дня мы свяжемся с вами по выбранному каналу, назначим короткий созвон и дадим предварительную оценку.",
+  errorDirect: "Не удалось отправить. Попробуйте ещё раз или напишите напрямую:",
   again: "Новый запрос",
   summary: "Выбранная услуга",
   services: ["IT-инфраструктура", "Внедрение CRM и ERP", "Аналитика данных", "Веб и e-commerce", "Цифровой маркетинг", "Контроль качества", "Мобильная разработка", "Боты", "Решения на основе ИИ", "Производство видео с ИИ", "Консультации", "Управление посуточной арендой"],
@@ -206,6 +234,8 @@ export type AnketPayload = {
   name: string;
   channel: ChannelId;
   contact: string;
+  phone?: string; // optional, only when channel is email
+  message?: string; // optional free text
   consent: boolean;
   website?: string; // honeypot — must stay empty
   openedAt: number; // Date.now() when the form was opened
