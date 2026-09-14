@@ -13,11 +13,10 @@ export type Dictionary = {
   heroText: string;
   heroLink: string;
   figLabel: string; // "Şək." / "Fig." / "Рис." — numbers come from lib/figures.ts
-  captions: Record<"hero" | "band" | "services" | "about" | "tech" | "careers", string>;
+  captions: Record<"hero" | "band" | "services" | "tech" | "careers", string>;
   alt01: string;
   alt02: string;
   alt03: string;
-  alt04: string;
   alt05: string;
   alt07: string;
   figures: [string, string, string][]; // value, label, source
@@ -85,14 +84,12 @@ const az: Dictionary = {
     hero: "Şüşə fasad, bir panel aksent rəngdə",
     band: "İşıq izləri, uzun ekspozisiya",
     services: "Əhatə dairəsi və düyünlər",
-    about: "Bakı, dəniz kənarı bulvar",
     tech: "Optik lif dəstəsi",
     careers: "Sistem qatları, biri aksent rəngdə",
   },
   alt01: "Şüşə fasadın perspektivi: boz panellər toru, bir panel qırmızı",
   alt02: "Tünd fonda üfüqi işıq izləri, bir neçəsi aksent rəngdə — uzun ekspozisiya effekti",
   alt03: "Açıq fonda konsentrik dairələr və düyün nöqtələri, bir qövs aksent rəngdə",
-  alt04: "Bakının dəniz kənarı bulvarı və müasir şəhər silueti, gündüz",
   alt05: "Üst-üstə düzülmüş sistem qatları, biri aksent rəngdə",
   alt07: "Tünd fonda kəsişən nazik optik lif xətləri, bir neçəsi aksent rəngdə",
   figures: [
@@ -198,14 +195,12 @@ const en: Dictionary = {
     hero: "Glass facade, one panel in the accent colour",
     band: "Light trails, long exposure",
     services: "Coverage rings and nodes",
-    about: "Baku, seaside boulevard",
     tech: "Fibre bundle",
     careers: "System layers, one in the accent colour",
   },
   alt01: "Perspective of a glass facade: a grid of grey panels, one panel red",
   alt02: "Horizontal light trails on a dark ground, a few in the accent colour — long-exposure effect",
   alt03: "Concentric rings and node points on a light ground, one arc in the accent colour",
-  alt04: "Baku seaside boulevard with the modern skyline, daytime",
   alt05: "Stacked system layers, one in the accent colour",
   alt07: "Thin fibre lines crossing on a dark ground, a few in the accent colour",
   figures: [
@@ -311,14 +306,12 @@ const ru: Dictionary = {
     hero: "Стеклянный фасад, одна панель акцентного цвета",
     band: "Световые следы, длинная выдержка",
     services: "Кольца покрытия и узлы",
-    about: "Баку, приморский бульвар",
     tech: "Пучок оптоволокна",
     careers: "Слои системы, один акцентного цвета",
   },
   alt01: "Перспектива стеклянного фасада: сетка серых панелей, одна панель красная",
   alt02: "Горизонтальные световые следы на тёмном фоне, несколько акцентного цвета — эффект длинной выдержки",
   alt03: "Концентрические кольца и узловые точки на светлом фоне, одна дуга акцентного цвета",
-  alt04: "Приморский бульвар Баку и современный силуэт города днём",
   alt05: "Слои системы, уложенные друг на друга, один акцентного цвета",
   alt07: "Тонкие линии оптоволокна, пересекающиеся на тёмном фоне, несколько акцентного цвета",
   figures: [
