@@ -1,7 +1,9 @@
 import type { Dictionary } from "@/lib/i18n/dict";
+import { figureCaption } from "@/lib/figures";
+import { Figure } from "@/components/ui/figure";
 import { Reveal } from "@/components/ui/reveal";
 
-/** Haqqında — surface band: Newsreader pull quote (the only serif) + two paragraphs. */
+/** Haqqında — surface band: Newsreader pull quote (the only serif) + two paragraphs, then M-01 (16:9). */
 export function About({ t }: { t: Dictionary }) {
   return (
     <section id="haqqinda" className="scroll-mt-20 border-y border-hairline bg-surface">
@@ -19,6 +21,7 @@ export function About({ t }: { t: Dictionary }) {
             <p className="type-body mt-5">{t.aboutP2}</p>
           </Reveal>
         </div>
+        <Figure src="/assets/photo/about.webp" alt={t.alt04} caption={figureCaption(t, "about")} ratio="16 / 9" className="mt-[clamp(40px,5vw,72px)]" sizes="(min-width: 1440px) 1280px, 100vw" />
       </div>
     </section>
   );

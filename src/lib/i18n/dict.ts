@@ -13,8 +13,8 @@ export type Dictionary = {
   heroText: string;
   heroLink: string;
   figLabel: string; // "Şək." / "Fig." / "Рис." — numbers come from lib/figures.ts
-  captions: Record<"hero" | "band" | "services" | "tech" | "careers", string>;
-  alt01: string;
+  captions: Record<"band" | "services" | "about" | "tech" | "careers", string>;
+  alt04: string;
   alt02: string;
   alt03: string;
   alt05: string;
@@ -81,13 +81,13 @@ const az: Dictionary = {
   heroLink: "Layihəni müzakirə et",
   figLabel: "Şək.",
   captions: {
-    hero: "Şüşə fasad, bir panel aksent rəngdə",
     band: "İşıq izləri, uzun ekspozisiya",
     services: "Əhatə dairəsi və düyünlər",
     tech: "Optik lif dəstəsi",
     careers: "Sistem qatları, biri aksent rəngdə",
+    about: "Şüşə fasad, bir panel aksent rəngdə",
   },
-  alt01: "Şüşə fasadın perspektivi: boz panellər toru, bir panel qırmızı",
+  alt04: "Şüşə fasadın perspektivi: boz panellər toru, bir panel qırmızı",
   alt02: "Tünd fonda üfüqi işıq izləri, bir neçəsi aksent rəngdə — uzun ekspozisiya effekti",
   alt03: "Açıq fonda konsentrik dairələr və düyün nöqtələri, bir qövs aksent rəngdə",
   alt05: "Üst-üstə düzülmüş sistem qatları, biri aksent rəngdə",
@@ -192,13 +192,13 @@ const en: Dictionary = {
   heroLink: "Discuss a project",
   figLabel: "Fig.",
   captions: {
-    hero: "Glass facade, one panel in the accent colour",
     band: "Light trails, long exposure",
     services: "Coverage rings and nodes",
     tech: "Fibre bundle",
     careers: "System layers, one in the accent colour",
+    about: "Glass facade, one panel in the accent colour",
   },
-  alt01: "Perspective of a glass facade: a grid of grey panels, one panel red",
+  alt04: "Perspective of a glass facade: a grid of grey panels, one panel red",
   alt02: "Horizontal light trails on a dark ground, a few in the accent colour — long-exposure effect",
   alt03: "Concentric rings and node points on a light ground, one arc in the accent colour",
   alt05: "Stacked system layers, one in the accent colour",
@@ -303,13 +303,13 @@ const ru: Dictionary = {
   heroLink: "Обсудить проект",
   figLabel: "Рис.",
   captions: {
-    hero: "Стеклянный фасад, одна панель акцентного цвета",
     band: "Световые следы, длинная выдержка",
     services: "Кольца покрытия и узлы",
     tech: "Пучок оптоволокна",
     careers: "Слои системы, один акцентного цвета",
+    about: "Стеклянный фасад, одна панель акцентного цвета",
   },
-  alt01: "Перспектива стеклянного фасада: сетка серых панелей, одна панель красная",
+  alt04: "Перспектива стеклянного фасада: сетка серых панелей, одна панель красная",
   alt02: "Горизонтальные световые следы на тёмном фоне, несколько акцентного цвета — эффект длинной выдержки",
   alt03: "Концентрические кольца и узловые точки на светлом фоне, одна дуга акцентного цвета",
   alt05: "Слои системы, уложенные друг на друга, один акцентного цвета",

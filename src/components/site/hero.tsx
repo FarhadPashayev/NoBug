@@ -1,11 +1,9 @@
 import Link from "next/link";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dict";
-import { figureCaption } from "@/lib/figures";
-import { Figure } from "@/components/ui/figure";
 import { Reveal } from "@/components/ui/reveal";
 
-/** Hero: text in columns 1–7, IMG-01 in 8–12, then a self-drawing rule and three figures. */
+/** Hero: text in columns 1–7, animated wordmark in 8–12, then a self-drawing rule and three figures. */
 export function Hero({ lang, t }: { lang: Locale; t: Dictionary }) {
   return (
     <section id="top" className="container-site scroll-mt-24 pb-[clamp(32px,4vw,64px)] pt-[clamp(48px,7vw,104px)]">
@@ -18,9 +16,14 @@ export function Hero({ lang, t }: { lang: Locale; t: Dictionary }) {
             {t.heroLink}
           </Link>
         </div>
-        <div className="col-span-12 w-full max-w-[420px] md:col-span-5 md:justify-self-end">
-          {/* pre-cropped on whole port rows — the box matches 1200/1195 exactly */}
-          <Figure src="/assets/photo/hero.webp" alt={t.alt01} caption={figureCaption(t, "hero")} ratio="1200 / 1195" priority sizes="(min-width: 1024px) 420px, 100vw" bg="bg-navy" />
+        {/* Animated wordmark (client asset). Plays once on load, ends on the final
+            state, honours prefers-reduced-motion inside the SVG. Decorative: the
+            brand is already named in the header, so it is hidden from AT. */}
+        <div className="col-span-12 w-full md:col-span-5 md:self-center md:justify-self-end lg:max-w-[520px]" aria-hidden="true">
+          <div className="border-y border-hairline py-[clamp(20px,3vw,40px)]">
+            {/* eslint-disable-next-line @next/next/no-img-element -- animated SVG must not go through the image optimizer */}
+            <img src="/assets/anim/nobug-logo-animated-light.svg" alt="" width={960} height={290} className="block h-auto w-full" />
+          </div>
         </div>
       </div>
 

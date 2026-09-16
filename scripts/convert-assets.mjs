@@ -1,5 +1,5 @@
 // One-off: the client-supplied generated graphics (forWebImg/) → slot-sized .webp.
-// They are already in the palette — no grade is applied. Hero is a cover crop of M-01.
+// They are already in the palette — no grade is applied.
 // Run: node scripts/convert-assets.mjs <source-dir>
 import sharp from "sharp";
 import path from "node:path";
@@ -7,7 +7,7 @@ import path from "node:path";
 const src = process.argv[2];
 const out = path.resolve("public/assets/photo");
 const SLOTS = {
-  hero: ["M-01_facade-light_16x9.png", 1200, 1195],
+  about: ["M-01_facade-light_16x9.png", 1920, 1080],
   band: ["M-02_light-trails_21x9.png", 2400, 1029],
   services: ["M-03_coverage-rings_4x3.png", 1600, 1200],
   tech: ["M-05_fibre-bundle_16x9.png", 1920, 1080],
