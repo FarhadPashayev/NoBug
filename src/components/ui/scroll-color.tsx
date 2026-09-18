@@ -44,6 +44,7 @@ export function ScrollColorWrapper({ children }: { children: ReactNode }) {
     );
     sections.forEach((s) => obs.observe(s));
     apply(sections[0]);
+    // (the footer is too short to reach the band — it paints its own light ground)
     return () => obs.disconnect();
   }, []);
 

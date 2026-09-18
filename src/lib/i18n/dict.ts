@@ -56,6 +56,7 @@ export type Dictionary = {
     cardOf: string; // "12-dən" style meta: "{n} / 12"
     scrollPrev: string;
     scrollNext: string;
+    altShelves: string;
   };
   quoteEyebrow: string;
   quote: string;
@@ -180,6 +181,7 @@ const az: Dictionary = {
     cardOf: "12-dən",
     scrollPrev: "Əvvəlki",
     scrollNext: "Növbəti",
+    altShelves: "Dörd nəfər ağ rəflərdə sarı və ağ qutuları nizamlayır — komanda işi",
   },
   sectionIndex: [["#xidmetler", "Xidmətlər"], ["#layiheler", "Layihələr"], ["#layihe-icmali", "Layihə icmalı"], ["#texnologiya", "Standartlar"], ["#karyera", "Karyera"], ["#elaqe", "Əlaqə"]],
   quoteEyebrow: "Mövqe",
@@ -315,6 +317,7 @@ const en: Dictionary = {
     cardOf: "of 12",
     scrollPrev: "Previous",
     scrollNext: "Next",
+    altShelves: "Four people arranging yellow and white boxes on white shelving — teamwork",
   },
   sectionIndex: [["#xidmetler", "Services"], ["#layiheler", "Projects"], ["#layihe-icmali", "Case study"], ["#texnologiya", "Standards"], ["#karyera", "Careers"], ["#elaqe", "Contact"]],
   quoteEyebrow: "Position",
@@ -450,6 +453,7 @@ const ru: Dictionary = {
     cardOf: "из 12",
     scrollPrev: "Назад",
     scrollNext: "Вперёд",
+    altShelves: "Четыре человека раскладывают жёлтые и белые коробки на белых стеллажах — командная работа",
   },
   sectionIndex: [["#xidmetler", "Услуги"], ["#layiheler", "Проекты"], ["#layihe-icmali", "Обзор проекта"], ["#texnologiya", "Стандарты"], ["#karyera", "Карьера"], ["#elaqe", "Контакты"]],
   quoteEyebrow: "Позиция",

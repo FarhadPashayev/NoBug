@@ -15,12 +15,16 @@ export function Position({ t }: { t: Dictionary }) {
       <div className="container-site section-pad">
         <Rise>
           <h2 className="text-[clamp(34px,4.4vw,60px)] font-medium leading-[1.05] tracking-[-0.03em]">{t.tpl.positionTitle}</h2>
-          <p className="mt-4 max-w-[60ch] text-[17px] leading-[1.6] text-grey">{t.aboutP1}</p>
         </Rise>
 
-        <div className="mt-[clamp(40px,5vw,72px)] grid grid-cols-12 gap-x-8 gap-y-10">
+        {/* two columns: the About copy sits beside the quote card, not above it */}
+        <div className="mt-[clamp(32px,4vw,56px)] grid grid-cols-12 items-start gap-x-8 gap-y-10">
+          <Rise className="col-span-12 lg:col-span-5">
+            <p className="text-[clamp(18px,1.5vw,22px)] leading-[1.5] tracking-[-0.01em] text-ink">{t.aboutP1}</p>
+            <p className="mt-6 text-[17px] leading-[1.6] text-grey">{t.aboutP2}</p>
+          </Rise>
           {/* quote card */}
-          <Rise className="col-span-12 lg:col-span-7">
+          <Rise delay={0.1} className="col-span-12 lg:col-span-7">
             <div className="rounded-[20px] border border-fog bg-white p-[clamp(24px,3vw,40px)]">
               <Quote size={28} className="text-fog" aria-hidden="true" />
               <blockquote className="m-0 mt-4 font-serif text-[clamp(22px,2.4vw,32px)] italic leading-[1.35] tracking-[-0.01em]">{t.quote}</blockquote>
@@ -29,9 +33,6 @@ export function Position({ t }: { t: Dictionary }) {
                 <span className="text-[15px] text-grey">— {t.quoteTitle}</span>
               </div>
             </div>
-          </Rise>
-          <Rise delay={0.1} className="col-span-12 lg:col-span-5">
-            <p className="text-[17px] leading-[1.6] text-ink">{t.aboutP2}</p>
           </Rise>
         </div>
 

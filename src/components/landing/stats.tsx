@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Dictionary } from "@/lib/i18n/dict";
 import { Rise, Stagger, StaggerItem } from "@/components/ui/motion";
 
@@ -13,10 +14,18 @@ export function Stats({ t }: { t: Dictionary }) {
   return (
     <section data-bg="dark" className="text-white">
       <div className="container-site pb-[clamp(56px,7vw,112px)]">
-        <Rise className="max-w-[26ch]">
-          <h2 className="text-[clamp(36px,5vw,72px)] font-medium leading-[1.02] tracking-[-0.035em]">{t.tpl.statsTitle}</h2>
-          <p className="mt-6 max-w-[46ch] text-[17px] leading-[1.6] text-grey-navy">{t.tpl.statsText}</p>
-        </Rise>
+        <div className="grid grid-cols-12 items-center gap-x-8 gap-y-10">
+          <Rise className="col-span-12 max-w-[26ch] lg:col-span-6">
+            <h2 className="text-[clamp(36px,5vw,72px)] font-medium leading-[1.02] tracking-[-0.035em]">{t.tpl.statsTitle}</h2>
+            <p className="mt-6 max-w-[46ch] text-[17px] leading-[1.6] text-grey-navy">{t.tpl.statsText}</p>
+          </Rise>
+          {/* shelving scene (forWebImg/Organized Shelving Scene) — yellow boxes echo the brand accent */}
+          <Rise delay={0.1} className="col-span-12 lg:col-span-6">
+            <div className="tile aspect-[16/9] rounded-[24px] bg-navy-800 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.6)] ring-1 ring-white/10">
+              <Image src="/assets/photo/team-shelves.webp" alt={t.tpl.altShelves} fill sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
+            </div>
+          </Rise>
+        </div>
 
         <Stagger className="mt-[clamp(40px,5vw,80px)] grid grid-cols-2 gap-y-10 lg:grid-cols-4">
           {figures.map(([value, label, source], i) => (

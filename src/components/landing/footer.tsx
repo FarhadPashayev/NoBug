@@ -14,11 +14,11 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
   const [servicesCol, companyCol, legalCol] = t.footerCols;
 
   return (
-    <footer data-bg="light" className="border-t border-fog text-ink">
+    <footer data-bg="light" className="border-t border-fog bg-light text-ink">
       <div className="container-site pb-10 pt-[clamp(48px,6vw,96px)]">
         <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
           <div className="col-span-2 max-w-[300px] md:col-span-1">
-            <Logo href={`/${lang}#top`} variant="dark" height={22} />
+            <Logo href={`/${lang}#top`} variant="brand" height={28} />
             <p className="mt-5 text-[14px] leading-[1.6] text-grey">{t.meta.description}</p>
             <div className="mt-6 flex gap-6">
               <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="mono-label text-ink transition-colors hover:text-yellow-700">

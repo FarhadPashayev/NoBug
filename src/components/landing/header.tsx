@@ -23,8 +23,8 @@ export function Header({ lang, t }: { lang: Locale; t: Dictionary }) {
   return (
     <header className={`site-header sticky top-0 z-60 backdrop-blur-md transition-[box-shadow] duration-300 ${scrolled ? "is-scrolled" : ""}`}>
       <div className="container-site flex min-h-[72px] items-center gap-x-[clamp(16px,3vw,40px)] py-3">
-        <Logo href={`/${lang}#top`} variant="dark" height={24} className="on-light" />
-        <Logo href={`/${lang}#top`} variant="white" height={24} className="on-dark" />
+        <Logo href={`/${lang}#top`} variant="brand" height={30} className="on-light" />
+        <Logo href={`/${lang}#top`} variant="brand-dark" height={30} className="on-dark" />
 
         <nav className="mx-auto hidden gap-[clamp(16px,2.2vw,32px)] lg:flex" aria-label="Main">
           {t.nav.map(([href, label]) => (
