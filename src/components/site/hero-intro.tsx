@@ -139,10 +139,10 @@ export function HeroIntro({
           <div className="mono-label text-grey" style={line(0)}>
             {eyebrow}
           </div>
-          <h1 className="mt-6 text-balance text-[clamp(38px,6vw,84px)] font-medium leading-[1.02] tracking-[-0.035em] text-ink" style={line(1)}>
+          <h1 className="mt-6 text-balance text-[clamp(34px,5.4vw,76px)] font-medium leading-[1.02] tracking-[-0.035em] text-ink" style={line(1)}>
             {h1}
           </h1>
-          <p className="mt-6 max-w-[56ch] text-[clamp(17px,1.5vw,22px)] leading-[1.5] text-grey" style={line(2)}>
+          <p className="mt-6 max-w-[56ch] text-[clamp(16px,1.43vw,21px)] leading-[1.5] text-grey" style={line(2)}>
             {text}
           </p>
           <div className="mt-8 flex flex-wrap gap-3" style={line(3)}>
