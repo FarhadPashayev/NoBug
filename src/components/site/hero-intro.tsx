@@ -171,7 +171,8 @@ export function HeroIntro({
           grid centre. Decorative — the brand is already named in the header. */}
         <div
           ref={slotRef}
-          className="col-span-12 w-full md:col-span-5 md:self-center md:justify-self-end lg:max-w-[520px]"
+          data-logo-slot
+          className="order-first col-span-12 w-full md:order-none md:col-span-5 md:self-center md:justify-self-end lg:max-w-[520px]"
           aria-hidden="true"
         >
           <div
