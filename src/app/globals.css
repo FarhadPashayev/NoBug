@@ -385,6 +385,15 @@ html[data-page-bg="dark"] .on-light {
   display: none;
 }
 
+/* horizontal scroller: no visible scrollbar (keyboard/touch/drag still scroll) */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── Scroll reveal (state set by <Reveal>) ──────────────────────────── */
 @utility reveal-fade {
   opacity: 0;

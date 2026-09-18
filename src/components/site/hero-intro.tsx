@@ -81,7 +81,8 @@ export function HeroIntro({
     const g = grid.getBoundingClientRect();
     const s = slot.getBoundingClientRect();
     const targetW = Math.min(g.width * 0.82, 760);
-    const scale = Math.max(1, targetW / s.width);
+    // the wordmark occupies 70% of the slot — scale against that, not the slot
+    const scale = Math.max(1, targetW / (s.width * 0.7));
     const dx = g.left + g.width / 2 - (s.left + s.width / 2);
     const dy = g.top + g.height / 2 - (s.top + s.height / 2);
     const raf = requestAnimationFrame(() => {
@@ -178,7 +179,8 @@ export function HeroIntro({
             style={logoStyle}
           >
             <div
-              className={`border-y py-[clamp(20px,3vw,40px)] transition-colors duration-500 ${phase === "intro" ? "border-transparent" : "border-fog"}`}
+              // no rules around the wordmark; 70% of the column, centred
+              className="mx-auto w-[70%] py-[clamp(12px,2vw,24px)]"
             >
               {src ? (
                 // eslint-disable-next-line @next/next/no-img-element -- animated SVG must not go through the image optimizer

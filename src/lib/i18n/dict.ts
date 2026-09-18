@@ -50,6 +50,12 @@ export type Dictionary = {
     exploreAll: string;
     exploreEnquiry: string;
     ctaTitle: string;
+    cardPrimary: string; // status badge on primary cards
+    cardSecondary: string; // status badge on secondary cards
+    cardSelect: string; // "+ Xidməti seç"
+    cardOf: string; // "12-dən" style meta: "{n} / 12"
+    scrollPrev: string;
+    scrollNext: string;
   };
   quoteEyebrow: string;
   quote: string;
@@ -168,6 +174,12 @@ const az: Dictionary = {
     exploreAll: "Bütün xidmətlər",
     exploreEnquiry: "Sorğuya keç",
     ctaTitle: "Layihənizi müzakirə edək?",
+    cardPrimary: "Əsas istiqamət",
+    cardSecondary: "Əlavə xidmət",
+    cardSelect: "Xidməti seç",
+    cardOf: "12-dən",
+    scrollPrev: "Əvvəlki",
+    scrollNext: "Növbəti",
   },
   sectionIndex: [["#xidmetler", "Xidmətlər"], ["#layiheler", "Layihələr"], ["#layihe-icmali", "Layihə icmalı"], ["#texnologiya", "Standartlar"], ["#karyera", "Karyera"], ["#elaqe", "Əlaqə"]],
   quoteEyebrow: "Mövqe",
@@ -297,6 +309,12 @@ const en: Dictionary = {
     exploreAll: "All services",
     exploreEnquiry: "Start an enquiry",
     ctaTitle: "Ready to discuss your project?",
+    cardPrimary: "Core service",
+    cardSecondary: "Additional service",
+    cardSelect: "Select service",
+    cardOf: "of 12",
+    scrollPrev: "Previous",
+    scrollNext: "Next",
   },
   sectionIndex: [["#xidmetler", "Services"], ["#layiheler", "Projects"], ["#layihe-icmali", "Case study"], ["#texnologiya", "Standards"], ["#karyera", "Careers"], ["#elaqe", "Contact"]],
   quoteEyebrow: "Position",
@@ -426,6 +444,12 @@ const ru: Dictionary = {
     exploreAll: "Все услуги",
     exploreEnquiry: "Перейти к запросу",
     ctaTitle: "Обсудим ваш проект?",
+    cardPrimary: "Основное направление",
+    cardSecondary: "Дополнительная услуга",
+    cardSelect: "Выбрать услугу",
+    cardOf: "из 12",
+    scrollPrev: "Назад",
+    scrollNext: "Вперёд",
   },
   sectionIndex: [["#xidmetler", "Услуги"], ["#layiheler", "Проекты"], ["#layihe-icmali", "Обзор проекта"], ["#texnologiya", "Стандарты"], ["#karyera", "Карьера"], ["#elaqe", "Контакты"]],
   quoteEyebrow: "Позиция",
