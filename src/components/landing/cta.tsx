@@ -16,7 +16,7 @@ export function Cta({ lang, t }: { lang: Locale; t: Dictionary }) {
     <section id="elaqe" data-bg="dark" className="scroll-mt-20 text-white">
       <div className="container-site section-pad grid grid-cols-12 items-center gap-x-8 gap-y-12">
         <Rise className="col-span-12 lg:col-span-6">
-          <h2 className="max-w-[14ch] text-[clamp(40px,5.6vw,84px)] font-medium leading-[1] tracking-[-0.035em] text-red">{t.tpl.ctaTitle}</h2>
+          <h2 className="max-w-[14ch] text-[clamp(40px,5.6vw,84px)] font-medium leading-[1] tracking-[-0.035em] text-yellow">{t.tpl.ctaTitle}</h2>
           <p className="mt-8 max-w-[38ch] text-[clamp(19px,1.8vw,26px)] leading-[1.35] tracking-[-0.01em]">{t.contactText}</p>
 
           <dl className="mt-10 grid max-w-[520px] grid-cols-1 gap-6 sm:grid-cols-2">

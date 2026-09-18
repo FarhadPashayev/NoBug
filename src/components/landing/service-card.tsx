@@ -16,22 +16,22 @@ export function ServiceCard({ id, index, title, text, image, position, lang, t }
     <TrackedLink
       href={serviceHref(lang, id)}
       event={{ name: "service_click", params: { service_id: id, position, locale: lang } }}
-      className="group relative block aspect-[4/5] w-[min(78vw,300px)] flex-none snap-start overflow-hidden rounded-[28px] bg-ink text-white outline-none ring-red ring-offset-2 ring-offset-light focus-visible:ring-2"
+      className="group relative block aspect-[4/5] w-[min(78vw,300px)] flex-none snap-start overflow-hidden rounded-[28px] bg-ink text-white outline-none ring-yellow ring-offset-2 ring-offset-light focus-visible:ring-2"
       aria-label={`${title} — ${t.tpl.cardSelect}`}
     >
       <Image src={image} alt="" fill sizes="300px" className="object-cover transition-transform duration-700 ease-[var(--ease-brand)] group-hover:scale-[1.04]" />
 
       {/* veils for contrast: top (soft) and bottom (strong), plus a light blur band behind the footer */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[50%] bg-gradient-to-b from-[rgba(17,19,43,0.86)] via-[rgba(17,19,43,0.45)] to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[rgba(17,19,43,0.9)] via-[rgba(17,19,43,0.55)] to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[50%] bg-gradient-to-b from-[rgba(11,31,58,0.86)] via-[rgba(11,31,58,0.45)] to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-[rgba(11,31,58,0.9)] via-[rgba(11,31,58,0.55)] to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[30%] backdrop-blur-[6px] [mask-image:linear-gradient(to_top,black_55%,transparent)]" />
 
       {/* header: name + status */}
       <div className="absolute inset-x-5 top-6 text-center">
         <div className="text-[clamp(20px,1.7vw,24px)] font-medium leading-[1.15] tracking-[-0.02em] text-balance">{title}</div>
         <div className="mt-2.5 inline-flex items-center gap-2 text-[13px] text-white/80">
-          <span className={`relative inline-flex h-2 w-2 rounded-full ${position === "primary" ? "bg-red" : "bg-white/70"}`}>
-            {position === "primary" && <span className="absolute inset-0 animate-ping rounded-full bg-red/70" />}
+          <span className={`relative inline-flex h-2 w-2 rounded-full ${position === "primary" ? "bg-yellow" : "bg-white/70"}`}>
+            {position === "primary" && <span className="absolute inset-0 animate-ping rounded-full bg-yellow/70" />}
           </span>
           {position === "primary" ? t.tpl.cardPrimary : t.tpl.cardSecondary}
         </div>

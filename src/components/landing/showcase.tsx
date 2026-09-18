@@ -60,7 +60,7 @@ export function Showcase({ lang, t }: { lang: Locale; t: Dictionary }) {
                 <div className={`col-span-12 md:col-span-5 ${i % 2 ? "md:order-2 md:col-start-8" : ""}`}>
                   <div className="tile aspect-[4/3] bg-ink-2">
                     <Image src={r.tile} alt={r.alt} fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover opacity-90" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[rgba(17,19,43,0.85)] via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[rgba(11,31,58,0.85)] via-transparent to-transparent" />
                     <div className="absolute bottom-6 left-6 right-6">
                       <div className="text-[clamp(56px,7vw,112px)] font-semibold leading-[0.95] tracking-[-0.04em] text-white">{r.figure}</div>
                       <div className="mt-2 text-[15px] text-grey-navy">{r.figureLabel}</div>

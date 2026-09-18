@@ -369,9 +369,9 @@ export function SurveyForm({ lang }: { lang: Locale }) {
             </div>
 
             {failed && (
-              <p className="type-small mt-6 text-accent" role="alert">
+              <p className="type-small mt-6 text-error" role="alert">
                 {sv.errorDirect}{" "}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-link text-accent">
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-link text-error">
                   {CONTACT_EMAIL}
                 </a>
               </p>
@@ -394,7 +394,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
 
 function FieldError({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <p id={id} className="type-small mt-2 text-accent" role="alert">
+    <p id={id} className="type-small mt-2 text-error" role="alert">
       {children}
     </p>
   );

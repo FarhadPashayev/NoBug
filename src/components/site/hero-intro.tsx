@@ -148,7 +148,7 @@ export function HeroIntro({
           <div className="mt-8 flex flex-wrap gap-3" style={line(3)}>
             <Link
               href={ctaHref}
-              className="pill pill-red"
+              className="pill pill-yellow"
               tabIndex={phase === "final" ? undefined : -1}
             >
               {cta}

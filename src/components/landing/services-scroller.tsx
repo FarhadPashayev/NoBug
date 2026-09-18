@@ -72,7 +72,7 @@ export function ServicesScroller({ children, prevLabel, nextLabel }: { children:
         onClick={() => by(-1)}
         aria-label={prevLabel}
         disabled={edge.start}
-        className="absolute left-0 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-fog bg-white text-ink shadow-[0_6px_20px_rgba(17,19,43,0.12)] transition-opacity disabled:opacity-0 md:flex"
+        className="absolute left-0 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-fog bg-white text-ink shadow-[0_6px_20px_rgba(11,31,58,0.12)] transition-opacity disabled:opacity-0 md:flex"
       >
         <ChevronLeft size={20} aria-hidden="true" />
       </button>
@@ -81,7 +81,7 @@ export function ServicesScroller({ children, prevLabel, nextLabel }: { children:
         onClick={() => by(1)}
         aria-label={nextLabel}
         disabled={edge.end}
-        className="absolute right-0 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-fog bg-white text-ink shadow-[0_6px_20px_rgba(17,19,43,0.12)] transition-opacity disabled:opacity-0 md:flex"
+        className="absolute right-0 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-fog bg-white text-ink shadow-[0_6px_20px_rgba(11,31,58,0.12)] transition-opacity disabled:opacity-0 md:flex"
       >
         <ChevronRight size={20} aria-hidden="true" />
       </button>

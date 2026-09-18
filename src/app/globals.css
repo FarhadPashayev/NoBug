@@ -1,28 +1,36 @@
 @import "tailwindcss";
 
-/* ── Tokens — design_handoff_nobug_site/README.md ─────────────────────
-   Near-monochrome, one accent. No gradients, no shadows, radius 0 or 2px. */
+/* ── Tokens ─────────────────────────────────────────────────────────── */
 @theme {
-  --color-navy: #0b1f3a; /* logo navy — dark surfaces AND body ink */
+  /* ── Brand (audited from the logo files: nobug-mark / nobug-dark / no bug main) ──
+     navy  #0B1F3A — dominant fill of the wordmark and check
+     amber #EFA83C — the N mark (the animated SVG uses #F0A93E, same tone)     */
+  --color-navy: #0b1f3a; /* dark surfaces, ink on light */
+  --color-navy-800: #16294a; /* cards / tiles on the navy band */
   --color-navy-line: #24354f; /* 1px rules on navy */
-  --color-paper: #edebe5; /* page background, text on navy */
-  --color-surface: #f6f4ef; /* hover / recessed bands */
-  --color-hairline: #d9d6cf; /* every 1px rule on paper */
-  --color-muted: #6b6862; /* secondary text, mono labels */
-  --color-muted-navy: #9a968e; /* mono labels on navy */
-  --color-body-navy: #c9c5bd; /* body text on navy */
-  --color-accent: #b3121d; /* < 5% of any screen */
+  --color-yellow: #efa83c; /* accent: CTAs, badges, active states — text on it is navy */
+  --color-yellow-600: #e0982a; /* hover on yellow fills */
+  --color-yellow-700: #b57a1e; /* accent TEXT on light grounds (contrast) */
+  --color-yellow-soft: rgba(239, 168, 60, 0.16); /* tinted badge grounds */
 
-  /* template palette (fortemplate/): light ground, deep navy bands, red CTA */
-  --color-light: #f8f9fa;
-  --color-ink: #11132b;
-  --color-ink-2: #1c1e3b; /* tiles on the navy band */
-  --color-red: #e5202e;
-  --color-red-600: #c8121f;
-  --color-fog: #e6e8ee; /* hairlines on light */
-  --color-fog-navy: #2a2d4d; /* hairlines on navy */
-  --color-grey: #5f6370; /* secondary text on light */
-  --color-grey-navy: #a9acc0; /* secondary text on navy */
+  /* neutrals */
+  --color-light: #f8f9fa; /* page ground */
+  --color-fog: #e3e7ee; /* hairlines on light */
+  --color-grey: #5c6b80; /* secondary text on light (navy-tinted) */
+  --color-grey-navy: #a9b7cb; /* secondary text on navy */
+  --color-error: #b3121d; /* form errors only — never decorative */
+
+  /* aliases kept for the anket / legal pages */
+  --color-paper: #edebe5;
+  --color-surface: #f6f4ef;
+  --color-hairline: #d9d6cf;
+  --color-muted: #6b6862;
+  --color-muted-navy: #9a968e;
+  --color-body-navy: #c9c5bd;
+  --color-accent: var(--color-yellow);
+  --color-ink: var(--color-navy);
+  --color-ink-2: var(--color-navy-800);
+  --color-fog-navy: var(--color-navy-line);
 
   --font-sans: var(--font-inter-tight), "Inter Tight", system-ui, sans-serif;
   --font-serif: var(--font-newsreader), Newsreader, Georgia, serif;
@@ -249,13 +257,13 @@
   }
 }
 @utility field-underline-tpl {
-  border-bottom-color: var(--color-fog-navy);
+  border-bottom-color: var(--color-navy-line);
   color: #fff;
   &::placeholder {
     color: var(--color-grey-navy);
   }
   &:focus {
-    border-bottom-color: var(--color-red);
+    border-bottom-color: var(--color-yellow);
   }
 }
 /* image block: container clips, image scales 1 → 1.03 over 650ms */
@@ -299,14 +307,14 @@
     transform: translateX(3px);
   }
 }
-@utility pill-red {
-  background: var(--color-red);
-  color: #fff;
-  border: 1px solid var(--color-red);
+@utility pill-yellow {
+  background: var(--color-yellow);
+  color: var(--color-navy);
+  border: 1px solid var(--color-yellow);
   &:hover,
   &:focus-visible {
-    background: var(--color-red-600);
-    border-color: var(--color-red-600);
+    background: var(--color-yellow-600);
+    border-color: var(--color-yellow-600);
   }
   &:disabled {
     opacity: 0.6;

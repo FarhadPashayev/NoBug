@@ -12,7 +12,7 @@ import { useEffect, type ReactNode } from "react";
  * matching the template, where a dark heading is already white while the
  * light ground is still fading out beneath it.
  */
-const BG = { light: "#F8F9FA", dark: "#11132B" } as const;
+const BG = { light: "#F8F9FA", dark: "#0B1F3A" } as const; // brand navy from the logo
 export type PageBg = keyof typeof BG;
 
 export function ScrollColorWrapper({ children }: { children: ReactNode }) {
@@ -24,7 +24,7 @@ export function ScrollColorWrapper({ children }: { children: ReactNode }) {
     const apply = (el: HTMLElement) => {
       const key = (el.dataset.bg as PageBg) ?? "light";
       root.style.setProperty("--page-bg", BG[key]);
-      root.style.setProperty("--page-fg", key === "dark" ? "#ffffff" : "#11132B");
+      root.style.setProperty("--page-fg", key === "dark" ? "#ffffff" : "#0B1F3A");
       root.dataset.pageBg = key;
     };
 

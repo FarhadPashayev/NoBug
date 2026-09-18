@@ -46,8 +46,8 @@ export function Position({ t }: { t: Dictionary }) {
           <Stagger className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
             {cs.blocks.map(([heading, text], i) => (
               <StaggerItem key={heading} className="rounded-[20px] border border-fog bg-white p-7">
-                <div className="tag-line text-red">
-                  <span>0{i + 1}</span>
+                <div className="tag-line text-yellow">
+                  <span className="text-yellow-700">0{i + 1}</span>
                   <span className="text-ink">{heading}</span>
                 </div>
                 <p className="mt-5 text-[15px] leading-[1.6] text-grey">{text}</p>

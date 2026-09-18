@@ -28,7 +28,7 @@ export function Header({ lang, t }: { lang: Locale; t: Dictionary }) {
 
         <nav className="mx-auto hidden gap-[clamp(16px,2.2vw,32px)] lg:flex" aria-label="Main">
           {t.nav.map(([href, label]) => (
-            <Link key={href} href={`/${lang}${href}`} className="text-[15px] font-medium text-current transition-colors hover:text-red">
+            <Link key={href} href={`/${lang}${href}`} className="text-[15px] font-medium text-current transition-colors hover:text-yellow-700">
               {label}
             </Link>
           ))}
@@ -36,7 +36,7 @@ export function Header({ lang, t }: { lang: Locale; t: Dictionary }) {
 
         <div className="ml-auto flex items-center gap-4 lg:ml-0 lg:gap-6">
           <LangSwitcher current={lang} tone="page" />
-          <Link href={`/${lang}/anket`} className="pill pill-red hidden sm:inline-flex">
+          <Link href={`/${lang}/anket`} className="pill pill-yellow hidden sm:inline-flex">
             {t.cta}
             <ArrowRight size={16} aria-hidden="true" />
           </Link>
@@ -53,7 +53,7 @@ export function Header({ lang, t }: { lang: Locale; t: Dictionary }) {
               {label}
             </Link>
           ))}
-          <Link href={`/${lang}/anket`} onClick={() => setOpen(false)} className="pill pill-red mt-4 justify-center sm:hidden">
+          <Link href={`/${lang}/anket`} onClick={() => setOpen(false)} className="pill pill-yellow mt-4 justify-center sm:hidden">
             {t.cta}
             <ArrowRight size={16} aria-hidden="true" />
           </Link>

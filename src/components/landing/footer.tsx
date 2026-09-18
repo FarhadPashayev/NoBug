@@ -21,7 +21,7 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
             <Logo href={`/${lang}#top`} variant="dark" height={22} />
             <p className="mt-5 text-[14px] leading-[1.6] text-grey">{t.meta.description}</p>
             <div className="mt-6 flex gap-6">
-              <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="mono-label text-ink transition-colors hover:text-red">
+              <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="mono-label text-ink transition-colors hover:text-yellow-700">
                 LinkedIn
               </a>
             </div>

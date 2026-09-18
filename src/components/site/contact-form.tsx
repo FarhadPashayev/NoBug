@@ -65,7 +65,7 @@ export function ContactForm({ lang, t, tone = "navy" }: { lang: Locale; t: Dicti
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
-        <button type="submit" disabled={status === "sending"} className={tone === "template" ? "pill pill-red w-full justify-center sm:w-auto" : "btn-primary btn-primary-paper w-full sm:w-auto"}>
+        <button type="submit" disabled={status === "sending"} className={tone === "template" ? "pill pill-yellow w-full justify-center sm:w-auto" : "btn-primary btn-primary-paper w-full sm:w-auto"}>
           {status === "sending" ? t.formSending : t.formSubmit}
         </button>
         {status === "error" && (
