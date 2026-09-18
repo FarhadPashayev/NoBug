@@ -7,18 +7,26 @@ import { LEGAL_KEYS, legalHref } from "@/lib/legal";
 import { Logo } from "@/components/ui/logo";
 import { TrackedAnchor } from "@/components/ui/tracked";
 
-const LINK = "link-rule text-[15px] leading-[1.5] text-body-navy";
+const LINK = "text-[15px] leading-[1.5] text-grey transition-colors hover:text-ink";
 
-/** Footer — navy: white logo, four-column index, baseline row. */
+/** Footer — light. Logo + blurb, four link columns, hairline, © row. */
 export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
   const [servicesCol, companyCol, legalCol] = t.footerCols;
 
   return (
-    <footer className="border-t border-navy-line bg-navy text-body-navy">
-      <div className="container-site pb-8 pt-[clamp(40px,5vw,80px)]">
-        <Logo href={`/${lang}#top`} variant="white" height={26} className="mb-[clamp(32px,4vw,56px)]" />
+    <footer data-bg="light" className="border-t border-fog text-ink">
+      <div className="container-site pb-10 pt-[clamp(48px,6vw,96px)]">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+          <div className="col-span-2 max-w-[300px] md:col-span-1">
+            <Logo href={`/${lang}#top`} variant="dark" height={22} />
+            <p className="mt-5 text-[14px] leading-[1.6] text-grey">{t.meta.description}</p>
+            <div className="mt-6 flex gap-6">
+              <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="mono-label text-ink transition-colors hover:text-red">
+                LinkedIn
+              </a>
+            </div>
+          </div>
 
-        <div className="grid grid-cols-2 gap-x-[clamp(24px,4vw,48px)] gap-y-10 md:grid-cols-4">
           <Col title={servicesCol[0]}>
             {FOOTER_SERVICES.map((id, i) => (
               <li key={id}>
@@ -28,7 +36,6 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
               </li>
             ))}
           </Col>
-
           <Col title={companyCol[0]}>
             {companyCol[1].map((label, i) => (
               <li key={label}>
@@ -38,7 +45,6 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
               </li>
             ))}
           </Col>
-
           <Col title={legalCol[0]}>
             {LEGAL_KEYS.map((key, i) => (
               <li key={key}>
@@ -48,7 +54,6 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
               </li>
             ))}
           </Col>
-
           <Col title={t.footerContact}>
             <li>
               <TrackedAnchor href={`mailto:${CONTACT_EMAIL}`} event={{ name: "contact_email_click", params: { locale: lang } }} className={LINK}>
@@ -56,19 +61,21 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
               </TrackedAnchor>
             </li>
             {/* TODO: phone + WhatsApp when the number is issued */}
-            <li>
-              <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className={LINK}>
-                LinkedIn
-              </a>
-            </li>
+            <li className="text-[15px] leading-[1.5] text-grey">{t.contactRows[0][1]}</li>
           </Col>
         </div>
 
-        <div className="mb-5 mt-[clamp(36px,4.5vw,64px)] h-px bg-navy-line" />
-        <div className="mono-label flex flex-wrap gap-[clamp(16px,3vw,48px)] text-muted">
-          {t.legal.map((l) => (
-            <div key={l}>{l}</div>
-          ))}
+        <div className="mt-[clamp(40px,5vw,72px)] flex flex-wrap items-center justify-between gap-4 border-t border-fog pt-6">
+          <div className="text-[13px] text-grey">
+            {t.legal[2]} {t.legal[0]}. {t.legal[1]}
+          </div>
+          <div className="mono-label flex flex-wrap gap-x-6 text-grey/70">
+            {t.techRows
+              .filter((r) => r[2] !== "—")
+              .map((r) => (
+                <span key={r[2]}>{r[2]}</span>
+              ))}
+          </div>
         </div>
       </div>
     </footer>
@@ -78,8 +85,8 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
 function Col({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="min-w-0">
-      <div className="mono-label text-muted-navy">{title}</div>
-      <ul className="m-0 mt-4 flex list-none flex-col items-start gap-2.5 p-0">{children}</ul>
+      <div className="mono-label text-grey">{title}</div>
+      <ul className="m-0 mt-4 flex list-none flex-col items-start gap-3 p-0">{children}</ul>
     </div>
   );
 }

@@ -1,41 +1,37 @@
 import { notFound } from "next/navigation";
 import { isLocale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
-import { Header } from "@/components/site/header";
-import { SectionIndex } from "@/components/site/section-index";
-import { Hero } from "@/components/site/hero";
-import { CineBand } from "@/components/site/cine-band";
-import { Services } from "@/components/site/services";
-import { About } from "@/components/site/about";
-import { Projects } from "@/components/site/projects";
-import { CaseStudy } from "@/components/site/case-study";
-import { Technology } from "@/components/site/technology";
-import { Careers, Divider } from "@/components/site/clients-careers";
-import { Contact } from "@/components/site/contact";
-import { Footer } from "@/components/site/footer";
+import { ScrollColorWrapper } from "@/components/ui/scroll-color";
+import { Header } from "@/components/landing/header";
+import { Hero } from "@/components/landing/hero";
+import { Showcase } from "@/components/landing/showcase";
+import { Stats } from "@/components/landing/stats";
+import { Position } from "@/components/landing/position";
+import { ServicesGrid } from "@/components/landing/services-grid";
+import { Standards } from "@/components/landing/standards";
+import { Cta } from "@/components/landing/cta";
+import { Footer } from "@/components/landing/footer";
 
+// Background rhythm (fortemplate/): light → dark → dark → light → light → dark → light.
+// Each section declares data-bg; <ScrollColorWrapper> fades the page ground between them.
 export default async function HomePage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const t = getDict(lang);
 
   return (
-    <>
+    <ScrollColorWrapper>
       <Header lang={lang} t={t} />
-      <SectionIndex lang={lang} entries={t.sectionIndex} />
       <main>
         <Hero lang={lang} t={t} />
-        <CineBand t={t} />
-        <Services lang={lang} t={t} />
-        <About t={t} />
-        <Projects t={t} />
-        <CaseStudy t={t} />
-        <Technology t={t} />
-        <Divider />
-        <Careers lang={lang} t={t} />
-        <Contact lang={lang} t={t} />
+        <Showcase lang={lang} t={t} />
+        <Stats t={t} />
+        <Position t={t} />
+        <ServicesGrid lang={lang} t={t} />
+        <Standards t={t} />
+        <Cta lang={lang} t={t} />
       </main>
       <Footer lang={lang} t={t} />
-    </>
+    </ScrollColorWrapper>
   );
 }

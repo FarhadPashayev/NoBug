@@ -33,6 +33,24 @@ export type Dictionary = {
     blocks: [string, string][]; // heading, paragraph
   };
   sectionIndex: [string, string][]; // anchor, label — vertical index in the left margin
+  tpl: {
+    ctaSecondary: string; // "Xidmətlərə bax"
+    trusted: string; // eyebrow above the projects strip in the hero
+    showcaseTitle: string;
+    showcaseMetricDuration: string; // "icra müddəti"
+    showcaseMetricYear: string; // "istehsalatda"
+    readMore: string; // "Ətraflı"
+    statsTitle: string;
+    statsText: string;
+    founded: [string, string, string]; // value, label, source
+    toolsLabel: string; // "Alətlər"
+    positionTitle: string;
+    servicesLead: string;
+    exploreLabel: string;
+    exploreAll: string;
+    exploreEnquiry: string;
+    ctaTitle: string;
+  };
   quoteEyebrow: string;
   quote: string;
   quoteName: string;
@@ -132,6 +150,24 @@ const az: Dictionary = {
       ["Yanaşma", "İşə görüşlə başladıq: kimin nəyi, hansı tezliklə redaktə edəcəyini və mövcud iş axınının harada dayandığını müəyyən etdik. Sonra dizayn, ardınca tam sayt və admin panel. Panel rollara görə giriş, səhifə və xəbər redaktoru, media kitabxanası ilə təhvil verildi."],
       ["Nəticə", "Məzmun dəyişikliyi artıq kənar asılılıq deyil — müştəri komandası saytı özü redaktə edir. Xəbər bölməsi işə düşdü; şirkət istifadəçilərinə əvvəllər saytda yer verə bilmədiyi ətraflı məlumatı indi özü yerləşdirir."],
     ],
+  },
+  tpl: {
+    ctaSecondary: "Xidmətlərə bax",
+    trusted: "İstehsalatda olan layihələr",
+    showcaseTitle: "Nə qurduq və nəyi dəyişdi",
+    showcaseMetricDuration: "icra müddəti",
+    showcaseMetricYear: "istehsalatda",
+    readMore: "Ətraflı",
+    statsTitle: "Bir komanda, on iki istiqamət",
+    statsText: "Analitika, tətbiq və təhvildən sonrakı dəstək eyni komandanın məsuliyyətindədir.",
+    founded: ["2026", "quruluş ili", "Bakı"],
+    toolsLabel: "Alətlər",
+    positionTitle: "Mövqe",
+    servicesLead: "Hər xidməti ayrıca da, hamısını birlikdə də götürmək olar. Sətrə klik — həmin xidmət üzrə üç sual.",
+    exploreLabel: "Hamısına bax",
+    exploreAll: "Bütün xidmətlər",
+    exploreEnquiry: "Sorğuya keç",
+    ctaTitle: "Layihənizi müzakirə edək?",
   },
   sectionIndex: [["#xidmetler", "Xidmətlər"], ["#layiheler", "Layihələr"], ["#layihe-icmali", "Layihə icmalı"], ["#texnologiya", "Standartlar"], ["#karyera", "Karyera"], ["#elaqe", "Əlaqə"]],
   quoteEyebrow: "Mövqe",
@@ -244,6 +280,24 @@ const en: Dictionary = {
       ["Result", "Content changes are no longer an external dependency — the client's team edits the site themselves. The news section is live; the company now publishes the detailed information it previously had no place for on the site."],
     ],
   },
+  tpl: {
+    ctaSecondary: "See services",
+    trusted: "Projects in production",
+    showcaseTitle: "What we built, and what it changed",
+    showcaseMetricDuration: "delivery time",
+    showcaseMetricYear: "in production",
+    readMore: "Read more",
+    statsTitle: "One team, twelve directions",
+    statsText: "Analysis, implementation and post-handover support sit with the same team.",
+    founded: ["2026", "founded", "Baku"],
+    toolsLabel: "Tooling",
+    positionTitle: "Position",
+    servicesLead: "Take any service on its own or all of them together. Click a row — three questions about that service.",
+    exploreLabel: "Explore everything",
+    exploreAll: "All services",
+    exploreEnquiry: "Start an enquiry",
+    ctaTitle: "Ready to discuss your project?",
+  },
   sectionIndex: [["#xidmetler", "Services"], ["#layiheler", "Projects"], ["#layihe-icmali", "Case study"], ["#texnologiya", "Standards"], ["#karyera", "Careers"], ["#elaqe", "Contact"]],
   quoteEyebrow: "Position",
   quote: "Our work is not measured by the presentation — it is measured by how many times the system stopped after month six.",
@@ -354,6 +408,24 @@ const ru: Dictionary = {
       ["Подход", "Начали со встречи: определили, кто и что редактирует, с какой периодичностью и где останавливается текущий рабочий процесс. Затем дизайн, потом полный сайт и админ-панель. Панель сдана с ролевым доступом, редактором страниц и новостей и медиатекой."],
       ["Результат", "Изменение контента больше не внешняя зависимость — команда клиента редактирует сайт сама. Раздел новостей запущен; компания теперь сама публикует подробную информацию, для которой раньше не было места на сайте."],
     ],
+  },
+  tpl: {
+    ctaSecondary: "Смотреть услуги",
+    trusted: "Проекты в эксплуатации",
+    showcaseTitle: "Что мы построили и что это изменило",
+    showcaseMetricDuration: "срок реализации",
+    showcaseMetricYear: "в эксплуатации",
+    readMore: "Подробнее",
+    statsTitle: "Одна команда, двенадцать направлений",
+    statsText: "Аналитика, внедрение и поддержка после сдачи — ответственность одной команды.",
+    founded: ["2026", "год основания", "Баку"],
+    toolsLabel: "Инструменты",
+    positionTitle: "Позиция",
+    servicesLead: "Любую услугу можно взять отдельно или все вместе. Клик по строке — три вопроса об этой услуге.",
+    exploreLabel: "Смотреть всё",
+    exploreAll: "Все услуги",
+    exploreEnquiry: "Перейти к запросу",
+    ctaTitle: "Обсудим ваш проект?",
   },
   sectionIndex: [["#xidmetler", "Услуги"], ["#layiheler", "Проекты"], ["#layihe-icmali", "Обзор проекта"], ["#texnologiya", "Стандарты"], ["#karyera", "Карьера"], ["#elaqe", "Контакты"]],
   quoteEyebrow: "Позиция",

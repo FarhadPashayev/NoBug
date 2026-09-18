@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { getSurvey } from "@/lib/anket/survey";
-import { LangSwitcher } from "@/components/site/header";
+import { LangSwitcher } from "@/components/ui/lang-switcher";
 import { SurveyForm } from "@/components/anket/survey-form";
 import { Logo } from "@/components/ui/logo";
 

@@ -5,7 +5,7 @@ import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { LEGAL, LEGAL_KEYS, LEGAL_SLUGS, legalHref, legalKeyFromSlug } from "@/lib/legal";
 import { absoluteUrl } from "@/lib/site";
-import { LangSwitcher } from "@/components/site/header";
+import { LangSwitcher } from "@/components/ui/lang-switcher";
 import { Logo } from "@/components/ui/logo";
 
 type Props = { params: Promise<{ lang: string; legal: string }> };

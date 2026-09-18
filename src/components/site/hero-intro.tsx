@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import {
   useEffect,
   useRef,
@@ -35,6 +36,8 @@ export function HeroIntro({
   text,
   cta,
   ctaHref,
+  secondary,
+  secondaryHref,
   children,
 }: {
   eyebrow: string;
@@ -42,6 +45,8 @@ export function HeroIntro({
   text: string;
   cta: string;
   ctaHref: string;
+  secondary?: string;
+  secondaryHref?: string;
   children?: ReactNode;
 }) {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -60,9 +65,12 @@ export function HeroIntro({
     } catch {}
 
     if (reduce || seen) {
-      setSrc(LOGO);
-      setPhase("final");
-      return;
+      // next frame: keeps the effect free of synchronous state updates
+      const raf = requestAnimationFrame(() => {
+        setSrc(LOGO);
+        setPhase("final");
+      });
+      return () => cancelAnimationFrame(raf);
     }
 
     // FLIP: measure the final slot, compute the transform that centres and
@@ -76,8 +84,10 @@ export function HeroIntro({
     const scale = Math.max(1, targetW / s.width);
     const dx = g.left + g.width / 2 - (s.left + s.width / 2);
     const dy = g.top + g.height / 2 - (s.top + s.height / 2);
-    setTransform(`translate(${dx}px, ${dy}px) scale(${scale})`);
-    setSrc(`${LOGO}?t=${Date.now()}`);
+    const raf = requestAnimationFrame(() => {
+      setTransform(`translate(${dx}px, ${dy}px) scale(${scale})`);
+      setSrc(`${LOGO}?t=${Date.now()}`);
+    });
 
     const t1 = window.setTimeout(() => setPhase("move"), SVG_DURATION);
     const t2 = window.setTimeout(
@@ -90,6 +100,7 @@ export function HeroIntro({
       SVG_DURATION + MOVE_DURATION - 150,
     );
     return () => {
+      cancelAnimationFrame(raf);
       window.clearTimeout(t1);
       window.clearTimeout(t2);
     };
@@ -124,23 +135,34 @@ export function HeroIntro({
           className="col-span-12 min-w-0 max-w-[760px] md:col-span-7"
           aria-busy={phase !== "final"}
         >
-          <div className="mono-label text-muted" style={line(0)}>
+          <div className="mono-label text-grey" style={line(0)}>
             {eyebrow}
           </div>
-          <h1 className="type-h1 mt-6 text-balance" style={line(1)}>
+          <h1 className="mt-6 text-balance text-[clamp(38px,6vw,84px)] font-medium leading-[1.02] tracking-[-0.035em] text-ink" style={line(1)}>
             {h1}
           </h1>
-          <p className="type-body mt-6 max-w-[62ch]" style={line(2)}>
+          <p className="mt-6 max-w-[56ch] text-[clamp(17px,1.5vw,22px)] leading-[1.5] text-grey" style={line(2)}>
             {text}
           </p>
-          <div style={line(3)}>
+          <div className="mt-8 flex flex-wrap gap-3" style={line(3)}>
             <Link
               href={ctaHref}
-              className="btn-primary mt-8"
+              className="pill pill-red"
               tabIndex={phase === "final" ? undefined : -1}
             >
               {cta}
+              <ArrowRight size={16} aria-hidden="true" />
             </Link>
+            {secondary && secondaryHref && (
+              <Link
+                href={secondaryHref}
+                className="pill pill-outline"
+                tabIndex={phase === "final" ? undefined : -1}
+              >
+                {secondary}
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            )}
           </div>
         </div>
 
@@ -156,10 +178,10 @@ export function HeroIntro({
             style={logoStyle}
           >
             <div
-              className={`border-y py-[clamp(20px,3vw,40px)] transition-colors duration-500 ${phase === "intro" ? "border-transparent" : "border-hairline"}`}
+              className={`border-y py-[clamp(20px,3vw,40px)] transition-colors duration-500 ${phase === "intro" ? "border-transparent" : "border-fog"}`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- animated SVG must not go through the image optimizer */}
               {src ? (
+                // eslint-disable-next-line @next/next/no-img-element -- animated SVG must not go through the image optimizer
                 <img
                   src={src}
                   alt=""

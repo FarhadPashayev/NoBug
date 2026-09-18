@@ -6,7 +6,7 @@ import type { Dictionary } from "@/lib/i18n/dict";
 
 type Status = "idle" | "sending" | "sent" | "error";
 
-export function ContactForm({ lang, t }: { lang: Locale; t: Dictionary }) {
+export function ContactForm({ lang, t, tone = "navy" }: { lang: Locale; t: Dictionary; tone?: "navy" | "template" }) {
   const [status, setStatus] = useState<Status>("idle");
   const openedAt = useRef(0);
   useEffect(() => {
@@ -49,13 +49,13 @@ export function ContactForm({ lang, t }: { lang: Locale; t: Dictionary }) {
   return (
     <form onSubmit={onSubmit} className="mt-5 grid gap-7" noValidate>
       <Field id="k2-name" label={t.fieldName}>
-        <input id="k2-name" name="name" type="text" required autoComplete="name" className="field-underline field-underline-navy" />
+        <input id="k2-name" name="name" type="text" required autoComplete="name" className={`field-underline ${tone === "template" ? "field-underline-tpl" : "field-underline-navy"}`} />
       </Field>
       <Field id="k2-mail" label={t.fieldEmail}>
-        <input id="k2-mail" name="email" type="email" required autoComplete="email" className="field-underline field-underline-navy" />
+        <input id="k2-mail" name="email" type="email" required autoComplete="email" inputMode="email" className={`field-underline ${tone === "template" ? "field-underline-tpl" : "field-underline-navy"}`} />
       </Field>
       <Field id="k2-msg" label={t.fieldMessage}>
-        <input id="k2-msg" name="subject" type="text" required className="field-underline field-underline-navy" />
+        <input id="k2-msg" name="subject" type="text" required className={`field-underline ${tone === "template" ? "field-underline-tpl" : "field-underline-navy"}`} />
       </Field>
 
       {/* honeypot — invisible to people */}
@@ -65,7 +65,7 @@ export function ContactForm({ lang, t }: { lang: Locale; t: Dictionary }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
-        <button type="submit" disabled={status === "sending"} className="btn-primary btn-primary-paper w-full sm:w-auto">
+        <button type="submit" disabled={status === "sending"} className={tone === "template" ? "pill pill-red w-full justify-center sm:w-auto" : "btn-primary btn-primary-paper w-full sm:w-auto"}>
           {status === "sending" ? t.formSending : t.formSubmit}
         </button>
         {status === "error" && (
