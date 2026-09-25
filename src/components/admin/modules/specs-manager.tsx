@@ -35,9 +35,9 @@ const CELL = "w-full rounded-md border border-transparent bg-transparent px-2 py
  * that saves on blur / Enter when its value changed; groups and rows can be
  * dragged into order. No dialogs: the table *is* the form.
  */
-export function SpecsManager() {
+export function SpecsManager({ initial }: { initial?: SpecGroupRow[] }) {
   const qc = useQueryClient();
-  const query = useQuery({ queryKey: ["specs"], queryFn: async () => unwrap(await listSpecs()) });
+  const query = useQuery({ queryKey: ["specs"], queryFn: async () => unwrap(await listSpecs()), initialData: initial });
   const [groups, setGroups] = useState<SpecGroupRow[]>([]);
   const [source, setSource] = useState<SpecGroupRow[] | undefined>(undefined);
   // fresh server data replaces the local (optimistically reordered) list

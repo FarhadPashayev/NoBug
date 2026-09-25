@@ -25,7 +25,9 @@ import { Badge } from "../ui/badge";
 
 const TAB = "rounded-md px-3 py-1.5 text-sm text-ad-muted-fg transition-colors data-[state=active]:bg-ad-card data-[state=active]:text-ad-fg data-[state=active]:shadow-sm";
 
-export function ServicesManager() {
+type Initial = { services?: ServiceRow[]; categories?: ServiceCategoryRow[] };
+
+export function ServicesManager({ initial }: { initial?: Initial }) {
   return (
     <Tabs.Root defaultValue="services" className="space-y-4">
       <Tabs.List className="inline-flex rounded-lg border border-ad-border bg-ad-muted/60 p-1" aria-label="Bölmə">
@@ -37,23 +39,24 @@ export function ServicesManager() {
         </Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="services">
-        <Services />
+        <Services initial={initial} />
       </Tabs.Content>
       <Tabs.Content value="categories">
-        <Categories />
+        <Categories initial={initial?.categories} />
       </Tabs.Content>
     </Tabs.Root>
   );
 }
 
-function Services() {
+function Services({ initial }: { initial?: Initial }) {
   // categories populate the select; the list is short and cached for the session
-  const categories = useQuery({ queryKey: ["service-categories"], queryFn: async () => unwrap(await listServiceCategories()) });
+  const categories = useQuery({ queryKey: ["service-categories"], queryFn: async () => unwrap(await listServiceCategories()), initialData: initial?.categories });
   const options = (categories.data ?? []).map((c) => ({ value: c.id, label: t(c.name) }));
 
   return (
     <CrudManager<ServiceInput, ServiceRow>
       queryKey="services"
+      initialRows={initial?.services}
       actions={{ list: listServices, create: createService, update: updateService, remove: deleteService, reorder: reorderServices }}
       schema={serviceSchema}
       itemLabel="Xidmət"
@@ -102,10 +105,11 @@ function Services() {
   );
 }
 
-function Categories() {
+function Categories({ initial }: { initial?: ServiceCategoryRow[] }) {
   return (
     <CrudManager<ServiceCategoryInput, ServiceCategoryRow>
       queryKey="service-categories"
+      initialRows={initial}
       actions={{ list: listServiceCategories, create: createServiceCategory, update: updateServiceCategory, remove: deleteServiceCategory, reorder: reorderServiceCategories }}
       schema={serviceCategorySchema}
       itemLabel="Kateqoriya"

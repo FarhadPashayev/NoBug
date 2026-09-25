@@ -7,10 +7,11 @@ import { projectSchema, type ProjectInput } from "@/schemas/projects";
 import { CrudManager } from "../crud-manager";
 import { Badge } from "../ui/badge";
 
-export function ProjectsManager() {
+export function ProjectsManager({ initial }: { initial?: ProjectRow[] }) {
   return (
     <CrudManager<ProjectInput, ProjectRow>
       queryKey="projects"
+      initialRows={initial}
       actions={{ list: listProjects, create: createProject, update: updateProject, remove: deleteProject, reorder: reorderProjects }}
       schema={projectSchema}
       itemLabel="Layihə"

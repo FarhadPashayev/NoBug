@@ -39,12 +39,20 @@ const EMPTY_FILTER: LeadFilter = { q: "", status: "", from: "", to: "" };
  * an internal note. Status, date range and text filters run on the server;
  * the result set (capped) is searched, sorted and paginated in the table.
  */
-export function LeadsInbox() {
+type LeadsData = { items: Lead[]; total: number; capped: boolean; fresh: number };
+
+export function LeadsInbox({ initial }: { initial?: LeadsData }) {
   const qc = useQueryClient();
   const [filter, setFilter] = useState<LeadFilter>(EMPTY_FILTER);
   const [open, setOpen] = useState<Lead | null>(null);
+  const unfiltered = !filter.q && !filter.status && !filter.from && !filter.to;
 
-  const list = useQuery({ queryKey: ["leads", filter], queryFn: async () => unwrap(await listLeads(filter)) });
+  const list = useQuery({
+    queryKey: ["leads", filter],
+    queryFn: async (): Promise<LeadsData> => unwrap(await listLeads(filter)) as LeadsData,
+    // the server page fetched the unfiltered inbox; filtered views load on demand
+    initialData: unfiltered ? initial : undefined,
+  });
   const invalidate = () => qc.invalidateQueries({ queryKey: ["leads"] });
 
   const update = useMutation({

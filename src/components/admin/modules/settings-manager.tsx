@@ -32,9 +32,11 @@ const EMPTY: SettingsInput = {
 const GROUP_LABELS: Record<(typeof FOOTER_GROUPS)[number], string> = { services: "Xidmətlər", company: "Şirkət", legal: "Hüquqi" };
 
 /** Contact details, social links and footer navigation. Singleton row, replaced on save. */
-export function SettingsManager() {
+type SettingsData = Extract<Awaited<ReturnType<typeof getSettings>>, { ok: true }>["data"];
+
+export function SettingsManager({ initial }: { initial?: SettingsData }) {
   const qc = useQueryClient();
-  const query = useQuery({ queryKey: ["settings"], queryFn: async () => unwrap(await getSettings()) });
+  const query = useQuery({ queryKey: ["settings"], queryFn: async () => unwrap(await getSettings()), initialData: initial });
 
   const {
     register,

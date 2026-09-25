@@ -7,10 +7,11 @@ import { CrudManager } from "../crud-manager";
 
 type Row = { id: string; value: string; label: unknown; source: unknown; order: number };
 
-export function StatsManager() {
+export function StatsManager({ initial }: { initial?: Row[] }) {
   return (
     <CrudManager<StatInput, Row>
       queryKey="stats"
+      initialRows={initial}
       actions={{ list: listStats, create: createStat, update: updateStat, remove: deleteStat, reorder: reorderStats }}
       schema={statSchema}
       itemLabel="Göstərici"

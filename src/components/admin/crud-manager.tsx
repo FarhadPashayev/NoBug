@@ -65,6 +65,7 @@ export function CrudManager<Values extends FieldValues, Row extends { id: string
   rowLabel,
   searchPlaceholder,
   filters,
+  initialRows,
 }: {
   queryKey: string;
   actions: CrudActions<Values, Row>;
@@ -79,13 +80,15 @@ export function CrudManager<Values extends FieldValues, Row extends { id: string
   rowLabel?: (row: Row) => string;
   searchPlaceholder?: string;
   filters?: React.ReactNode;
+  /** rows fetched by the server page — skips the first client round trip */
+  initialRows?: Row[];
 }) {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Row | null>(null);
   const [open, setOpen] = useState(false);
   const [ordering, setOrdering] = useState<Row[] | null>(null);
 
-  const list = useQuery({ queryKey: [queryKey], queryFn: async () => unwrap(await actions.list()) });
+  const list = useQuery({ queryKey: [queryKey], queryFn: async () => unwrap(await actions.list()), initialData: initialRows });
 
   // the schema's `.default()`s make its input type looser than its output;
   // the resolver is cast once here rather than at every call site

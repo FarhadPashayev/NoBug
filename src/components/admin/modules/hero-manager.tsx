@@ -36,9 +36,11 @@ const EMPTY: HeroInput = {
 type Logo = { id: string; name: string; logoUrl: string; logoPath: string | null; url: string; isActive: boolean; order: number };
 
 /** Hero is a singleton form; partner logos are a separate sortable list. */
-export function HeroManager() {
+type HeroData = { hero: HeroInput | null; logos: Logo[] };
+
+export function HeroManager({ initial }: { initial?: HeroData }) {
   const qc = useQueryClient();
-  const query = useQuery({ queryKey: ["hero"], queryFn: async () => unwrap(await getHero()) });
+  const query = useQuery({ queryKey: ["hero"], queryFn: async (): Promise<HeroData> => unwrap(await getHero()), initialData: initial });
 
   const form = useForm<HeroInput>({ resolver: zodResolver(heroSchema as never) as Resolver<HeroInput>, defaultValues: EMPTY });
   const {
