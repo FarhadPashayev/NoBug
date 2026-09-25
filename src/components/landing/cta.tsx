@@ -1,17 +1,28 @@
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dict";
-import { CONTACT_EMAIL } from "@/lib/site";
+import type { SiteContent } from "@/lib/content";
 import { Rise } from "@/components/ui/motion";
 import { TrackedAnchor } from "@/components/ui/tracked";
 import { ContactForm } from "@/components/site/contact-form";
 
 /**
- * CTA banner — navy band. Red headline + contact text + email left; the
- * short enquiry form on the right where the template shows a portrait
- * (there is no portrait to show, and the form is real content).
- * Careers statement sits beneath as a single line.
+ * CTA banner — navy band. Headline + contact details left (email, phones
+ * when issued, address, hours — all from Sayt parametrləri); the short
+ * enquiry form on the right. Careers statement sits beneath as a single line.
  */
-export function Cta({ lang, t }: { lang: Locale; t: Dictionary }) {
+export function Cta({ lang, t, content }: { lang: Locale; t: Dictionary; content: SiteContent }) {
+  const { email, phones, address, hours } = content.settings;
+  const rows: [string, React.ReactNode][] = [
+    ...phones.map((p, i): [string, React.ReactNode] => [
+      i === 0 ? "Telefon" : `Telefon ${i + 1}`,
+      <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className="border-b border-fog-navy pb-0.5 transition-colors hover:border-white">
+        {p}
+      </a>,
+    ]),
+    ...(address ? ([[t.contactRows[0][0], address]] as [string, React.ReactNode][]) : []),
+    ...(hours ? ([[t.contactRows[1][0], hours]] as [string, React.ReactNode][]) : []),
+  ];
+
   return (
     <section id="elaqe" data-bg="dark" className="scroll-mt-20 text-white">
       <div className="container-site section-pad grid grid-cols-12 items-center gap-x-8 gap-y-12">
@@ -23,14 +34,13 @@ export function Cta({ lang, t }: { lang: Locale; t: Dictionary }) {
             <div>
               <dt className="mono-label text-grey-navy">{t.contactEmailLabel}</dt>
               <dd className="m-0 mt-2 text-[17px]">
-                <TrackedAnchor href={`mailto:${CONTACT_EMAIL}`} event={{ name: "contact_email_click", params: { locale: lang } }} className="border-b border-fog-navy pb-0.5 transition-colors hover:border-white">
-                  {CONTACT_EMAIL}
+                <TrackedAnchor href={`mailto:${email}`} event={{ name: "contact_email_click", params: { locale: lang } }} className="border-b border-fog-navy pb-0.5 transition-colors hover:border-white">
+                  {email}
                 </TrackedAnchor>
                 <div className="mt-2 text-[14px] text-grey-navy">{t.contactReplyNote}</div>
               </dd>
             </div>
-            {/* TODO: phone + WhatsApp when the number is issued */}
-            {t.contactRows.map(([label, value]) => (
+            {rows.map(([label, value]) => (
               <div key={label}>
                 <dt className="mono-label text-grey-navy">{label}</dt>
                 <dd className="m-0 mt-2 text-[17px]">{value}</dd>

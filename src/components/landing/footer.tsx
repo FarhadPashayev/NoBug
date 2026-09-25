@@ -1,17 +1,26 @@
 import Link from "next/link";
 import type { Locale } from "@/lib/i18n/config";
-import { FOOTER_COMPANY_ANCHORS, type Dictionary } from "@/lib/i18n/dict";
-import { FOOTER_SERVICES, serviceHref, serviceIndex } from "@/lib/services";
-import { CONTACT_EMAIL, LINKEDIN_URL } from "@/lib/site";
+import type { Dictionary } from "@/lib/i18n/dict";
+import type { SiteContent } from "@/lib/content";
 import { LEGAL_KEYS, legalHref } from "@/lib/legal";
 import { Logo } from "@/components/ui/logo";
 import { TrackedAnchor } from "@/components/ui/tracked";
 
 const LINK = "text-[15px] leading-[1.5] text-grey transition-colors hover:text-ink";
+const SOCIAL: [keyof SiteContent["settings"]["social"], string][] = [
+  ["linkedin", "LinkedIn"],
+  ["instagram", "Instagram"],
+  ["facebook", "Facebook"],
+  ["youtube", "YouTube"],
+  ["x", "X"],
+];
 
-/** Footer — light. Logo + blurb, four link columns, hairline, © row. */
-export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
+/** Footer — light. Logo + blurb, four link columns, hairline, © row. Links and contact details come from Sayt parametrləri. */
+export function Footer({ lang, t, content }: { lang: Locale; t: Dictionary; content: SiteContent }) {
   const [servicesCol, companyCol, legalCol] = t.footerCols;
+  const { settings } = content;
+  const socials = SOCIAL.filter(([k]) => settings.social[k]);
+  const tools = [...new Set(content.specs.map((r) => r.tooling).filter((v) => v && v !== "—"))];
 
   return (
     <footer data-bg="light" className="border-t border-fog bg-light text-ink">
@@ -20,27 +29,31 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
           <div className="col-span-2 max-w-[300px] md:col-span-1">
             <Logo href={`/${lang}#top`} variant="brand" height={28} />
             <p className="mt-5 text-[14px] leading-[1.6] text-grey">{t.meta.description}</p>
-            <div className="mt-6 flex gap-6">
-              <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" className="mono-label text-ink transition-colors hover:text-yellow-700">
-                LinkedIn
-              </a>
-            </div>
+            {socials.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-6">
+                {socials.map(([k, label]) => (
+                  <a key={k} href={settings.social[k]} target="_blank" rel="noopener noreferrer" className="mono-label text-ink transition-colors hover:text-yellow-700">
+                    {label}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           <Col title={servicesCol[0]}>
-            {FOOTER_SERVICES.map((id, i) => (
-              <li key={id}>
-                <Link href={serviceHref(lang, id)} className={LINK}>
-                  {servicesCol[1][i] ?? t.services[serviceIndex(id)][0]}
+            {settings.footerLinks.services.map((l) => (
+              <li key={l.href + l.label}>
+                <Link href={l.href} className={LINK}>
+                  {l.label}
                 </Link>
               </li>
             ))}
           </Col>
           <Col title={companyCol[0]}>
-            {companyCol[1].map((label, i) => (
-              <li key={label}>
-                <Link href={`/${lang}${FOOTER_COMPANY_ANCHORS[i] ?? "#top"}`} className={LINK}>
-                  {label}
+            {settings.footerLinks.company.map((l) => (
+              <li key={l.href + l.label}>
+                <Link href={l.href} className={LINK}>
+                  {l.label}
                 </Link>
               </li>
             ))}
@@ -53,15 +66,28 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
                 </Link>
               </li>
             ))}
+            {settings.footerLinks.legal.map((l) => (
+              <li key={l.href + l.label}>
+                <Link href={l.href} className={LINK}>
+                  {l.label}
+                </Link>
+              </li>
+            ))}
           </Col>
           <Col title={t.footerContact}>
             <li>
-              <TrackedAnchor href={`mailto:${CONTACT_EMAIL}`} event={{ name: "contact_email_click", params: { locale: lang } }} className={LINK}>
-                {CONTACT_EMAIL}
+              <TrackedAnchor href={`mailto:${settings.email}`} event={{ name: "contact_email_click", params: { locale: lang } }} className={LINK}>
+                {settings.email}
               </TrackedAnchor>
             </li>
-            {/* TODO: phone + WhatsApp when the number is issued */}
-            <li className="text-[15px] leading-[1.5] text-grey">{t.contactRows[0][1]}</li>
+            {settings.phones.map((p) => (
+              <li key={p}>
+                <a href={`tel:${p.replace(/\s+/g, "")}`} className={LINK}>
+                  {p}
+                </a>
+              </li>
+            ))}
+            {settings.address && <li className="text-[15px] leading-[1.5] text-grey">{settings.address}</li>}
           </Col>
         </div>
 
@@ -70,11 +96,9 @@ export function Footer({ lang, t }: { lang: Locale; t: Dictionary }) {
             {t.legal[2]} {t.legal[0]}. {t.legal[1]}
           </div>
           <div className="mono-label flex flex-wrap gap-x-6 text-grey/70">
-            {t.techRows
-              .filter((r) => r[2] !== "—")
-              .map((r) => (
-                <span key={r[2]}>{r[2]}</span>
-              ))}
+            {tools.map((tool) => (
+              <span key={tool}>{tool}</span>
+            ))}
           </div>
         </div>
       </div>

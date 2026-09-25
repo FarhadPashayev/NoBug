@@ -1,9 +1,11 @@
+import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
-// Prisma 7 keeps the connection URL out of the schema: migrate/db-push read it
-// from here, the client gets it through the pg adapter (src/lib/db.ts).
+// Prisma 7: the connection lives here, not in schema.prisma. Migrations and
+// `db push` go straight to Postgres (DIRECT_URL, port 5432); the app itself
+// uses DATABASE_URL, which on Supabase is the pooled connection.
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: { seed: "tsx prisma/seed.ts" },
-  datasource: { url: process.env.DATABASE_URL ?? "" },
+  datasource: { url: process.env.DIRECT_URL ?? process.env.DATABASE_URL ?? "" },
 });

@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { hasDatabase } from "@/lib/db";
+import { hasAuthSecret } from "@/lib/auth";
 import { LoginForm } from "@/components/admin/login-form";
+import { BootstrapCard } from "@/components/admin/bootstrap-card";
+import { needsBootstrap } from "@/actions/bootstrap";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Giriş" };
@@ -9,7 +12,8 @@ export const metadata = { title: "Giriş" };
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const { next } = await searchParams;
   if (await getSession()) redirect(next && next.startsWith("/admin") ? next : "/admin");
-  const ready = hasDatabase && !!process.env.AUTH_SECRET && process.env.AUTH_SECRET.length >= 32;
+  const ready = hasDatabase && hasAuthSecret;
+  const fresh = ready && (await needsBootstrap());
 
   return (
     <main className="grid min-h-dvh place-items-center px-5 py-10">
@@ -19,7 +23,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           nobug admin
         </div>
         {ready ? (
-          <LoginForm next={next} />
+          <>
+            <LoginForm next={next} />
+            {fresh && <BootstrapCard />}
+          </>
         ) : (
           <div className="rounded-xl border border-ad-border bg-ad-card p-5 text-sm">
             <p className="font-medium text-ad-fg">Panel konfiqurasiya olunmayıb</p>

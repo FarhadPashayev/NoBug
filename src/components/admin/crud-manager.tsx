@@ -2,26 +2,35 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowUpDown, Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm, type DefaultValues, type FieldValues, type Path, type Resolver } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { api } from "@/lib/admin/client";
+import { unwrap, type ActionResult } from "@/actions/result";
 import { cn } from "@/lib/utils";
+import type { MediaFolder } from "@/lib/supabase";
 import { DataTable, type Column } from "./data-table";
-import { ImageDrop } from "./image-drop";
+import { ImageDrop, type ImageValue } from "./image-drop";
+import { LocalizedField, localizedError } from "./localized-field";
+import { RichEditor } from "./rich-editor";
+import { SortableList } from "./sortable-list";
 import { Button } from "./ui/button";
 import { ConfirmDialog } from "./ui/confirm";
 import { Dialog, DialogBody, DialogContent, DialogFooter } from "./ui/dialog";
 import { EmptyState } from "./ui/empty";
 import { Field, Input, Select, Textarea } from "./ui/field";
+import { TableSkeleton } from "./ui/skeleton";
 import { Switch } from "./ui/switch";
 
 export type FieldSpec<T> = {
   name: Path<T>;
   label: string;
-  type: "text" | "textarea" | "number" | "switch" | "select" | "image" | "tags";
+  type: "text" | "textarea" | "number" | "switch" | "select" | "image" | "tags" | "localized";
+  /** localized: which control renders under the language tabs */
+  kind?: "input" | "textarea" | "rich";
+  /** image: storage folder */
+  folder?: MediaFolder;
   hint?: string;
   placeholder?: string;
   options?: { value: string; label: string }[];
@@ -29,41 +38,54 @@ export type FieldSpec<T> = {
   rows?: number;
 };
 
+export type CrudActions<Values, Row> = {
+  list: () => Promise<ActionResult<Row[]>>;
+  create: (values: Values) => Promise<ActionResult<unknown>>;
+  update: (id: string, values: Values) => Promise<ActionResult<unknown>>;
+  remove: (id: string) => Promise<ActionResult<unknown>>;
+  reorder?: (input: { ids: string[] }) => Promise<ActionResult<unknown>>;
+};
+
 /**
  * One screen for a content collection: list (search/sort/paginate), a create
- * and edit dialog driven by the same zod schema as the API, and a confirmed
- * delete. Fields are declared, not hand-written, so the five collections stay
+ * and edit dialog driven by the same zod schema as the server action, a
+ * confirmed delete and — when `reorder` is given — a drag-and-drop order
+ * dialog. Fields are declared, not hand-written, so the collections stay
  * consistent and adding one is a few lines.
  */
 export function CrudManager<Values extends FieldValues, Row extends { id: string }>({
-  endpoint,
   queryKey,
+  actions,
   schema,
   emptyValues,
   fields,
   columns,
   itemLabel,
-  rowsFrom = (data: { items: Row[] }) => data.items,
   toForm,
+  rowLabel,
   searchPlaceholder,
+  filters,
 }: {
-  endpoint: string;
   queryKey: string;
+  actions: CrudActions<Values, Row>;
   schema: z.ZodType<Values, unknown>;
   emptyValues: DefaultValues<Values>;
   fields: FieldSpec<Values>[];
   columns: Column<Row>[];
   itemLabel: string;
-  rowsFrom?: (data: { items: Row[] }) => Row[];
-  /** map a row to form values when editing (defaults to the row itself) */
-  toForm?: (row: Row) => DefaultValues<Values>;
+  /** map a row to form values when editing */
+  toForm: (row: Row) => DefaultValues<Values>;
+  /** text shown per row in the reorder dialog */
+  rowLabel?: (row: Row) => string;
   searchPlaceholder?: string;
+  filters?: React.ReactNode;
 }) {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Row | null>(null);
   const [open, setOpen] = useState(false);
+  const [ordering, setOrdering] = useState<Row[] | null>(null);
 
-  const list = useQuery({ queryKey: [queryKey], queryFn: () => api<{ items: Row[] }>(endpoint) });
+  const list = useQuery({ queryKey: [queryKey], queryFn: async () => unwrap(await actions.list()) });
 
   // the schema's `.default()`s make its input type looser than its output;
   // the resolver is cast once here rather than at every call site
@@ -73,31 +95,36 @@ export function CrudManager<Values extends FieldValues, Row extends { id: string
     control,
     handleSubmit,
     reset,
+    setError,
     formState: { errors, isSubmitting },
   } = form;
 
   useEffect(() => {
     if (!open) return;
-    reset(editing ? ((toForm?.(editing) ?? (editing as unknown)) as DefaultValues<Values>) : emptyValues);
+    reset(editing ? toForm(editing) : emptyValues);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reset only when the dialog opens for a row
   }, [open, editing]);
 
   const invalidate = () => qc.invalidateQueries({ queryKey: [queryKey] });
 
+  const onActionError = (e: Error & { fieldErrors?: Record<string, string> }) => {
+    for (const [path, message] of Object.entries(e.fieldErrors ?? {})) setError(path as Path<Values>, { message });
+    toast.error(e.message);
+  };
+
   const save = useMutation({
-    mutationFn: (values: Values) =>
-      editing ? api(`${endpoint}/${editing.id}`, { method: "PATCH", body: JSON.stringify(values) }) : api(endpoint, { method: "POST", body: JSON.stringify(values) }),
+    mutationFn: async (values: Values) => unwrap(editing ? await actions.update(editing.id, values) : await actions.create(values)),
     onSuccess: () => {
       toast.success(editing ? "Yeniləndi" : "Əlavə olundu");
       setOpen(false);
       setEditing(null);
       invalidate();
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: onActionError,
   });
 
   const remove = useMutation({
-    mutationFn: (id: string) => api(`${endpoint}/${id}`, { method: "DELETE" }),
+    mutationFn: async (id: string) => unwrap(await actions.remove(id)),
     onSuccess: () => {
       toast.success("Silindi");
       invalidate();
@@ -105,9 +132,19 @@ export function CrudManager<Values extends FieldValues, Row extends { id: string
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const rows = list.data ? rowsFrom(list.data) : [];
+  const reorder = useMutation({
+    mutationFn: async (ids: string[]) => unwrap(await actions.reorder!({ ids })),
+    onSuccess: () => {
+      toast.success("Sıra yadda saxlanıldı");
+      setOrdering(null);
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
-  const actions: Column<Row> = {
+  const rows = list.data ?? [];
+
+  const actionsColumn: Column<Row> = {
     key: "actions",
     header: "",
     className: "w-px whitespace-nowrap text-right",
@@ -139,6 +176,20 @@ export function CrudManager<Values extends FieldValues, Row extends { id: string
     ),
   };
 
+  const addButton = (
+    <Button
+      onClick={() => {
+        setEditing(null);
+        setOpen(true);
+      }}
+    >
+      <Plus />
+      Əlavə et
+    </Button>
+  );
+
+  if (list.isLoading) return <TableSkeleton />;
+
   return (
     <div className="space-y-4">
       {list.isError && (
@@ -149,51 +200,52 @@ export function CrudManager<Values extends FieldValues, Row extends { id: string
 
       <DataTable
         rows={rows}
-        columns={[...columns, actions]}
+        columns={[...columns, actionsColumn]}
         searchPlaceholder={searchPlaceholder}
-        empty={
-          list.isLoading ? (
-            <EmptyState title="Yüklənir…" />
-          ) : (
-            <EmptyState
-              title={`${itemLabel} yoxdur`}
-              description="İlk qeydi əlavə edin."
-              action={
-                <Button
-                  onClick={() => {
-                    setEditing(null);
-                    setOpen(true);
-                  }}
-                >
-                  <Plus />
-                  Əlavə et
-                </Button>
-              }
-            />
-          )
-        }
+        filters={filters}
+        loading={list.isFetching}
+        empty={<EmptyState title={`${itemLabel} yoxdur`} description="İlk qeydi əlavə edin." action={addButton} />}
         toolbar={
-          <Button
-            onClick={() => {
-              setEditing(null);
-              setOpen(true);
-            }}
-          >
-            <Plus />
-            Əlavə et
-          </Button>
+          <div className="flex gap-2">
+            {actions.reorder && rowLabel && rows.length > 1 && (
+              <Button variant="outline" onClick={() => setOrdering(rows)}>
+                <ArrowUpDown />
+                Sıra
+              </Button>
+            )}
+            {addButton}
+          </div>
         }
       />
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent title={editing ? `${itemLabel}: redaktə` : `Yeni ${itemLabel.toLocaleLowerCase("az")}`}>
+        <DialogContent title={editing ? `${itemLabel}: redaktə` : `Yeni ${itemLabel.toLocaleLowerCase("az")}`} className="w-[min(94vw,760px)]">
           <form onSubmit={handleSubmit((v) => save.mutateAsync(v))} noValidate className="contents">
             <DialogBody>
               <div className="grid gap-4 sm:grid-cols-2">
                 {fields.map((f) => {
-                  const error = (errors as Record<string, { message?: string }>)[f.name as string]?.message;
+                  const errorNode = (errors as Record<string, unknown>)[f.name as string];
+                  const error = f.type === "localized" ? localizedError(errorNode) : (errorNode as { message?: string } | undefined)?.message;
                   const id = `f-${String(f.name)}`;
-                  const wide = f.full || f.type === "textarea" || f.type === "image";
+                  const wide = f.full || f.type === "textarea" || f.type === "image" || f.type === "localized";
+
+                  if (f.type === "localized") {
+                    return (
+                      <LocalizedField
+                        key={String(f.name)}
+                        control={control}
+                        name={f.name}
+                        label={f.label}
+                        hint={f.hint}
+                        error={error}
+                        placeholder={f.placeholder}
+                        rows={f.rows}
+                        kind={f.kind === "rich" ? "custom" : (f.kind ?? "input")}
+                        className="sm:col-span-2"
+                        renderEditor={f.kind === "rich" ? ({ value, onChange, locale }) => <RichEditor key={locale} value={value} onChange={onChange} /> : undefined}
+                      />
+                    );
+                  }
 
                   return (
                     <Field key={String(f.name)} label={f.label} hint={f.hint} error={error} htmlFor={id} className={cn(wide && "sm:col-span-2")}>
@@ -236,7 +288,9 @@ export function CrudManager<Values extends FieldValues, Row extends { id: string
                         <Controller
                           control={control}
                           name={f.name}
-                          render={({ field }) => <ImageDrop label="" value={(field.value as string) ?? null} onChange={field.onChange} aspect="aspect-[16/9]" />}
+                          render={({ field }) => (
+                            <ImageDrop label="" folder={f.folder ?? "projects"} value={(field.value as ImageValue | null) ?? null} onChange={(v) => field.onChange(v ?? { url: null, path: null })} aspect="aspect-[16/9]" />
+                          )}
                         />
                       )}
 
@@ -248,8 +302,8 @@ export function CrudManager<Values extends FieldValues, Row extends { id: string
                             <Input
                               id={id}
                               placeholder="vergüllə ayırın"
-                              value={Array.isArray(field.value) ? field.value.join(", ") : ""}
-                              onChange={(e) =>
+                              defaultValue={Array.isArray(field.value) ? field.value.join(", ") : ""}
+                              onBlur={(e) =>
                                 field.onChange(
                                   e.target.value
                                     .split(",")
@@ -277,6 +331,24 @@ export function CrudManager<Values extends FieldValues, Row extends { id: string
           </form>
         </DialogContent>
       </Dialog>
+
+      {actions.reorder && rowLabel && (
+        <Dialog open={!!ordering} onOpenChange={(o) => !o && setOrdering(null)}>
+          <DialogContent title="Sıranı dəyiş" description="Sürüşdürərək düzün; yuxarıdakı saytda birinci göstərilir." className="w-[min(92vw,520px)]">
+            <DialogBody>
+              {ordering && <SortableList items={ordering} onReorder={setOrdering} render={(row, i) => <span className="block truncate text-sm"><span className="mr-2 font-mono text-xs text-ad-muted-fg">{i + 1}</span>{rowLabel(row)}</span>} />}
+            </DialogBody>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setOrdering(null)}>
+                İmtina
+              </Button>
+              <Button type="button" loading={reorder.isPending} onClick={() => ordering && reorder.mutate(ordering.map((r) => r.id))}>
+                Yadda saxla
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

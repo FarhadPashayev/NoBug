@@ -17,7 +17,7 @@ async function counts() {
       prisma.project.count(),
       prisma.service.count(),
       prisma.stat.count(),
-      prisma.spec.count(),
+      prisma.specItem.count(),
       prisma.lead.count({ where: { status: "NEW" } }),
       prisma.lead.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
     ]);

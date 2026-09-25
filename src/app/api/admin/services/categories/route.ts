@@ -1,15 +1,9 @@
-import { prisma } from "@/lib/db";
-import { serviceCategorySchema } from "@/lib/admin/schemas";
-import { collectionRoutes } from "@/lib/admin/crud";
-import { slugify } from "@/lib/utils";
+import { NextResponse } from "next/server";
 
-export const runtime = "nodejs";
-
-const routes = collectionRoutes({
-  model: () => prisma.serviceCategory as never,
-  schema: serviceCategorySchema,
-  derive: (data) => ({ slug: data.slug || slugify(data.name) }),
-});
-
-export const GET = routes.GET;
-export const POST = routes.POST;
+// Replaced by server actions in src/actions — safe to delete this file.
+const gone = () => NextResponse.json({ error: "Bu endpoint server action-larla əvəz olunub" }, { status: 410 });
+export const GET = gone;
+export const POST = gone;
+export const PUT = gone;
+export const PATCH = gone;
+export const DELETE = gone;

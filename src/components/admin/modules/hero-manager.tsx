@@ -2,152 +2,281 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2 } from "lucide-react";
-import { useEffect } from "react";
-import { Controller, useFieldArray, useForm, type Resolver } from "react-hook-form";
+import Image from "next/image";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Controller, useForm, type Path, type Resolver } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
-import { api } from "@/lib/admin/client";
-import { heroSchema, partnerLogoSchema } from "@/lib/admin/schemas";
+import { createPartnerLogo, deletePartnerLogo, getHero, reorderPartnerLogos, saveHero, updatePartnerLogo } from "@/actions/hero";
+import { unwrap } from "@/actions/result";
+import { emptyLocalized } from "@/lib/i18n/localized";
+import { heroSchema, partnerLogoSchema, type HeroInput, type PartnerLogoInput } from "@/schemas/hero";
+import { ImageDrop } from "../image-drop";
+import { LocalizedField, localizedError } from "../localized-field";
+import { SortableList } from "../sortable-list";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardBody, CardFooter, CardHeader } from "../ui/card";
-import { Field, Input, Textarea } from "../ui/field";
-import { ImageDrop } from "../image-drop";
+import { ConfirmDialog } from "../ui/confirm";
+import { Dialog, DialogBody, DialogContent, DialogFooter } from "../ui/dialog";
+import { Field, Input } from "../ui/field";
+import { FormSkeleton } from "../ui/skeleton";
+import { Switch } from "../ui/switch";
 
-const formSchema = heroSchema.extend({ partnerLogos: z.array(partnerLogoSchema).max(20).default([]) });
-type Values = z.infer<typeof formSchema>;
-
-const EMPTY: Values = {
-  locale: "az",
-  eyebrow: "",
-  title: "",
-  subtitle: "",
-  primaryLabel: "",
-  primaryHref: "",
-  secondaryLabel: "",
-  secondaryHref: "",
-  imageUrl: null,
-  partnerLogos: [],
+const EMPTY: HeroInput = {
+  title: emptyLocalized(),
+  subtitle: emptyLocalized(),
+  primaryCtaLabel: emptyLocalized(),
+  primaryCtaUrl: "",
+  secondaryCtaLabel: emptyLocalized(),
+  secondaryCtaUrl: "",
+  heroImage: { url: null, path: null },
 };
 
-/** Hero is a singleton: one GET, one PUT that replaces the logo list. */
+type Logo = { id: string; name: string; logoUrl: string; logoPath: string | null; url: string; isActive: boolean; order: number };
+
+/** Hero is a singleton form; partner logos are a separate sortable list. */
 export function HeroManager() {
   const qc = useQueryClient();
-  const hero = useQuery({ queryKey: ["hero"], queryFn: () => api<{ hero: Values | null }>("/api/admin/hero") });
+  const query = useQuery({ queryKey: ["hero"], queryFn: async () => unwrap(await getHero()) });
 
-  const form = useForm<Values>({ resolver: zodResolver(formSchema) as Resolver<Values>, defaultValues: EMPTY });
+  const form = useForm<HeroInput>({ resolver: zodResolver(heroSchema as never) as Resolver<HeroInput>, defaultValues: EMPTY });
   const {
     register,
     control,
     handleSubmit,
     reset,
+    setError,
     formState: { errors, isDirty },
   } = form;
-  const logos = useFieldArray({ control, name: "partnerLogos" });
 
   useEffect(() => {
-    if (hero.data?.hero) reset({ ...EMPTY, ...hero.data.hero, partnerLogos: hero.data.hero.partnerLogos ?? [] });
-  }, [hero.data, reset]);
+    if (query.data?.hero) reset(query.data.hero);
+  }, [query.data, reset]);
 
   const save = useMutation({
-    mutationFn: (values: Values) => api("/api/admin/hero", { method: "PUT", body: JSON.stringify(values) }),
+    mutationFn: async (values: HeroInput) => unwrap(await saveHero(values)),
     onSuccess: () => {
       toast.success("Banner yadda saxlanıldı");
       qc.invalidateQueries({ queryKey: ["hero"] });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error & { fieldErrors?: Record<string, string> }) => {
+      for (const [path, message] of Object.entries(e.fieldErrors ?? {})) setError(path as Path<HeroInput>, { message });
+      toast.error(e.message);
+    },
   });
 
-  if (hero.isError) {
+  if (query.isLoading) return <FormSkeleton cards={3} />;
+  if (query.isError) {
     return (
       <p className="rounded-lg bg-ad-danger/10 px-4 py-3 text-sm text-ad-danger" role="alert">
-        {(hero.error as Error).message}
+        {(query.error as Error).message}
       </p>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit((v) => save.mutateAsync(v))} className="space-y-6" noValidate>
-      <Card>
-        <CardHeader title="Mətn" description="Ana səhifənin ilk ekranı." />
-        <CardBody className="grid gap-4 sm:grid-cols-2">
-          <Field label="Üst başlıq" htmlFor="eyebrow" error={errors.eyebrow?.message} className="sm:col-span-2">
-            <Input id="eyebrow" placeholder="nobug · Bakı · 2026-cı ildən" {...register("eyebrow")} />
-          </Field>
-          <Field label="Başlıq" htmlFor="title" error={errors.title?.message} className="sm:col-span-2">
-            <Input id="title" aria-invalid={!!errors.title} {...register("title")} />
-          </Field>
-          <Field label="Alt mətn" htmlFor="subtitle" error={errors.subtitle?.message} className="sm:col-span-2">
-            <Textarea id="subtitle" rows={3} {...register("subtitle")} />
-          </Field>
-        </CardBody>
-      </Card>
+    <div className="space-y-6">
+      <form onSubmit={handleSubmit((v) => save.mutateAsync(v))} className="space-y-6" noValidate>
+        <Card>
+          <CardHeader title="Mətn" description="Ana səhifənin ilk ekranı. Hər sahə üçün AZ / EN / RU tab-ları var." />
+          <CardBody className="space-y-4">
+            <LocalizedField control={control} name="title" label="Başlıq" error={localizedError(errors.title)} />
+            <LocalizedField control={control} name="subtitle" label="Alt mətn" kind="textarea" rows={3} error={localizedError(errors.subtitle)} />
+          </CardBody>
+        </Card>
 
-      <Card>
-        <CardHeader title="Düymələr" description="Boş buraxılan düymə səhifədə göstərilmir." />
-        <CardBody className="grid gap-4 sm:grid-cols-2">
-          <Field label="Əsas düymə" htmlFor="primaryLabel" error={errors.primaryLabel?.message}>
-            <Input id="primaryLabel" placeholder="Layihəni müzakirə et" {...register("primaryLabel")} />
-          </Field>
-          <Field label="Əsas düymənin linki" htmlFor="primaryHref" error={errors.primaryHref?.message}>
-            <Input id="primaryHref" placeholder="/az/anket" {...register("primaryHref")} />
-          </Field>
-          <Field label="İkinci düymə" htmlFor="secondaryLabel" error={errors.secondaryLabel?.message}>
-            <Input id="secondaryLabel" placeholder="Xidmətlərə bax" {...register("secondaryLabel")} />
-          </Field>
-          <Field label="İkinci düymənin linki" htmlFor="secondaryHref" error={errors.secondaryHref?.message}>
-            <Input id="secondaryHref" placeholder="/az#xidmetler" {...register("secondaryHref")} />
-          </Field>
-        </CardBody>
-      </Card>
+        <Card>
+          <CardHeader title="Düymələr" description="Boş buraxılan düymə səhifədə göstərilmir. Link `/anket` kimi yazılır — dil prefiksi avtomatik əlavə olunur." />
+          <CardBody className="grid gap-4 sm:grid-cols-2">
+            <LocalizedField control={control} name="primaryCtaLabel" label="Əsas düymə" error={localizedError(errors.primaryCtaLabel)} />
+            <Field label="Əsas düymənin linki" htmlFor="primaryCtaUrl" error={errors.primaryCtaUrl?.message}>
+              <Input id="primaryCtaUrl" placeholder="/anket" {...register("primaryCtaUrl")} />
+            </Field>
+            <LocalizedField control={control} name="secondaryCtaLabel" label="İkinci düymə" error={localizedError(errors.secondaryCtaLabel)} />
+            <Field label="İkinci düymənin linki" htmlFor="secondaryCtaUrl" error={errors.secondaryCtaUrl?.message}>
+              <Input id="secondaryCtaUrl" placeholder="#xidmetler" {...register("secondaryCtaUrl")} />
+            </Field>
+          </CardBody>
+        </Card>
 
-      <Card>
-        <CardHeader title="Vizual" />
-        <CardBody>
-          <Controller control={control} name="imageUrl" render={({ field }) => <ImageDrop label="Banner şəkli" value={field.value ?? null} onChange={field.onChange} />} />
-        </CardBody>
-      </Card>
-
-      <Card>
-        <CardHeader
-          title="Partnyor loqoları"
-          description="Bannerin altındakı sıra."
-          action={
-            <Button type="button" variant="outline" size="sm" onClick={() => logos.append({ name: "", imageUrl: "", href: "", position: logos.fields.length })}>
-              <Plus />
-              Əlavə et
+        <Card>
+          <CardHeader title="Vizual" description="Boş olduqda animasiyalı loqo göstərilir." />
+          <CardBody>
+            <Controller control={control} name="heroImage" render={({ field }) => <ImageDrop label="Banner şəkli" folder="hero" value={field.value} onChange={(v) => field.onChange(v ?? { url: null, path: null })} />} />
+          </CardBody>
+          <CardFooter>
+            <Button type="submit" loading={save.isPending} disabled={!isDirty && !save.isPending}>
+              Yadda saxla
             </Button>
-          }
-        />
-        <CardBody className="space-y-4">
-          {logos.fields.map((f, i) => (
-            <div key={f.id} className="grid gap-4 rounded-lg border border-ad-border p-4 sm:grid-cols-[200px_1fr_1fr_auto]">
-              <Controller
-                control={control}
-                name={`partnerLogos.${i}.imageUrl`}
-                render={({ field }) => <ImageDrop label="" value={field.value || null} onChange={(v) => field.onChange(v ?? "")} aspect="aspect-[3/2]" />}
-              />
-              <Field label="Ad" error={errors.partnerLogos?.[i]?.name?.message}>
-                <Input {...register(`partnerLogos.${i}.name`)} />
-              </Field>
-              <Field label="Link" error={errors.partnerLogos?.[i]?.href?.message}>
-                <Input placeholder="https://" {...register(`partnerLogos.${i}.href`)} />
-              </Field>
-              <div className="flex items-end">
-                <Button type="button" variant="ghost" size="icon" aria-label="Sil" className="text-ad-danger hover:bg-ad-danger/10" onClick={() => logos.remove(i)}>
-                  <Trash2 />
-                </Button>
-              </div>
-            </div>
-          ))}
-          {!logos.fields.length && <p className="text-sm text-ad-muted-fg">Loqo əlavə olunmayıb.</p>}
-        </CardBody>
-        <CardFooter>
-          <Button type="submit" loading={save.isPending} disabled={!isDirty && !save.isPending}>
-            Yadda saxla
+          </CardFooter>
+        </Card>
+      </form>
+
+      <PartnerLogos logos={query.data?.logos ?? []} />
+    </div>
+  );
+}
+
+const EMPTY_LOGO: PartnerLogoInput = { name: "", logo: { url: null, path: null }, url: "", isActive: true };
+
+function PartnerLogos({ logos }: { logos: Logo[] }) {
+  const qc = useQueryClient();
+  const [items, setItems] = useState(logos);
+  const [source, setSource] = useState(logos);
+  const [editing, setEditing] = useState<Logo | null>(null);
+  const [open, setOpen] = useState(false);
+  // fresh server data replaces the local (optimistically reordered) list
+  if (source !== logos) {
+    setSource(logos);
+    setItems(logos);
+  }
+
+  const invalidate = () => qc.invalidateQueries({ queryKey: ["hero"] });
+  const form = useForm<PartnerLogoInput>({ resolver: zodResolver(partnerLogoSchema as never) as Resolver<PartnerLogoInput>, defaultValues: EMPTY_LOGO });
+
+  useEffect(() => {
+    if (open) form.reset(editing ? { name: editing.name, logo: { url: editing.logoUrl, path: editing.logoPath }, url: editing.url, isActive: editing.isActive } : EMPTY_LOGO);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset only when the dialog opens
+  }, [open, editing]);
+
+  const save = useMutation({
+    mutationFn: async (v: PartnerLogoInput) => unwrap(editing ? await updatePartnerLogo(editing.id, v) : await createPartnerLogo(v)),
+    onSuccess: () => {
+      toast.success(editing ? "Loqo yeniləndi" : "Loqo əlavə olundu");
+      setOpen(false);
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const remove = useMutation({
+    mutationFn: async (id: string) => unwrap(await deletePartnerLogo(id)),
+    onSuccess: () => {
+      toast.success("Loqo silindi");
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const reorder = useMutation({
+    mutationFn: async (ids: string[]) => unwrap(await reorderPartnerLogos({ ids })),
+    onSuccess: () => toast.success("Sıra yadda saxlanıldı"),
+    onError: (e: Error) => {
+      toast.error(e.message);
+      setItems(logos);
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader
+        title="Partnyor loqoları"
+        description="Bannerin altındakı sıra. Sürüşdürərək sıralayın; qeyri-aktiv loqo saytda görünmür."
+        action={
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setEditing(null);
+              setOpen(true);
+            }}
+          >
+            <Plus />
+            Əlavə et
           </Button>
-        </CardFooter>
-      </Card>
-    </form>
+        }
+      />
+      <CardBody>
+        {items.length ? (
+          <SortableList
+            items={items}
+            disabled={reorder.isPending}
+            onReorder={(next) => {
+              setItems(next);
+              reorder.mutate(next.map((l) => l.id));
+            }}
+            render={(l) => (
+              <div className="flex items-center gap-3">
+                <span className="relative size-10 shrink-0 overflow-hidden rounded-md bg-white">
+                  <Image src={l.logoUrl} alt="" fill sizes="40px" className="object-contain p-1" unoptimized />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium">{l.name}</span>
+                  <span className="block truncate text-xs text-ad-muted-fg">{l.url || "—"}</span>
+                </span>
+                {!l.isActive && <Badge tone="neutral">Gizli</Badge>}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Redaktə et"
+                  onClick={() => {
+                    setEditing(l);
+                    setOpen(true);
+                  }}
+                >
+                  <Pencil />
+                </Button>
+                <ConfirmDialog
+                  title="Loqo silinsin?"
+                  description="Fayl da anbardan silinəcək."
+                  onConfirm={() => remove.mutateAsync(l.id)}
+                  trigger={
+                    <Button type="button" variant="ghost" size="icon" aria-label="Sil" className="text-ad-danger hover:bg-ad-danger/10">
+                      <Trash2 />
+                    </Button>
+                  }
+                />
+              </div>
+            )}
+          />
+        ) : (
+          <p className="text-sm text-ad-muted-fg">Loqo əlavə olunmayıb — bölmə saytda göstərilmir.</p>
+        )}
+      </CardBody>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent title={editing ? "Loqo: redaktə" : "Yeni loqo"} className="w-[min(92vw,520px)]">
+          <form onSubmit={form.handleSubmit((v) => save.mutateAsync(v))} noValidate className="contents">
+            <DialogBody className="space-y-4">
+              <Controller
+                control={form.control}
+                name="logo"
+                render={({ field, fieldState }) => (
+                  <div>
+                    <ImageDrop label="Loqo" folder="partners" value={field.value} onChange={(v) => field.onChange(v ?? { url: null, path: null })} aspect="aspect-[3/1]" />
+                    {fieldState.error && <p className="mt-1 text-xs text-ad-danger">{fieldState.error.message}</p>}
+                  </div>
+                )}
+              />
+              <Field label="Ad" htmlFor="logo-name" error={form.formState.errors.name?.message}>
+                <Input id="logo-name" {...form.register("name")} />
+              </Field>
+              <Field label="Link" htmlFor="logo-url" error={form.formState.errors.url?.message}>
+                <Input id="logo-url" placeholder="https://" {...form.register("url")} />
+              </Field>
+              <Controller
+                control={form.control}
+                name="isActive"
+                render={({ field }) => (
+                  <label className="flex items-center gap-3 text-sm">
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    Saytda göstər
+                  </label>
+                )}
+              />
+            </DialogBody>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                İmtina
+              </Button>
+              <Button type="submit" loading={save.isPending}>
+                Yadda saxla
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </Card>
   );
 }

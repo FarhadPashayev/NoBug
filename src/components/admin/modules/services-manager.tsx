@@ -1,91 +1,127 @@
 "use client";
 
+import * as Tabs from "@radix-ui/react-tabs";
 import { useQuery } from "@tanstack/react-query";
+import Image from "next/image";
+import { unwrap } from "@/actions/result";
+import {
+  createService,
+  createServiceCategory,
+  deleteService,
+  deleteServiceCategory,
+  listServiceCategories,
+  listServices,
+  reorderServiceCategories,
+  reorderServices,
+  updateService,
+  updateServiceCategory,
+  type ServiceCategoryRow,
+  type ServiceRow,
+} from "@/actions/services";
+import { emptyLocalized, t } from "@/lib/i18n/localized";
+import { serviceCategorySchema, serviceSchema, type ServiceCategoryInput, type ServiceInput } from "@/schemas/services";
 import { CrudManager } from "../crud-manager";
 import { Badge } from "../ui/badge";
-import { serviceSchema, type ServiceInput } from "@/lib/admin/schemas";
-import { api } from "@/lib/admin/client";
 
-type Category = { id: string; name: string };
-type Row = {
-  id: string;
-  name: string;
-  slug: string;
-  summary: string;
-  details: string;
-  icon: string;
-  imageUrl: string | null;
-  categoryId: string | null;
-  category?: Category | null;
-  primary: boolean;
-  published: boolean;
-  position: number;
-};
+const TAB = "rounded-md px-3 py-1.5 text-sm text-ad-muted-fg transition-colors data-[state=active]:bg-ad-card data-[state=active]:text-ad-fg data-[state=active]:shadow-sm";
 
 export function ServicesManager() {
+  return (
+    <Tabs.Root defaultValue="services" className="space-y-4">
+      <Tabs.List className="inline-flex rounded-lg border border-ad-border bg-ad-muted/60 p-1" aria-label="Bölmə">
+        <Tabs.Trigger value="services" className={TAB}>
+          Xidmətlər
+        </Tabs.Trigger>
+        <Tabs.Trigger value="categories" className={TAB}>
+          Kateqoriyalar
+        </Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="services">
+        <Services />
+      </Tabs.Content>
+      <Tabs.Content value="categories">
+        <Categories />
+      </Tabs.Content>
+    </Tabs.Root>
+  );
+}
+
+function Services() {
   // categories populate the select; the list is short and cached for the session
-  const categories = useQuery({ queryKey: ["service-categories"], queryFn: () => api<{ items: Category[] }>("/api/admin/services/categories") });
-  const options = (categories.data?.items ?? []).map((c) => ({ value: c.id, label: c.name }));
+  const categories = useQuery({ queryKey: ["service-categories"], queryFn: async () => unwrap(await listServiceCategories()) });
+  const options = (categories.data ?? []).map((c) => ({ value: c.id, label: t(c.name) }));
 
   return (
-    <CrudManager<ServiceInput, Row>
-      endpoint="/api/admin/services"
+    <CrudManager<ServiceInput, ServiceRow>
       queryKey="services"
+      actions={{ list: listServices, create: createService, update: updateService, remove: deleteService, reorder: reorderServices }}
       schema={serviceSchema}
       itemLabel="Xidmət"
       searchPlaceholder="Xidmət axtar…"
-      emptyValues={{ locale: "az", slug: "", name: "", summary: "", details: "", icon: "", imageUrl: null, categoryId: null, primary: false, published: true, position: 0 }}
-      toForm={(r) => ({
-        locale: "az",
-        slug: r.slug,
-        name: r.name,
-        summary: r.summary,
-        details: r.details,
-        icon: r.icon,
-        imageUrl: r.imageUrl,
-        categoryId: r.categoryId,
-        primary: r.primary,
-        published: r.published,
-        position: r.position,
-      })}
+      emptyValues={{ slug: "", name: emptyLocalized(), shortDescription: emptyLocalized(), details: emptyLocalized(), icon: "", image: { url: null, path: null }, categoryId: null, isActive: true }}
+      toForm={(r) => ({ slug: r.slug, name: r.name, shortDescription: r.shortDescription, details: r.details, icon: r.icon, image: r.image, categoryId: r.categoryId, isActive: r.isActive })}
+      rowLabel={(r) => t(r.name)}
       fields={[
-        { name: "name", label: "Xidmətin adı", type: "text", full: true },
-        { name: "slug", label: "Slug", type: "text", hint: "sorğu linki: ?xidmet=<slug>" },
-        { name: "position", label: "Sıra", type: "number" },
-        { name: "summary", label: "Qısa təsvir", type: "textarea", rows: 3 },
+        { name: "name", label: "Xidmətin adı", type: "localized" },
+        { name: "slug", label: "Slug", type: "text", hint: "sorğu linki: /anket?xidmet=<slug>" },
         { name: "categoryId", label: "Kateqoriya", type: "select", options },
-        { name: "icon", label: "İkon adı", type: "text", placeholder: "Server", hint: "Lucide ikon adı" },
-        { name: "primary", label: "Əsas istiqamət", type: "switch" },
-        { name: "published", label: "Dərc olunub", type: "switch" },
-        { name: "imageUrl", label: "Kart şəkli", type: "image" },
-        { name: "details", label: "Ətraflı", type: "textarea", rows: 8 },
+        { name: "shortDescription", label: "Qısa təsvir", type: "localized", kind: "textarea", rows: 3 },
+        { name: "icon", label: "İkon adı", type: "text", placeholder: "Server", hint: "Lucide ikon adı; şəkil yüklənsə o üstün tutulur" },
+        { name: "isActive", label: "Aktiv", type: "switch" },
+        { name: "image", label: "Kart şəkli", type: "image", folder: "services" },
+        { name: "details", label: "Ətraflı", type: "localized", kind: "rich" },
       ]}
       columns={[
         {
           key: "name",
           header: "Xidmət",
-          value: (r) => r.name,
+          value: (r) => `${t(r.name)} ${t(r.shortDescription)} ${r.slug}`,
           cell: (r) => (
-            <span className="min-w-0">
-              <span className="block truncate font-medium">{r.name}</span>
-              <span className="block truncate text-xs text-ad-muted-fg">{r.summary || r.slug}</span>
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="relative size-10 shrink-0 overflow-hidden rounded-md bg-ad-muted">
+                {r.image.url && <Image src={r.image.url} alt="" fill sizes="40px" className="object-cover" unoptimized />}
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate font-medium">{t(r.name)}</span>
+                <span className="block truncate text-xs text-ad-muted-fg">{t(r.shortDescription) || r.slug}</span>
+              </span>
+            </div>
           ),
         },
-        { key: "category", header: "Kateqoriya", value: (r) => r.category?.name ?? "", cell: (r) => r.category?.name ?? <span className="text-ad-muted-fg">—</span>, className: "w-44" },
+        { key: "category", header: "Kateqoriya", value: (r) => (r.category ? t(r.category.name) : ""), cell: (r) => (r.category ? t(r.category.name) : <span className="text-ad-muted-fg">—</span>), className: "w-44" },
         {
           key: "state",
           header: "Vəziyyət",
-          value: (r) => `${r.primary ? "əsas" : "əlavə"} ${r.published ? "dərc" : "qaralama"}`,
-          cell: (r) => (
-            <div className="flex flex-wrap gap-1.5">
-              <Badge tone={r.primary ? "accent" : "neutral"}>{r.primary ? "Əsas" : "Əlavə"}</Badge>
-              {!r.published && <Badge tone="warning">Qaralama</Badge>}
-            </div>
-          ),
-          className: "w-40",
+          value: (r) => (r.isActive ? "aktiv" : "gizli"),
+          cell: (r) => <Badge tone={r.isActive ? "success" : "neutral"}>{r.isActive ? "Aktiv" : "Gizli"}</Badge>,
+          className: "w-28",
         },
-        { key: "position", header: "Sıra", value: (r) => r.position, cell: (r) => <span className="tabular-nums">{r.position}</span>, className: "w-16" },
+        { key: "order", header: "Sıra", value: (r) => r.order, cell: (r) => <span className="tabular-nums">{r.order + 1}</span>, className: "w-16" },
+      ]}
+    />
+  );
+}
+
+function Categories() {
+  return (
+    <CrudManager<ServiceCategoryInput, ServiceCategoryRow>
+      queryKey="service-categories"
+      actions={{ list: listServiceCategories, create: createServiceCategory, update: updateServiceCategory, remove: deleteServiceCategory, reorder: reorderServiceCategories }}
+      schema={serviceCategorySchema}
+      itemLabel="Kateqoriya"
+      searchPlaceholder="Kateqoriya axtar…"
+      emptyValues={{ slug: "", name: emptyLocalized() }}
+      toForm={(r) => ({ slug: r.slug, name: r.name })}
+      rowLabel={(r) => t(r.name)}
+      fields={[
+        { name: "name", label: "Ad", type: "localized" },
+        { name: "slug", label: "Slug", type: "text", hint: "boş buraxsanız addan yaranır", full: true },
+      ]}
+      columns={[
+        { key: "name", header: "Kateqoriya", value: (r) => t(r.name), cell: (r) => <span className="font-medium">{t(r.name)}</span> },
+        { key: "slug", header: "Slug", value: (r) => r.slug, cell: (r) => <span className="font-mono text-xs text-ad-muted-fg">{r.slug}</span>, className: "w-40" },
+        { key: "count", header: "Xidmət", value: (r) => r.count, cell: (r) => <span className="tabular-nums">{r.count}</span>, className: "w-20" },
+        { key: "order", header: "Sıra", value: (r) => r.order, cell: (r) => <span className="tabular-nums">{r.order + 1}</span>, className: "w-16" },
       ]}
     />
   );

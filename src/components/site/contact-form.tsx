@@ -19,10 +19,11 @@ export function ContactForm({ lang, t, tone = "navy" }: { lang: Locale; t: Dicti
     const data = new FormData(e.currentTarget);
     setStatus("sending");
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          source: "contact",
           name: data.get("name"),
           email: data.get("email"),
           subject: data.get("subject"),

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "sonner";
-import { loginSchema, type LoginInput } from "@/lib/admin/schemas";
+import { loginSchema, type LoginInput } from "@/schemas/auth";
 import { api } from "@/lib/admin/client";
 import { Button } from "./ui/button";
 import { Card, CardBody } from "./ui/card";

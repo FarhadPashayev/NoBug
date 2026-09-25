@@ -117,3 +117,47 @@ göstərir — **sayt normal işləməyə davam edir**.
 Sayt **hələ də** `src/lib/i18n/dict.ts`-dən oxuyur; panel ayrıca baza saxlayır.
 Növbəti addım: saytın oxu qatını bazaya bağlamaq (AZ üçün baza, EN/RU üçün
 lüğət fallback).
+
+## Admin panel (/admin)
+
+Full-stack content panel in the same Next.js app. Public pages read their content from the database (`src/lib/content`), so an edit in the panel is live on the site as soon as the action calls `revalidatePath`. Without a database the site falls back to the dictionary copy in `src/lib/i18n/dict.ts` — the same content the seed loads.
+
+### Stack
+
+Next.js 16 App Router · Tailwind 4 · Radix/shadcn-style primitives · React Hook Form + Zod · TanStack Query + TanStack Table · Tiptap (HTML) · dnd-kit · lucide · **Prisma 7 + Supabase Postgres** · **Supabase Storage** (bucket `media`, folders `hero/ partners/ projects/ services/`) · **Auth.js v5** (Credentials, database sessions, bcrypt) · Server Actions (`src/actions`) · sonner · next-themes.
+
+### Setup
+
+1. Supabase → create a project. Copy from *Project settings → Database*: the **Transaction pooler** string → `DATABASE_URL`, the direct string → `DIRECT_URL`. From *Project settings → API*: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (server-only, never `NEXT_PUBLIC_`).
+2. `AUTH_SECRET` — at least 32 characters (`openssl rand -base64 48`).
+3. `ADMIN_EMAIL`, `ADMIN_PASSWORD` (≥ 10 chars), optional `ADMIN_NAME`.
+4. Tables: `npm run db:push` (uses `DIRECT_URL`).
+5. First account + content: either `npm run db:seed`, or open `/admin/login` and press **Quraşdır** — the card appears only while the users table is empty and does the same thing from the server's env vars.
+
+The `media` bucket is created on the first upload if it does not exist.
+
+### Multilingual content
+
+Every translatable column is Json `{ az, en, ru }` (`localizedString()` in `src/lib/i18n/localized.ts`). AZ is required; EN/RU fall back to AZ via `t(value, locale)`. Forms show AZ | EN | RU tabs with a dot on empty languages. Non-translatable data (urls, images, order, flags, years) is stored once.
+
+### Modules
+
+| Route | Model(s) | Notes |
+| --- | --- | --- |
+| `/admin` | — | counts + latest enquiries |
+| `/admin/hero` | `Hero` (singleton), `PartnerLogo` | banner text/CTAs/image; logos with drag-and-drop order |
+| `/admin/projects` | `Project`, `Tag` | Tiptap content, cover, tags, featured/published, drag-and-drop order |
+| `/admin/stats` | `Stat` | value + localized label/source, order |
+| `/admin/services` | `Service`, `ServiceCategory` | two tabs; category `esas` renders as the primary group |
+| `/admin/specs` | `SpecGroup`, `SpecItem` | inline-editable table (group = area) |
+| `/admin/leads` | `Lead` | search, status, date range, CSV; status + notes editable only |
+| `/admin/settings` | `SiteSettings`, `FooterLink` | phones[], email, address/hours, socials, footer links by column |
+| `/admin/profile` | `User` | name/email, password (current-password check) |
+
+Leads are created only by `POST /api/leads` (contact form + anket; `/api/contact` and `/api/anket` are aliases). Honeypot + fill-time check, 5/hour/IP, Zod.
+
+### Layout
+
+`src/app/(admin)/admin/*` pages · `src/actions/*` server actions (`guarded()` = session + Zod + error → `{ ok, error, fieldErrors }`) · `src/schemas/*` Zod · `src/lib/{db,auth,supabase,content,seed}.ts` · `src/components/admin/*` (CrudManager, DataTable, LocalizedField, ImageDrop, RichEditor, SortableList).
+
+`/admin` is `noindex`, disallowed in robots.txt and absent from the sitemap. `src/proxy.ts` (Node runtime) redirects signed-out visitors to `/admin/login`.

@@ -2,55 +2,61 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { BarChart3, ChevronDown, FileText, Image as ImageIcon, Inbox, LayoutDashboard, ListTree, Menu, Settings, Table2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronDown, Menu, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NAV } from "./nav";
 
-type Item = { href: string; label: string; icon: React.ComponentType<{ className?: string }> };
-type Group = { label: string; items: Item[] };
+const STORAGE_KEY = "nobug.admin.sidebar";
 
-export const NAV: Group[] = [
-  { label: "Ümumi", items: [{ href: "/admin", label: "İdarə paneli", icon: LayoutDashboard }] },
-  {
-    label: "Məzmun",
-    items: [
-      { href: "/admin/hero", label: "Banner", icon: ImageIcon },
-      { href: "/admin/projects", label: "Layihələr", icon: FileText },
-      { href: "/admin/stats", label: "Göstəricilər", icon: BarChart3 },
-      { href: "/admin/services", label: "Xidmətlər", icon: ListTree },
-      { href: "/admin/specs", label: "Standartlar", icon: Table2 },
-    ],
-  },
-  {
-    label: "Əlaqə",
-    items: [
-      { href: "/admin/leads", label: "Müraciətlər", icon: Inbox },
-      { href: "/admin/settings", label: "Sayt parametrləri", icon: Settings },
-    ],
-  },
-];
-
+/**
+ * Desktop: sticky column that collapses to an icon rail (remembered per
+ * browser). Mobile: floating button that opens a drawer.
+ */
 export function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [rail, setRail] = useState(false);
+  const [hidden, setHidden] = useState<Record<string, boolean>>({});
 
-  const nav = (
-    <nav className="flex flex-col gap-6 p-4" aria-label="Admin">
+  useEffect(() => {
+    try {
+      // read after mount so the server and first client render agree
+      const raf = requestAnimationFrame(() => setRail(localStorage.getItem(STORAGE_KEY) === "rail"));
+      return () => cancelAnimationFrame(raf);
+    } catch {
+      /* private mode */
+    }
+  }, []);
+
+  function toggleRail() {
+    const next = !rail;
+    setRail(next);
+    try {
+      localStorage.setItem(STORAGE_KEY, next ? "rail" : "full");
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const nav = (compact: boolean) => (
+    <nav className={cn("flex flex-col gap-6", compact ? "px-2 py-3" : "p-4")} aria-label="Admin">
       {NAV.map((group) => {
-        const isCollapsed = collapsed[group.label];
+        const isHidden = hidden[group.label] && !compact;
         return (
           <div key={group.label}>
-            <button
-              type="button"
-              onClick={() => setCollapsed((c) => ({ ...c, [group.label]: !c[group.label] }))}
-              className="mb-2 flex w-full items-center justify-between px-3 text-xs font-medium uppercase tracking-wider text-ad-muted-fg transition-colors hover:text-ad-fg"
-              aria-expanded={!isCollapsed}
-            >
-              {group.label}
-              <ChevronDown className={cn("size-3.5 transition-transform", isCollapsed && "-rotate-90")} />
-            </button>
-            {!isCollapsed && (
+            {!compact && (
+              <button
+                type="button"
+                onClick={() => setHidden((c) => ({ ...c, [group.label]: !c[group.label] }))}
+                className="mb-2 flex w-full items-center justify-between px-3 text-xs font-medium uppercase tracking-wider text-ad-muted-fg transition-colors hover:text-ad-fg"
+                aria-expanded={!isHidden}
+              >
+                {group.label}
+                <ChevronDown className={cn("size-3.5 transition-transform", isHidden && "-rotate-90")} />
+              </button>
+            )}
+            {!isHidden && (
               <ul className="space-y-1">
                 {group.items.map(({ href, label, icon: Icon }) => {
                   const active = href === "/admin" ? pathname === href : pathname.startsWith(href);
@@ -60,13 +66,16 @@ export function Sidebar() {
                         href={href}
                         onClick={() => setOpen(false)}
                         aria-current={active ? "page" : undefined}
+                        title={compact ? label : undefined}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                          "flex items-center gap-3 rounded-lg text-sm transition-colors",
+                          compact ? "justify-center px-0 py-2.5" : "px-3 py-2",
                           active ? "bg-ad-accent/15 font-medium text-ad-accent" : "text-ad-muted-fg hover:bg-ad-muted hover:text-ad-fg",
                         )}
                       >
                         <Icon className="size-4 shrink-0" />
-                        {label}
+                        {!compact && label}
+                        {compact && <span className="sr-only">{label}</span>}
                       </Link>
                     </li>
                   );
@@ -101,17 +110,31 @@ export function Sidebar() {
                 <X className="size-4" />
               </button>
             </div>
-            {nav}
+            {nav(false)}
           </aside>
         </div>
       )}
 
-      <aside className="admin-scroll sticky top-0 hidden h-dvh w-64 shrink-0 overflow-y-auto border-r border-ad-border bg-ad-card lg:block">
-        <Link href="/admin" className="flex items-center gap-2 px-6 py-5 text-sm font-semibold tracking-tight">
-          <span className="grid size-7 place-items-center rounded-md bg-ad-accent text-ad-accent-fg">n</span>
-          nobug admin
+      <aside
+        className={cn(
+          "admin-scroll sticky top-0 hidden h-dvh shrink-0 flex-col overflow-y-auto border-r border-ad-border bg-ad-card transition-[width] duration-200 lg:flex",
+          rail ? "w-16" : "w-64",
+        )}
+      >
+        <Link href="/admin" className={cn("flex items-center gap-2 text-sm font-semibold tracking-tight", rail ? "justify-center py-5" : "px-6 py-5")}>
+          <span className="grid size-7 shrink-0 place-items-center rounded-md bg-ad-accent text-ad-accent-fg">n</span>
+          {!rail && "nobug admin"}
         </Link>
-        {nav}
+        <div className="flex-1">{nav(rail)}</div>
+        <button
+          type="button"
+          onClick={toggleRail}
+          aria-label={rail ? "Menyunu genişləndir" : "Menyunu yığ"}
+          className={cn("m-2 flex items-center gap-2 rounded-lg px-3 py-2 text-xs text-ad-muted-fg transition-colors hover:bg-ad-muted hover:text-ad-fg", rail && "justify-center px-0")}
+        >
+          {rail ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
+          {!rail && "Yığ"}
+        </button>
       </aside>
     </>
   );

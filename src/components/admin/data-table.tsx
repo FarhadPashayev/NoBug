@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+  type SortingState,
+} from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "./ui/button";
@@ -19,9 +29,10 @@ export type Column<T> = {
 };
 
 /**
- * Client-side table: search across the columns that expose `value`, sortable
- * headers, pagination. The data sets here are small (dozens of rows), so
- * filtering in the browser keeps the API surface to a plain list endpoint.
+ * TanStack Table with the panel's look: search across the columns that
+ * expose `value`, sortable headers, client-side pagination. Content lists
+ * are small (dozens of rows), so the whole set is loaded once and filtered
+ * in the browser.
  */
 export function DataTable<T extends { id: string }>({
   rows,
@@ -29,121 +40,126 @@ export function DataTable<T extends { id: string }>({
   searchPlaceholder = "Axtar…",
   pageSize = 10,
   toolbar,
+  filters,
   empty,
+  loading = false,
 }: {
   rows: T[];
   columns: Column<T>[];
   searchPlaceholder?: string;
   pageSize?: number;
+  /** right side of the toolbar (primary action) */
   toolbar?: React.ReactNode;
+  /** extra controls next to the search box */
+  filters?: React.ReactNode;
   empty?: React.ReactNode;
+  loading?: boolean;
 }) {
-  const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
-  const [page, setPage] = useState(0);
+  "use no memo"; // TanStack Table returns functions the React Compiler cannot memoize
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    let out = rows;
-    if (q) {
-      out = rows.filter((row) =>
-        columns.some((c) => {
-          const v = c.value?.(row);
-          return v !== undefined && String(v).toLowerCase().includes(q);
-        }),
-      );
-    }
-    if (sort) {
-      const col = columns.find((c) => c.key === sort.key);
-      if (col?.value) {
-        out = [...out].sort((a, b) => {
-          const av = col.value!(a);
-          const bv = col.value!(b);
-          const cmp = typeof av === "number" && typeof bv === "number" ? av - bv : String(av).localeCompare(String(bv), "az");
-          return sort.dir === "asc" ? cmp : -cmp;
-        });
-      }
-    }
-    return out;
-  }, [rows, columns, query, sort]);
+  const defs = useMemo<ColumnDef<T>[]>(
+    () =>
+      columns.map((c) => ({
+        id: c.key,
+        header: c.header,
+        accessorFn: c.value ? (row: T) => c.value!(row) : () => "",
+        cell: ({ row }) => c.cell(row.original),
+        enableSorting: c.sortable !== false && !!c.value,
+        enableGlobalFilter: !!c.value,
+        meta: { className: c.className },
+      })),
+    [columns],
+  );
 
-  const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const current = Math.min(page, pages - 1);
-  const slice = filtered.slice(current * pageSize, current * pageSize + pageSize);
+  const table = useReactTable({
+    data: rows,
+    columns: defs,
+    state: { sorting, globalFilter },
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: "includesString",
+    getRowId: (row) => row.id,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: { pagination: { pageSize } },
+    autoResetPageIndex: true,
+  });
+
+  const total = table.getFilteredRowModel().rows.length;
+  const { pageIndex } = table.getState().pagination;
+  const pageRows = table.getRowModel().rows;
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-[220px] flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ad-muted-fg" aria-hidden="true" />
-          <Input
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(0);
-            }}
-            placeholder={searchPlaceholder}
-            className="pl-9"
-            aria-label={searchPlaceholder}
-          />
+          <Input value={globalFilter} onChange={(e) => setGlobalFilter(e.target.value)} placeholder={searchPlaceholder} className="pl-9" aria-label={searchPlaceholder} />
         </div>
+        {filters}
         {toolbar}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-ad-border bg-ad-card">
+      <div className={cn("overflow-x-auto rounded-xl border border-ad-border bg-ad-card", loading && "opacity-60")} aria-busy={loading}>
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-ad-border text-left">
-              {columns.map((c) => {
-                const active = sort?.key === c.key;
-                const sortable = c.sortable !== false && !!c.value;
-                return (
-                  <th key={c.key} scope="col" className={cn("px-4 py-3 text-xs font-medium uppercase tracking-wide text-ad-muted-fg", c.className)}>
-                    {sortable ? (
-                      <button
-                        type="button"
-                        onClick={() => setSort(active && sort.dir === "asc" ? { key: c.key, dir: "desc" } : { key: c.key, dir: "asc" })}
-                        className="inline-flex items-center gap-1 transition-colors hover:text-ad-fg"
-                      >
-                        {c.header}
-                        {active && (sort.dir === "asc" ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />)}
-                      </button>
-                    ) : (
-                      c.header
-                    )}
-                  </th>
-                );
-              })}
-            </tr>
+            {table.getHeaderGroups().map((hg) => (
+              <tr key={hg.id} className="border-b border-ad-border text-left">
+                {hg.headers.map((header) => {
+                  const meta = header.column.columnDef.meta as { className?: string } | undefined;
+                  const sorted = header.column.getIsSorted();
+                  return (
+                    <th key={header.id} scope="col" className={cn("px-4 py-3 text-xs font-medium uppercase tracking-wide text-ad-muted-fg", meta?.className)}>
+                      {header.column.getCanSort() ? (
+                        <button type="button" onClick={header.column.getToggleSortingHandler()} className="inline-flex items-center gap-1 transition-colors hover:text-ad-fg">
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {sorted === "asc" && <ArrowUp className="size-3" />}
+                          {sorted === "desc" && <ArrowDown className="size-3" />}
+                        </button>
+                      ) : (
+                        flexRender(header.column.columnDef.header, header.getContext())
+                      )}
+                    </th>
+                  );
+                })}
+              </tr>
+            ))}
           </thead>
           <tbody>
-            {slice.map((row) => (
+            {pageRows.map((row) => (
               <tr key={row.id} className="border-b border-ad-border last:border-0 transition-colors hover:bg-ad-muted/50">
-                {columns.map((c) => (
-                  <td key={c.key} className={cn("px-4 py-3 align-middle text-ad-fg", c.className)}>
-                    {c.cell(row)}
-                  </td>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  const meta = cell.column.columnDef.meta as { className?: string } | undefined;
+                  return (
+                    <td key={cell.id} className={cn("px-4 py-3 align-middle text-ad-fg", meta?.className)}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
           </tbody>
         </table>
-        {!slice.length && (empty ?? <EmptyState title="Nəticə yoxdur" description="Axtarış şərtini dəyişin." />)}
+        {!pageRows.length && (empty ?? <EmptyState title="Nəticə yoxdur" description="Axtarış şərtini dəyişin." />)}
       </div>
 
-      {filtered.length > pageSize && (
+      {total > pageSize && (
         <div className="flex items-center justify-between gap-3 text-sm text-ad-muted-fg">
           <span>
-            {current * pageSize + 1}–{Math.min(filtered.length, (current + 1) * pageSize)} / {filtered.length}
+            {pageIndex * pageSize + 1}–{Math.min(total, (pageIndex + 1) * pageSize)} / {total}
           </span>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" onClick={() => setPage(current - 1)} disabled={current === 0} aria-label="Əvvəlki səhifə">
+            <Button variant="outline" size="icon" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} aria-label="Əvvəlki səhifə">
               <ChevronLeft />
             </Button>
             <span className="tabular-nums">
-              {current + 1} / {pages}
+              {pageIndex + 1} / {table.getPageCount()}
             </span>
-            <Button variant="outline" size="icon" onClick={() => setPage(current + 1)} disabled={current >= pages - 1} aria-label="Növbəti səhifə">
+            <Button variant="outline" size="icon" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} aria-label="Növbəti səhifə">
               <ChevronRight />
             </Button>
           </div>

@@ -48,4 +48,4 @@ export function resolveService(raw: string | null | undefined): number | null {
   return Number.isInteger(n) && n >= 0 && n < SERVICE_COUNT ? n : null;
 }
 
-export const serviceHref = (lang: string, id: ServiceId) => `/${lang}/anket?xidmet=${id}`;
+export const serviceHref = (lang: string, id: string) => `/${lang}/anket?xidmet=${id}`;

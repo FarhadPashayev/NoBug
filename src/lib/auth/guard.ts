@@ -15,3 +15,10 @@ export async function requireApiUser(): Promise<SessionUser | NextResponse> {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   return user;
 }
+
+/** Server actions: throw so the caller's try/catch turns it into a toast. */
+export async function requireActionUser(): Promise<SessionUser> {
+  const user = await getSession();
+  if (!user) throw new Error("Sessiya bitib — yenidən daxil olun");
+  return user;
+}

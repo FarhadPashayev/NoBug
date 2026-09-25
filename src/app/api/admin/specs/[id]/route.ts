@@ -1,9 +1,9 @@
-import { prisma } from "@/lib/db";
-import { specSchema } from "@/lib/admin/schemas";
-import { collectionRoutes } from "@/lib/admin/crud";
+import { NextResponse } from "next/server";
 
-export const runtime = "nodejs";
-
-const routes = collectionRoutes({ model: () => prisma.spec as never, schema: specSchema });
-export const PATCH = routes.PATCH;
-export const DELETE = routes.DELETE;
+// Replaced by server actions in src/actions — safe to delete this file.
+const gone = () => NextResponse.json({ error: "Bu endpoint server action-larla əvəz olunub" }, { status: 410 });
+export const GET = gone;
+export const POST = gone;
+export const PUT = gone;
+export const PATCH = gone;
+export const DELETE = gone;

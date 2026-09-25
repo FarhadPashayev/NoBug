@@ -123,7 +123,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
       openedAt: openedAt.current,
     };
     try {
-      const res = await fetch("/api/anket", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const res = await fetch("/api/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ source: "anket", ...payload }) });
       if (!res.ok) throw new Error(String(res.status));
       setSent(true);
       track({ name: "enquiry_submit", params: { service_id: serviceId, locale: lang } });

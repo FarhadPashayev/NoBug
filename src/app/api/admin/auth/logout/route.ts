@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { clearSessionCookie } from "@/lib/auth/session";
+import { signOut } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 export async function POST() {
-  await clearSessionCookie();
+  // database strategy: Auth.js deletes the Session row and clears the cookie
+  await signOut({ redirect: false });
   return NextResponse.json({ ok: true });
 }

@@ -1,8 +1,10 @@
 import type { Dictionary } from "@/lib/i18n/dict";
+import type { SiteContent } from "@/lib/content";
 import { Rise } from "@/components/ui/motion";
 
 /** Standards table — light band, kept dry: mono headers, hairline rows. Certification is not claimed. */
-export function Standards({ t }: { t: Dictionary }) {
+export function Standards({ t, content }: { t: Dictionary; content: SiteContent }) {
+  const rows = content.specs;
   return (
     <section id="texnologiya" data-bg="light" className="scroll-mt-20 text-ink">
       <div className="container-site pb-[clamp(56px,7vw,112px)]">
@@ -24,14 +26,14 @@ export function Standards({ t }: { t: Dictionary }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {t.techRows.map(([area, approach, tooling, status]) => (
-                    <tr key={area} className="transition-colors hover:bg-light">
+                  {rows.map((r, i) => (
+                    <tr key={`${r.area}-${i}`} className="transition-colors hover:bg-light">
                       <th scope="row" className="border-b border-fog py-4 pr-4 text-[16px] font-medium leading-[1.4]">
-                        {area}
+                        {r.area}
                       </th>
-                      <td className="border-b border-fog py-4 pr-4 text-[15px] leading-[1.5] text-grey">{approach}</td>
-                      <td className="whitespace-nowrap border-b border-fog py-4 pr-4 text-[15px]">{tooling}</td>
-                      <td className="whitespace-nowrap border-b border-fog py-4 font-mono text-[12px] tracking-[0.06em] text-grey">{status}</td>
+                      <td className="border-b border-fog py-4 pr-4 text-[15px] leading-[1.5] text-grey">{r.approach}</td>
+                      <td className="whitespace-nowrap border-b border-fog py-4 pr-4 text-[15px]">{r.tooling}</td>
+                      <td className="whitespace-nowrap border-b border-fog py-4 font-mono text-[12px] tracking-[0.06em] text-grey">{r.status}</td>
                     </tr>
                   ))}
                 </tbody>

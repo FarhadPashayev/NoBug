@@ -38,6 +38,7 @@ export function HeroIntro({
   ctaHref,
   secondary,
   secondaryHref,
+  image,
   children,
 }: {
   eyebrow: string;
@@ -47,6 +48,8 @@ export function HeroIntro({
   ctaHref: string;
   secondary?: string;
   secondaryHref?: string;
+  /** uploaded banner image (admin panel) — replaces the animated wordmark and its intro */
+  image?: string | null;
   children?: ReactNode;
 }) {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -64,10 +67,10 @@ export function HeroIntro({
       seen = sessionStorage.getItem(SEEN_KEY) === "1";
     } catch {}
 
-    if (reduce || seen) {
+    if (reduce || seen || image) {
       // next frame: keeps the effect free of synchronous state updates
       const raf = requestAnimationFrame(() => {
-        setSrc(LOGO);
+        setSrc(image ?? LOGO);
         setPhase("final");
       });
       return () => cancelAnimationFrame(raf);
@@ -105,7 +108,7 @@ export function HeroIntro({
       window.clearTimeout(t1);
       window.clearTimeout(t2);
     };
-  }, []);
+  }, [image]);
 
   const logoStyle: CSSProperties =
     phase === "intro" && transform
@@ -180,8 +183,9 @@ export function HeroIntro({
             style={logoStyle}
           >
             <div
-              // no rules around the wordmark; 70% of the column, centred
-              className="mx-auto w-[70%] py-[clamp(12px,2vw,24px)]"
+              // no rules around the wordmark; 70% of the column, centred —
+              // an uploaded banner image takes the whole column as a tile
+              className={image ? "w-full overflow-hidden rounded-[24px]" : "mx-auto w-[70%] py-[clamp(12px,2vw,24px)]"}
             >
               {src ? (
                 // eslint-disable-next-line @next/next/no-img-element -- animated SVG must not go through the image optimizer
@@ -189,8 +193,8 @@ export function HeroIntro({
                   src={src}
                   alt=""
                   width={960}
-                  height={290}
-                  className="block h-auto w-full"
+                  height={image ? 720 : 290}
+                  className={image ? "block h-auto w-full object-cover" : "block h-auto w-full"}
                 />
               ) : (
                 <div style={{ aspectRatio: "960 / 290" }} />

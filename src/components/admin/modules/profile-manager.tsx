@@ -5,8 +5,9 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { api } from "@/lib/admin/client";
-import { passwordSchema, profileSchema, type PasswordInput, type ProfileInput } from "@/lib/admin/schemas";
+import { changePassword, updateProfile } from "@/actions/auth";
+import { unwrap } from "@/actions/result";
+import { passwordSchema, profileSchema, type PasswordInput, type ProfileInput } from "@/schemas/auth";
 import type { SessionUser } from "@/lib/auth/session";
 import { Button } from "../ui/button";
 import { Card, CardBody, CardFooter, CardHeader } from "../ui/card";
@@ -19,7 +20,7 @@ export function ProfileManager({ user }: { user: SessionUser }) {
   const password = useForm<PasswordInput>({ resolver: zodResolver(passwordSchema), defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" } });
 
   const saveProfile = useMutation({
-    mutationFn: (values: ProfileInput) => api("/api/admin/auth/profile", { method: "PATCH", body: JSON.stringify(values) }),
+    mutationFn: async (values: ProfileInput) => unwrap(await updateProfile(values)),
     onSuccess: () => {
       toast.success("Profil yeniləndi");
       router.refresh();
@@ -28,7 +29,7 @@ export function ProfileManager({ user }: { user: SessionUser }) {
   });
 
   const savePassword = useMutation({
-    mutationFn: (values: PasswordInput) => api("/api/admin/auth/password", { method: "POST", body: JSON.stringify(values) }),
+    mutationFn: async (values: PasswordInput) => unwrap(await changePassword(values)),
     onSuccess: () => {
       toast.success("Şifrə dəyişdirildi");
       password.reset();
@@ -59,7 +60,7 @@ export function ProfileManager({ user }: { user: SessionUser }) {
 
       <form onSubmit={password.handleSubmit((v) => savePassword.mutateAsync(v))} noValidate>
         <Card>
-          <CardHeader title="Şifrə" description="Ən azı 10 simvol." />
+          <CardHeader title="Şifrə" description="Ən azı 10 simvol. Dəyişdikdən sonra digər cihazlardakı sessiyalar bağlanır." />
           <CardBody className="space-y-4">
             <Field label="Cari şifrə" htmlFor="currentPassword" error={password.formState.errors.currentPassword?.message}>
               <Input id="currentPassword" type="password" autoComplete="current-password" {...password.register("currentPassword")} />
