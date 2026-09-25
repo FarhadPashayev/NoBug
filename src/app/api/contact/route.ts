@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isLocale } from "@/lib/i18n/config";
 import { clientIp, isRateLimited, looksLikeBot } from "@/lib/anti-spam";
 import { escapeHtml, formatDate, isEmail, MAIL_TO, sendMail } from "@/lib/mail/send";
+import { recordLead } from "@/lib/admin/leads";
 
 export const runtime = "nodejs";
 
@@ -56,6 +57,8 @@ export async function POST(req: NextRequest) {
       <p style="margin:0 0 4px"><b>${escapeHtml(name)}</b> · ${escapeHtml(email)}</p>
       <p style="margin:0;color:#6B6862">${escapeHtml(when)} · ${lang.toUpperCase()}</p>
     </div>`;
+
+  await recordLead({ name, email, service: subjectLine, message: subjectLine, locale: lang, source: "contact" });
 
   try {
     await sendMail({ to: MAIL_TO, subject, text, html, replyTo: email });

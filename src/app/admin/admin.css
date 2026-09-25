@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Admin panel theme — separate from the public site's tokens so a change to
+   the marketing palette can never break the dashboard. Dark is the default
+   and matches the corporate navy; light is a full inversion. */
+@theme {
+  --color-ad-bg: #0b132b;
+  --color-ad-card: #121b38;
+  --color-ad-muted: #1b2547;
+  --color-ad-border: #25315a;
+  --color-ad-fg: #eef1f8;
+  --color-ad-muted-fg: #94a0bf;
+  --color-ad-accent: #efa83c; /* brand amber */
+  --color-ad-accent-fg: #0b132b;
+  --color-ad-ring: #efa83c;
+  --color-ad-danger: #f0616d;
+
+  --font-sans: var(--font-inter-tight), "Inter Tight", system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+}
+
+/* light mode — next-themes puts .light / .dark on <html> */
+.light {
+  --color-ad-bg: #f6f7fb;
+  --color-ad-card: #ffffff;
+  --color-ad-muted: #eef1f7;
+  --color-ad-border: #dfe4ee;
+  --color-ad-fg: #0b132b;
+  --color-ad-muted-fg: #5c6b80;
+  --color-ad-accent: #b57a1e;
+  --color-ad-accent-fg: #ffffff;
+  --color-ad-ring: #b57a1e;
+  --color-ad-danger: #c62b38;
+}
+
+body {
+  background: var(--color-ad-bg);
+  color: var(--color-ad-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.admin-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.admin-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-ad-border);
+  border-radius: 999px;
+}

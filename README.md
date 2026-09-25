@@ -62,3 +62,58 @@ public/assets/         loqolar, IMG-01…07, PATTERN-lar (dəyişdirilməyib)
 - Rate limit prosesin yaddaşındadır; bir neçə instansa çıxsa Upstash/Redis-ə keçirin.
 - Hüquqi səhifələr (Məxfilik, Şərtlər, Məlumatların emalı) hələ yoxdur — footer-də `#top`-a gedir.
 - Newsreader şriftində kiril dəsti yoxdur; RU sitat Georgia italic ilə göstərilir.
+
+## Admin panel (`/admin`)
+
+Məzmunu idarə etmək üçün ayrıca panel: Next.js App Router + Prisma (PostgreSQL)
++ TanStack Query + react-hook-form/zod. Sayt ilə eyni deploy-dadır.
+
+### Qurulum
+
+```bash
+# 1) PostgreSQL bazası yaradın (Vercel Postgres / Neon / Supabase)
+#    və .env.local-a yazın:
+#    DATABASE_URL=postgresql://...
+#    AUTH_SECRET=<openssl rand -base64 48>
+#    ADMIN_EMAIL=admin@nobug.az
+#    ADMIN_PASSWORD=<ən azı 10 simvol>
+
+npm run db:push    # sxemi bazaya yazır
+npm run db:seed    # ilk admin hesabı + saytdakı mövcud məzmun
+npm run dev        # http://localhost:3000/admin
+```
+
+`DATABASE_URL` və ya `AUTH_SECRET` yoxdursa panel "konfiqurasiya olunmayıb"
+göstərir — **sayt normal işləməyə davam edir**.
+
+### Modullar
+
+| Ekran | Nə idarə edir |
+|---|---|
+| İdarə paneli | say göstəriciləri, son müraciətlər |
+| Banner | başlıq, alt mətn, iki düymə, vizual, partnyor loqoları |
+| Layihələr | tam CRUD: başlıq, müddət, il, örtük şəkli, teqlər, sıra, "seçilmiş" açarı |
+| Göstəricilər | dəyər, təsvir, mənbə, sıra |
+| Xidmətlər | xidmətlər + kateqoriyalar, "əsas/əlavə", slug (`?xidmet=`), ikon, şəkil |
+| Standartlar | parametr · dəyər · vahid · qrup cədvəli |
+| Müraciətlər | sayt formalarından gələn sorğular: status, daxili qeyd, axtarış, filtr, CSV |
+| Sayt parametrləri | e-poçt, telefon, ünvan, sosial linklər, footer link sütunları |
+| Profil | ad/e-poçt və şifrə dəyişmə |
+
+### Texniki qeydlər
+
+- **Giriş:** httpOnly cookie-də imzalanmış JWT (jose), 8 saat; login-də IP üzrə
+  15 dəqiqədə 8 cəhd limiti. Bütün `/admin` route-ları `src/proxy.ts`-də qorunur.
+- **Şəkillər:** `BLOB_READ_WRITE_TOKEN` varsa Vercel Blob-a, yoxdursa lokal
+  `public/uploads`-a yazılır (produksiyada fayl sistemi read-only olduğu üçün
+  canlıda token mütləqdir).
+- **Müraciətlər:** `/api/anket` və `/api/contact` cavabları həm e-poçtla göndərir,
+  həm də baza varsa panelə yazır. Baza xətası formanı heç vaxt dayandırmır.
+- Sxem: `prisma/schema.prisma`; bütün məzmun cədvəllərində `locale` sütunu var —
+  EN/RU sətirləri miqrasiyasız əlavə edilə bilər.
+
+### Hələ edilməyib
+
+Sayt **hələ də** `src/lib/i18n/dict.ts`-dən oxuyur; panel ayrıca baza saxlayır.
+Növbəti addım: saytın oxu qatını bazaya bağlamaq (AZ üçün baza, EN/RU üçün
+lüğət fallback).

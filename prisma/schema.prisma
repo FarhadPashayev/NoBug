@@ -1,0 +1,188 @@
+// nobug.az — admin panel data model.
+// Content rows are single-locale (AZ) for now; `locale` is on every content
+// table so EN/RU rows can be added without a migration.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+enum LeadStatus {
+  NEW
+  IN_PROGRESS
+  CONTACTED
+  ARCHIVED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role     @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+/// Hero block — one row per locale (singleton per locale).
+model Hero {
+  id             String   @id @default(cuid())
+  locale         String   @unique @default("az")
+  eyebrow        String   @default("")
+  title          String
+  subtitle       String   @default("")
+  primaryLabel   String   @default("")
+  primaryHref    String   @default("")
+  secondaryLabel String   @default("")
+  secondaryHref  String   @default("")
+  imageUrl       String?
+  partnerLogos   PartnerLogo[]
+  updatedAt      DateTime @updatedAt
+}
+
+model PartnerLogo {
+  id       String  @id @default(cuid())
+  heroId   String
+  hero     Hero    @relation(fields: [heroId], references: [id], onDelete: Cascade)
+  name     String
+  imageUrl String
+  href     String?
+  position Int     @default(0)
+
+  @@index([heroId, position])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  locale      String   @default("az")
+  slug        String
+  title       String
+  summary     String   @default("")
+  duration    String   @default("")
+  year        String   @default("")
+  coverUrl    String?
+  tags        String[] @default([])
+  content     String   @default("")
+  featured    Boolean  @default(false)
+  published   Boolean  @default(true)
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([locale, slug])
+  @@index([locale, position])
+}
+
+model Stat {
+  id        String   @id @default(cuid())
+  locale    String   @default("az")
+  value     String
+  label     String
+  source    String   @default("")
+  position  Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@index([locale, position])
+}
+
+model ServiceCategory {
+  id       String    @id @default(cuid())
+  locale   String    @default("az")
+  slug     String
+  name     String
+  position Int       @default(0)
+  services Service[]
+
+  @@unique([locale, slug])
+}
+
+model Service {
+  id         String           @id @default(cuid())
+  locale     String           @default("az")
+  slug       String
+  name       String
+  summary    String           @default("")
+  details    String           @default("")
+  icon       String           @default("")
+  imageUrl   String?
+  primary    Boolean          @default(false)
+  published  Boolean          @default(true)
+  position   Int              @default(0)
+  categoryId String?
+  category   ServiceCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([locale, slug])
+  @@index([locale, position])
+}
+
+/// Standards / technical specifications table.
+model Spec {
+  id        String   @id @default(cuid())
+  locale    String   @default("az")
+  group     String   @default("")
+  parameter String
+  value     String
+  unit      String   @default("")
+  position  Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@index([locale, group, position])
+}
+
+/// Enquiries captured by the public forms (/api/anket, /api/contact).
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @default("")
+  phone     String     @default("")
+  service   String     @default("")
+  message   String     @default("")
+  locale    String     @default("az")
+  source    String     @default("contact")
+  answers   Json?
+  status    LeadStatus @default(NEW)
+  note      String     @default("")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([status, createdAt])
+}
+
+/// Footer + contact details. Single row, id = "singleton".
+model SiteSettings {
+  id            String       @id @default("singleton")
+  email         String       @default("")
+  phone         String       @default("")
+  whatsapp      String       @default("")
+  address       String       @default("")
+  hours         String       @default("")
+  linkedin      String       @default("")
+  instagram     String       @default("")
+  facebook      String       @default("")
+  footerNote    String       @default("")
+  updatedAt     DateTime     @updatedAt
+  footerLinks   FooterLink[]
+}
+
+model FooterLink {
+  id         String       @id @default(cuid())
+  settingsId String       @default("singleton")
+  settings   SiteSettings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
+  column     String       @default("company")
+  label      String
+  href       String
+  position   Int          @default(0)
+
+  @@index([column, position])
+}

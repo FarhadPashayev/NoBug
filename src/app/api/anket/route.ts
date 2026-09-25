@@ -4,6 +4,7 @@ import { CHANNEL_IDS, getSurvey, resolveService } from "@/lib/anket/survey";
 import { LOCALES } from "@/lib/i18n/config";
 import { clientIp, isRateLimited, looksLikeBot } from "@/lib/anti-spam";
 import { escapeHtml, formatDate, isEmail, MAIL_TO, sendMail } from "@/lib/mail/send";
+import { recordLead } from "@/lib/admin/leads";
 
 export const runtime = "nodejs";
 
@@ -85,6 +86,18 @@ export async function POST(req: NextRequest) {
         .map(([k, v]) => `<tr><td style="padding:6px 16px 6px 0;color:#6B6862;vertical-align:top;white-space:nowrap">${escapeHtml(k)}</td><td style="padding:6px 0;vertical-align:top;white-space:pre-wrap">${escapeHtml(v)}</td></tr>`)
         .join("")}</table>
     </div>`;
+
+  // the panel's inbox keeps a copy; failures here never block the enquiry
+  await recordLead({
+    name: body.name,
+    email: body.channel === "email" ? body.contact : "",
+    phone: body.channel === "email" ? (body.phone ?? "") : body.contact,
+    service: serviceName,
+    message: body.message ?? "",
+    locale: body.lang,
+    source: "anket",
+    answers: Object.fromEntries(lines.map((l) => [l.label, l.value])),
+  });
 
   try {
     await sendMail({ to: MAIL_TO, subject, text, html, replyTo: body.channel === "email" ? body.contact : undefined });
