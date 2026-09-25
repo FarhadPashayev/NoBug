@@ -4,8 +4,8 @@
 // Corporate mailbox is not ready — Gmail stays until then. One-line change later.
 export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "no.bug.mmc@gmail.com";
 
-// Domain is bought but nameservers are not repointed; canonical host is still Vercel.
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://no-bug-eta.vercel.app").replace(/\/+$/, "");
+// Canonical host: nobug.az redirects (308) to www, so the www form is the default.
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.nobug.az").replace(/\/+$/, "");
 
 export const LINKEDIN_URL = "https://www.linkedin.com/company/nobug";
 
