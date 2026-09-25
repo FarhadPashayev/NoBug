@@ -64,6 +64,9 @@ export function Sidebar() {
                     <li key={href}>
                       <Link
                         href={href}
+                        // dynamic routes are not prefetched by default; the panel has
+                        // nine of them, so fetch them while the sidebar is in view
+                        prefetch={true}
                         onClick={() => setOpen(false)}
                         aria-current={active ? "page" : undefined}
                         title={compact ? label : undefined}
