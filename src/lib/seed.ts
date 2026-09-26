@@ -121,7 +121,7 @@ export async function seedContent(prisma: PrismaClient) {
   const companyUrls = ["#haqqinda", "#karyera", "#elaqe"];
   await prisma.footerLink.createMany({
     data: [
-      ...FOOTER_SERVICES.map((id, i) => ({ group: "services", label: json(L((d) => d.footerCols[0][1][i])), url: `/anket?xidmet=${id}`, order: i })),
+      ...FOOTER_SERVICES.map((id, i) => ({ group: "services", label: json(L((d) => d.footerCols[0][1][i])), url: `/xidmetler/${id}`, order: i })),
       ...companyUrls.map((url, i) => ({ group: "company", label: json(L((d) => d.footerCols[1][1][i])), url, order: i })),
     ].map((l) => ({ settingsId: "singleton", ...l })),
   });

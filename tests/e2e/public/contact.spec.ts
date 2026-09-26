@@ -21,11 +21,30 @@ test("ELQ-01 / ELQ-02: empty form and malformed emails show inline errors, nothi
   expect(posts).toBe(0);
 });
 
+test("ELQ-07 / C: name and e-mail reject markup and forbidden characters inline", async ({ page }) => {
+  await page.goto("/az#elaqe");
+  const form = page.locator("form:has(#k2-name)");
+  await page.fill("#k2-msg", "Mövzu");
+  await page.fill("#k2-mail", "qa@example.com");
+  for (const bad of ["<script>", "Əli 2", "a/b"]) {
+    await page.fill("#k2-name", bad);
+    await form.locator('button[type="submit"]').click();
+    await expect(page.locator("#k2-name-err")).toHaveText(DICT.az.fieldNameInvalid);
+  }
+  await page.fill("#k2-name", "Əli Vəliyev");
+  for (const bad of ["<b>@x.az", "a'b@x.az", "a@b"]) {
+    await page.fill("#k2-mail", bad);
+    await form.locator('button[type="submit"]').click();
+    await expect(page.locator("#k2-mail-err")).toHaveText(DICT.az.fieldEmailInvalid);
+  }
+});
+
 test("ELQ-03: a valid submission shows the confirmation and lands in the inbox", async ({ page }) => {
   await freshIp(page);
   await page.goto("/az#elaqe");
   await page.waitForTimeout(3200);
-  const name = `QA-TEST elaqe ${Date.now()}`;
+  const name = "QA-TEST Elaqe";
+  await db.lead.deleteMany({ where: { name } });
   await page.fill("#k2-name", name);
   await page.fill("#k2-mail", "qa@example.com");
   await page.fill("#k2-msg", "QA-TEST mövzu");
@@ -41,7 +60,7 @@ test("ELQ-04: a filled honeypot is silently dropped", async ({ page }) => {
   await freshIp(page);
   await page.goto("/az#elaqe");
   await page.waitForTimeout(3200);
-  const name = `QA-TEST bot ${Date.now()}`;
+  const name = "QA-TEST Bot";
   await page.fill("#k2-name", name);
   await page.fill("#k2-mail", "bot@example.com");
   await page.fill("#k2-msg", "spam");
@@ -57,7 +76,8 @@ test("ELQ-05 (OBS-02): without JavaScript the form POSTs and redirects, nothing 
   await freshIp(page);
   await page.goto("/az#elaqe");
   await expect(page.locator("form:has(#k2-name)")).toHaveAttribute("method", "post");
-  const name = `QA-TEST nojs ${Date.now()}`;
+  const name = "QA-TEST Nojs";
+  await db.lead.deleteMany({ where: { name } });
   // reveal animations never run without JS, so the fields stay at opacity 0 — force the interactions
   await page.fill("#k2-name", name, { force: true });
   await page.fill("#k2-mail", "nojs@example.com", { force: true });

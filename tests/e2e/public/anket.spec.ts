@@ -118,7 +118,8 @@ test("ANK-11 / ANK-12: a valid submission reaches the inbox once, even when Send
   await page.waitForTimeout(3200);
   await answerAll(page);
   await page.getByRole("button", { name: sv.next }).click();
-  const name = `QA-TEST anket ${Date.now()}`;
+  const name = "QA-TEST Anket";
+  await db.lead.deleteMany({ where: { name } });
   await fillContact(page, name);
   await page.fill("#sq-message", "QA-TEST mesaj");
   await page.getByRole("button", { name: sv.send }).dblclick();
@@ -131,20 +132,28 @@ test("ANK-11 / ANK-12: a valid submission reaches the inbox once, even when Send
   await db.lead.deleteMany({ where: { name } });
 });
 
-test("ANK-13: length limits apply and HTML is stored as text", async ({ page }) => {
+test("ANK-13 / C: markup, digits and symbols are rejected in the name and e-mail; the message is capped at 2000", async ({ page }) => {
   await freshIp(page);
   await page.goto("/az/anket?xidmet=qa");
   await page.waitForTimeout(3200);
   await answerAll(page);
   await page.getByRole("button", { name: sv.next }).click();
-  const name = `QA-TEST <script>alert(1)</script> Əüş 🚀 ${Date.now()}`;
-  await fillContact(page, name);
+  for (const bad of ["<script>alert(1)</script>", "QA-TEST 2026", "Əli/Vəli", 'Əli "V"']) {
+    await fillContact(page, bad);
+    await page.getByRole("button", { name: sv.send }).click();
+    await expect(page.locator("#sq-name-err")).toHaveText(sv.errors.nameFormat);
+  }
+  await fillContact(page, "Əüş Ğaydarova", "<b>x</b>@example.com");
+  await page.getByRole("button", { name: sv.send }).click();
+  await expect(page.locator("#sq-contact-err")).toHaveText(sv.errors.email);
+  expect(await db.lead.count({ where: { name: { contains: "<" } } })).toBe(0);
+  await db.lead.deleteMany({ where: { name: "Əüş Ğaydarova" } });
+  await fillContact(page, "Əüş Ğaydarova");
   await page.fill("#sq-message", "x".repeat(5000));
   expect((await page.inputValue("#sq-message")).length).toBe(2000);
   await page.getByRole("button", { name: sv.send }).click();
   await expect(page.getByText(sv.sentTitle)).toBeVisible();
-  const lead = await db.lead.findFirstOrThrow({ where: { name: { contains: "QA-TEST <script>" } } });
-  expect(lead.name).toBe(name); // stored verbatim, escaped on render
+  const lead = await db.lead.findFirstOrThrow({ where: { name: "Əüş Ğaydarova" } });
   expect(lead.message.length).toBe(2000);
   await db.lead.delete({ where: { id: lead.id } });
 });

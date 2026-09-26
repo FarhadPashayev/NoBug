@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/i18n/config";
 import { CHANNEL_IDS, getSurvey, resolveService, type AnketPayload } from "@/lib/anket/survey";
 import { fetchWithTimeout } from "@/lib/fetch";
+import { isValidEmail, isValidName } from "@/lib/validation";
 import { LEGACY_ORDER } from "@/lib/services";
 import { legalHref } from "@/lib/legal";
 import { CONTACT_EMAIL } from "@/lib/site";
@@ -15,7 +16,6 @@ type Step = 1 | 2 | 3;
 type Answers = Record<number, string | string[] | null>;
 type FieldErrors = Partial<Record<"name" | "contact" | "consent", string>>;
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export function SurveyForm({ lang }: { lang: Locale }) {
   const sv = getSurvey(lang);
@@ -105,8 +105,9 @@ export function SurveyForm({ lang }: { lang: Locale }) {
   function validate(): FieldErrors {
     const e: FieldErrors = {};
     if (!name.trim()) e.name = sv.errors.name;
+    else if (!isValidName(name)) e.name = sv.errors.nameFormat;
     if (!channel || !val.trim()) e.contact = sv.errors.contact;
-    else if (channelId === "email" && !EMAIL_RE.test(val.trim())) e.contact = sv.errors.email;
+    else if (channelId === "email" && !isValidEmail(val)) e.contact = sv.errors.email;
     if (!consent) e.consent = sv.errors.consent;
     return e;
   }

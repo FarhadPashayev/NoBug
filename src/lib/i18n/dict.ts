@@ -88,6 +88,7 @@ export type Dictionary = {
   formError: string;
   fieldRequired: string; // inline error under an empty required field
   fieldEmailInvalid: string;
+  fieldNameInvalid: string;
   footerCols: [string, string[]][]; // Xidmətlər (from FOOTER_SERVICES) · Şirkət · Hüquqi
   footerContact: string; // "Əlaqə" column title — items come from lib/site.ts
   legal: string[];
@@ -222,6 +223,7 @@ const az: Dictionary = {
   formError: "Göndərmək alınmadı. Bir az sonra yenidən cəhd edin və ya birbaşa e-poçt yazın.",
   fieldRequired: "Bu sahə doldurulmalıdır.",
   fieldEmailInvalid: "E-poçt ünvanı düzgün deyil.",
+  fieldNameInvalid: "Ad yalnız hərf, boşluq və tire ola bilər.",
   footerCols: [
     ["Xidmətlər", ["IT infrastrukturu", "CRM və ERP", "Mobil tətbiqlər", "Süni intellekt həlləri", "AI ilə video", "Konsultasiya"]],
     ["Şirkət", ["Haqqında", "Karyera", "Əlaqə"]],
@@ -360,6 +362,7 @@ const en: Dictionary = {
   formError: "Sending failed. Please try again in a moment or email us directly.",
   fieldRequired: "This field is required.",
   fieldEmailInvalid: "The email address is not valid.",
+  fieldNameInvalid: "Use letters, spaces and hyphens only.",
   footerCols: [
     ["Solutions", ["IT infrastructure", "CRM and ERP", "Mobile development", "AI solutions", "AI video", "Consulting"]],
     ["Company", ["About", "Careers", "Contact"]],
@@ -498,6 +501,7 @@ const ru: Dictionary = {
   formError: "Не удалось отправить. Попробуйте ещё раз чуть позже или напишите нам напрямую.",
   fieldRequired: "Это поле обязательно.",
   fieldEmailInvalid: "Адрес электронной почты указан неверно.",
+  fieldNameInvalid: "Только буквы, пробелы и дефисы.",
   footerCols: [
     ["Услуги", ["IT-инфраструктура", "CRM и ERP", "Мобильная разработка", "Решения на основе ИИ", "Видео с ИИ", "Консультации"]],
     ["Компания", ["О компании", "Карьера", "Контакты"]],

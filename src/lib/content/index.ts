@@ -72,7 +72,7 @@ function fromDictionary(locale: Locale): SiteContent {
       hours: d.contactRows[1][1],
       social: { linkedin: LINKEDIN_URL, instagram: "", facebook: "", youtube: "", x: "" },
       footerLinks: {
-        services: FOOTER_SERVICES.map((id, i) => ({ label: d.footerCols[0][1][i] ?? d.services[LEGACY_ORDER.indexOf(id)][0], href: `/${locale}/anket?xidmet=${id}` })),
+        services: FOOTER_SERVICES.map((id, i) => ({ label: d.footerCols[0][1][i] ?? d.services[LEGACY_ORDER.indexOf(id)][0], href: `/${locale}/xidmetler/${id}` })),
         company: d.footerCols[1][1].map((label, i) => ({ label, href: `/${locale}${["#haqqinda", "#karyera", "#elaqe"][i] ?? "#top"}` })),
         legal: [],
       },
@@ -143,6 +143,23 @@ async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
         }
       : fallback.settings,
   };
+}
+
+/** One active service by slug (DB, else the dictionary copy for the twelve built-in ones). */
+export async function getService(locale: Locale, slug: string): Promise<SiteContent["services"][number] | null> {
+  if (hasDatabase) {
+    try {
+      const s = await prisma.service.findFirst({ where: { slug, isActive: true }, include: { category: true } });
+      if (s) {
+        return { id: s.id, slug: s.slug, name: t(s.name, locale), shortDescription: t(s.shortDescription, locale), details: t(s.details, locale), icon: s.icon, imageUrl: s.imageUrl, primary: s.category?.slug === "esas", categorySlug: s.category?.slug ?? null };
+      }
+      // a DB that is set up but not seeded still serves the built-in services
+      if ((await prisma.service.count()) > 0) return null;
+    } catch (e) {
+      console.error("[content] service read failed, using dictionary:", e);
+    }
+  }
+  return fromDictionary(locale).services.find((s) => s.slug === slug) ?? null;
 }
 
 /** One published project by slug, for /[lang]/layiheler/[slug]; null when unknown, unpublished or no DB. */

@@ -52,7 +52,11 @@ export function Cta({ lang, t, content }: { lang: Locale; t: Dictionary; content
         <Rise delay={0.1} className="col-span-12 lg:col-span-5 lg:col-start-8">
           <div className="rounded-[20px] border border-fog-navy bg-ink-2 p-[clamp(24px,3vw,40px)]">
             <div className="mono-label text-grey-navy">{t.formLabel}</div>
-            <ContactForm lang={lang} t={t} tone="template" />
+            <ContactForm
+              lang={lang}
+              tone="template"
+              t={{ fieldName: t.fieldName, fieldEmail: t.fieldEmail, fieldMessage: t.fieldMessage, formSubmit: t.formSubmit, formSending: t.formSending, formSent: t.formSent, formError: t.formError, fieldRequired: t.fieldRequired, fieldEmailInvalid: t.fieldEmailInvalid, fieldNameInvalid: t.fieldNameInvalid }}
+            />
           </div>
         </Rise>
 

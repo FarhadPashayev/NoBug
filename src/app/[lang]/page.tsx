@@ -36,7 +36,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
 
   return (
     <ScrollColorWrapper>
-      <Header lang={lang} t={t} />
+      <Header lang={lang} t={{ nav: t.nav, cta: t.cta, menu: t.menu }} />
       <main>
         <Hero lang={lang} t={t} content={content} />
         <Showcase lang={lang} t={t} content={content} />

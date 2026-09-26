@@ -2,19 +2,20 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Locale } from "@/lib/i18n/config";
-import type { Dictionary } from "@/lib/i18n/dict";
 import { fetchWithTimeout } from "@/lib/fetch";
+import { FORBIDDEN_RE, isValidEmail, isValidName } from "@/lib/validation";
 
 type Status = "idle" | "sending" | "sent" | "error";
 type Errors = Partial<Record<"name" | "email" | "subject", string>>;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /**
  * The 3-field enquiry form. Progressive enhancement: without JavaScript it
  * POSTs form-encoded data to /api/leads, which answers with a redirect; with
  * JavaScript it validates inline, sends JSON and swaps in the confirmation.
  */
-export function ContactForm({ lang, t, tone = "navy" }: { lang: Locale; t: Dictionary; tone?: "navy" | "template" }) {
+export type ContactCopy = Pick<import("@/lib/i18n/dict").Dictionary, "fieldName" | "fieldEmail" | "fieldMessage" | "formSubmit" | "formSending" | "formSent" | "formError" | "fieldRequired" | "fieldEmailInvalid" | "fieldNameInvalid">;
+
+export function ContactForm({ lang, t, tone = "navy" }: { lang: Locale; t: ContactCopy; tone?: "navy" | "template" }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Errors>({});
   const openedAt = useRef(0);
@@ -24,11 +25,15 @@ export function ContactForm({ lang, t, tone = "navy" }: { lang: Locale; t: Dicti
 
   function validate(data: FormData): Errors {
     const e: Errors = {};
-    if (!String(data.get("name") ?? "").trim()) e.name = t.fieldRequired;
+    const name = String(data.get("name") ?? "").trim();
+    if (!name) e.name = t.fieldRequired;
+    else if (!isValidName(name)) e.name = t.fieldNameInvalid;
     const email = String(data.get("email") ?? "").trim();
     if (!email) e.email = t.fieldRequired;
-    else if (!EMAIL_RE.test(email)) e.email = t.fieldEmailInvalid;
-    if (!String(data.get("subject") ?? "").trim()) e.subject = t.fieldRequired;
+    else if (!isValidEmail(email)) e.email = t.fieldEmailInvalid;
+    const subject = String(data.get("subject") ?? "").trim();
+    if (!subject) e.subject = t.fieldRequired;
+    else if (FORBIDDEN_RE.test(subject)) e.subject = t.fieldNameInvalid;
     return e;
   }
 

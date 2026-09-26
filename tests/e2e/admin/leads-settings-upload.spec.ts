@@ -8,7 +8,8 @@ test("LEAD-08: the real public contact form creates a lead", async ({ page }) =>
   await freshIp(page);
   await page.goto("/az#elaqe");
   await page.waitForTimeout(3500); // the form rejects submits faster than 3 s
-  const name = `Forma ${Date.now()}`;
+  const name = "Forma Testov";
+  await db.lead.deleteMany({ where: { name } });
   await page.fill("#k2-name", name);
   await page.fill("#k2-mail", "forma@example.com");
   await page.fill("#k2-msg", "Formadan sorğu");

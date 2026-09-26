@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { SECURITY_HEADERS } from "./src/lib/security-headers";
 
 const supabaseHost = (() => {
   try {
@@ -22,24 +23,11 @@ const nextConfig: NextConfig = {
         source: "/assets/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=2592000" }],
       },
-      {
-        source: "/:path*",
-        headers: [
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-        ],
-      },
+      // the proxy sets these on the routes it sees; this covers static files, /api and the rest
+      { source: "/:path*", headers: Object.entries(SECURITY_HEADERS).map(([key, value]) => ({ key, value })) },
     ];
   },
-  async redirects() {
-    // the Vercel preview host must never be indexed as a duplicate of the site
-    return [
-      { source: "/:path*", has: [{ type: "host", value: "no-bug-eta.vercel.app" }], destination: "https://www.nobug.az/:path*", permanent: true },
-      { source: "/:path*", has: [{ type: "host", value: "nobug.az" }], destination: "https://www.nobug.az/:path*", permanent: true },
-    ];
-  },
+
 };
 
 export default nextConfig;

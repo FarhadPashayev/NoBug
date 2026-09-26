@@ -4,12 +4,14 @@ import Link from "next/link";
 import { ArrowRight, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Locale } from "@/lib/i18n/config";
-import type { Dictionary } from "@/lib/i18n/dict";
 import { Logo } from "@/components/ui/logo";
 import { LangSwitcher } from "@/components/ui/lang-switcher";
 
 /** Light sticky header: logo · nav · language · red pill CTA. Hamburger below lg. */
-export function Header({ lang, t }: { lang: Locale; t: Dictionary }) {
+/** Only the strings the header needs — the whole dictionary would travel in the RSC payload otherwise. */
+export type HeaderCopy = { nav: [string, string][]; cta: string; menu: string };
+
+export function Header({ lang, t }: { lang: Locale; t: HeaderCopy }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 

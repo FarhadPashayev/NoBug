@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dict";
 import type { SiteContent } from "@/lib/content";
@@ -30,7 +30,7 @@ export function ServicesGrid({ lang, t, content }: { lang: Locale; t: Dictionary
         <div className="mt-[clamp(32px,4vw,56px)]">
           <ServicesScroller prevLabel={t.tpl.scrollPrev} nextLabel={t.tpl.scrollNext}>
             {services.map((s, i) => (
-              <div key={s.id} data-card className="flex-none snap-start">
+              <div key={s.id} data-card className="flex flex-none snap-start flex-col gap-3">
                 <ServiceCard
                   id={s.slug}
                   index={i + 1}
@@ -43,6 +43,11 @@ export function ServicesGrid({ lang, t, content }: { lang: Locale; t: Dictionary
                   lang={lang}
                   t={t}
                 />
+                {/* the card is the enquiry; this is the indexable page for the service */}
+                <Link href={`/${lang}/xidmetler/${s.slug}`} className="group inline-flex items-center gap-1.5 self-start text-[14px] font-medium text-grey transition-colors hover:text-ink">
+                  {t.tpl.readMore}
+                  <ArrowRight size={14} className="transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
+                </Link>
               </div>
             ))}
           </ServicesScroller>

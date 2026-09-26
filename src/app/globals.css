@@ -209,7 +209,8 @@
   padding: 12px 16px;
   border: 1px solid var(--color-hairline);
   border-radius: 2px;
-  background: transparent;
+  /* opaque on purpose: browsers with "auto dark" darken transparent boxes and leave the text navy */
+  background: var(--color-paper, #fff);
   color: var(--color-navy);
   font-size: 15px;
   font-weight: 500;
@@ -436,6 +437,11 @@ html[data-page-bg="dark"] .on-light {
 html {
   scroll-behavior: smooth;
 }
+:root {
+  /* the public site has one, light, palette — stops Android Chrome / Samsung "auto dark" from inverting it */
+  color-scheme: light only;
+}
+
 body {
   /* --page-bg is set by <ScrollColorWrapper>; falls back to the light ground */
   background: var(--page-bg, var(--color-light));

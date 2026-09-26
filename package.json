@@ -17,7 +17,7 @@
     "test:api": "vitest run --project api",
     "test:e2e": "playwright test",
     "test:all": "node tests/run-all.mjs",
-    "prebuild": "find .next src/generated -name '* [0-9].*' -delete 2>/dev/null; true"
+    "prebuild": "find .next src/generated -name '* [0-9]' -o -name '* [0-9]*.*' -o -name '* [0-9][0-9]' | xargs -I{} rm -f '{}' 2>/dev/null; true"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

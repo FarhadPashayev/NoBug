@@ -40,7 +40,7 @@ const plexMono = IBM_Plex_Mono({
 type Props = { children: React.ReactNode; params: Promise<{ lang: string }> };
 
 // notch/home-indicator safe areas (padding lives in globals.css via env())
-export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#0b1f3a" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#0b1f3a", colorScheme: "light" };
 
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));

@@ -3,8 +3,9 @@ import { z } from "zod";
 import { CHANNEL_IDS, getSurvey, resolveService } from "@/lib/anket/survey";
 import { LOCALES, isLocale } from "@/lib/i18n/config";
 import { clientIp, isRateLimited, looksLikeBot } from "@/lib/anti-spam";
-import { escapeHtml, formatDate, isEmail, MAIL_TO, sendMail } from "@/lib/mail/send";
+import { escapeHtml, formatDate, MAIL_TO, sendMail } from "@/lib/mail/send";
 import { recordLead } from "@/lib/admin/leads";
+import { FORBIDDEN_RE, isValidEmail, isValidName } from "@/lib/validation";
 
 export const runtime = "nodejs";
 
@@ -25,11 +26,13 @@ export function GET() {
   return NextResponse.json({ error: "Not found" }, { status: 404 });
 }
 
+const name = z.string().trim().min(1, "Name is required").max(120).refine(isValidName, "Letters, spaces and hyphens only");
+const email = z.string().trim().min(1, "Email is required").max(160).refine(isValidEmail, "Invalid email");
 const Contact = z.object({
   source: z.literal("contact").default("contact"),
-  name: z.string().trim().min(1).max(120),
-  email: z.string().trim().max(160).refine(isEmail, "Invalid email"),
-  subject: z.string().trim().min(1).max(300),
+  name,
+  email,
+  subject: z.string().trim().min(1).max(300).refine((v) => !FORBIDDEN_RE.test(v), "Invalid characters"),
   lang: z.string().default("az"),
 });
 
@@ -38,7 +41,7 @@ const Anket = z.object({
   lang: z.enum(LOCALES).default("az"),
   service: z.union([z.string(), z.number()]).transform((v) => resolveService(String(v))),
   answers: z.record(z.string(), z.union([z.string(), z.array(z.string()), z.null()])).default({}),
-  name: z.string().trim().min(1).max(120),
+  name,
   channel: z.enum(CHANNEL_IDS),
   contact: z.string().trim().min(1).max(160),
   phone: z.string().trim().max(40).optional(),
@@ -111,7 +114,8 @@ async function handleAnket(raw: unknown) {
   if (!parsed.success) return bad("Validation failed", 400, fieldErrorsOf(parsed.error));
   const body = parsed.data;
   if (body.service === null) return bad("Unknown service");
-  if (body.channel === "email" && !isEmail(body.contact)) return bad("Invalid email");
+  if (body.channel === "email" && !isValidEmail(body.contact)) return bad("Invalid email", 400, { contact: "Invalid email" });
+  if (FORBIDDEN_RE.test(body.contact)) return bad("Invalid characters", 400, { contact: "Invalid characters" });
 
   const sv = getSurvey(body.lang);
   const serviceName = sv.services[body.service];

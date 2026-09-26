@@ -9,6 +9,7 @@ import { icons } from "lucide-react";
 import { sanitizeLocalized } from "@/lib/sanitize";
 import { serviceCategorySchema, serviceSchema } from "@/schemas/services";
 import { idSchema, reorderSchema } from "@/schemas/common";
+import { revalidatePath } from "next/cache";
 import { ActionError, guarded } from "./run";
 import { revalidateSite } from "./revalidate";
 
@@ -91,6 +92,7 @@ export async function createService(input: unknown) {
       },
     });
     revalidateSite("/anket");
+    revalidatePath("/[lang]/xidmetler/[slug]", "page");
     return null;
   });
 }
@@ -109,6 +111,7 @@ export async function updateService(id: unknown, input: unknown) {
     });
     if (previous.imagePath && previous.imagePath !== v.image.path) await deleteImages([previous.imagePath]);
     revalidateSite("/anket");
+    revalidatePath("/[lang]/xidmetler/[slug]", "page");
     return null;
   });
 }
@@ -119,6 +122,7 @@ export async function deleteService(id: unknown) {
     const row = await prisma.service.delete({ where: { id: idSchema.parse(id) } });
     await deleteImages([row.imagePath]);
     revalidateSite("/anket");
+    revalidatePath("/[lang]/xidmetler/[slug]", "page");
     return null;
   });
 }
