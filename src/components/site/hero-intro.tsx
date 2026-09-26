@@ -20,8 +20,11 @@ import {
  *               (translate(24px,-16px) → 0), staggered 90ms.
  *
  * Skipped entirely (final state at once) when the visitor prefers reduced
- * motion, or has already seen it in this browser session — a 4-second intro
- * on every navigation would be a cost, not a welcome.
+ * motion, is on a small screen, or has already seen it in this browser
+ * session — a 4-second intro on every navigation would be a cost, not a
+ * welcome. The "hidden" state of the copy is expressed in CSS
+ * ([data-phase] + .hero-line, globals.css) and only applies from md up, so on
+ * phones the headline is painted with the first HTML — that is the LCP.
  */
 type Phase = "intro" | "move" | "final";
 
@@ -56,21 +59,20 @@ export function HeroIntro({
   const slotRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<Phase>("intro");
   const [transform, setTransform] = useState<string | null>(null);
-  const [src, setSrc] = useState<string | null>(null);
+  // the static wordmark is in the HTML; the intro swaps in a cache-busted copy so its animation restarts
+  const [src, setSrc] = useState<string>(image ?? LOGO);
 
   useEffect(() => {
-    const reduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const small = window.matchMedia("(max-width: 767px)").matches;
     let seen = false;
     try {
       seen = sessionStorage.getItem(SEEN_KEY) === "1";
     } catch {}
 
-    if (reduce || seen || image) {
+    if (reduce || small || seen || image) {
       // next frame: keeps the effect free of synchronous state updates
       const raf = requestAnimationFrame(() => {
-        setSrc(image ?? LOGO);
         setPhase("final");
       });
       return () => cancelAnimationFrame(raf);
@@ -119,36 +121,31 @@ export function HeroIntro({
           transition: `transform ${MOVE_DURATION}ms var(--ease-brand)`,
         };
 
-  // copy lines: hidden until "final", then staggered entrance from the top-right
-  const line = (i: number): CSSProperties =>
-    phase === "final"
-      ? {
-          opacity: 1,
-          transform: "none",
-          transition: `opacity 420ms var(--ease-brand) ${i * 90}ms, transform 420ms var(--ease-brand) ${i * 90}ms`,
-        }
-      : { opacity: 0, transform: "translate(24px, -16px)" };
+  // copy lines: the stagger delay per line; visibility lives in CSS (.hero-line)
+  const line = (i: number) => ({ "--d": `${i * 90}ms` }) as CSSProperties;
 
   return (
     <>
       <div
         ref={gridRef}
+        data-phase={phase}
+        data-logo={transform || phase !== "intro" ? "ready" : undefined}
         className="grid grid-cols-12 items-start gap-x-4 gap-y-[clamp(32px,5vw,72px)] md:gap-x-6"
       >
         <div
           className="col-span-12 min-w-0 max-w-[760px] md:col-span-7"
           aria-busy={phase !== "final"}
         >
-          <div className="mono-label text-grey" style={line(0)}>
+          <div className="hero-line mono-label text-grey" style={line(0)}>
             {eyebrow}
           </div>
-          <h1 className="mt-6 text-balance text-[clamp(34px,5.4vw,76px)] font-medium leading-[1.02] tracking-[-0.035em] text-ink" style={line(1)}>
+          <h1 className="hero-line mt-6 text-balance text-[clamp(34px,5.4vw,76px)] font-medium leading-[1.02] tracking-[-0.035em] text-ink" style={line(1)}>
             {h1}
           </h1>
-          <p className="mt-6 max-w-[56ch] text-[clamp(16px,1.43vw,21px)] leading-[1.5] text-grey" style={line(2)}>
+          <p className="hero-line mt-6 max-w-[56ch] text-[clamp(16px,1.43vw,21px)] leading-[1.5] text-grey" style={line(2)}>
             {text}
           </p>
-          <div className="mt-8 flex flex-wrap gap-3" style={line(3)}>
+          <div className="hero-line mt-8 flex flex-wrap gap-3" style={line(3)}>
             <Link
               href={ctaHref}
               className="pill pill-yellow"
@@ -179,7 +176,7 @@ export function HeroIntro({
           aria-hidden="true"
         >
           <div
-            className="relative z-10 will-change-transform"
+            className="hero-logo relative z-10 will-change-transform"
             style={logoStyle}
           >
             <div
@@ -187,33 +184,22 @@ export function HeroIntro({
               // an uploaded banner image takes the whole column as a tile
               className={image ? "w-full overflow-hidden rounded-[24px]" : "mx-auto w-[70%] py-[clamp(12px,2vw,24px)]"}
             >
-              {src ? (
-                // eslint-disable-next-line @next/next/no-img-element -- animated SVG must not go through the image optimizer
-                <img
-                  src={src}
-                  alt=""
-                  width={960}
-                  height={image ? 720 : 290}
-                  className={image ? "block h-auto w-full object-cover" : "block h-auto w-full"}
-                />
-              ) : (
-                <div style={{ aspectRatio: "960 / 290" }} />
-              )}
+              {/* eslint-disable-next-line @next/next/no-img-element -- animated SVG must not go through the image optimizer */}
+              <img
+                src={src}
+                alt=""
+                width={960}
+                height={image ? 720 : 290}
+                fetchPriority="high"
+                decoding="async"
+                className={image ? "block h-auto w-full object-cover" : "block h-auto w-full"}
+              />
             </div>
           </div>
         </div>
       </div>
-      {/* rule + figures below the hero: held back until the copy has entered */}
-      <div
-        style={
-          phase === "final"
-            ? {
-                opacity: 1,
-                transition: "opacity 500ms var(--ease-brand) 300ms",
-              }
-            : { opacity: 0 }
-        }
-      >
+      {/* rule + figures below the hero: held back until the copy has entered (CSS, desktop only) */}
+      <div className="hero-after" data-phase={phase}>
         {children}
       </div>
     </>

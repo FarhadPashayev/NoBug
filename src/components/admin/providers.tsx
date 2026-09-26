@@ -10,7 +10,11 @@ export function AdminProviders({ children }: { children: React.ReactNode }) {
   const [client] = useState(
     () =>
       new QueryClient({
-        defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false, retry: 1 } },
+        defaultOptions: {
+          // flaky connections: two retries, 1 s → 2 s → 4 s; mutations never retry (they are not idempotent)
+          queries: { staleTime: 30_000, refetchOnWindowFocus: false, retry: 2, retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000) },
+          mutations: { retry: 0 },
+        },
       }),
   );
 

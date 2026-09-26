@@ -20,7 +20,7 @@ export function ServiceCard({ id, index, total, title, text, image, icon, positi
       className="group relative block aspect-[4/5] w-[min(78vw,300px)] flex-none snap-start overflow-hidden rounded-[28px] bg-ink text-white outline-none ring-yellow ring-offset-2 ring-offset-light focus-visible:ring-2"
       aria-label={`${title} — ${t.tpl.cardSelect}`}
     >
-      <Image src={image} alt="" fill sizes="300px" unoptimized={image.startsWith("http")} className="object-cover transition-transform duration-700 ease-[var(--ease-brand)] group-hover:scale-[1.04]" />
+      <Image src={image} alt="" fill sizes="300px" className="object-cover transition-transform duration-700 ease-[var(--ease-brand)] group-hover:scale-[1.04]" />
 
       {/* veils for contrast: top (soft) and bottom (strong), plus a light blur band behind the footer */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[50%] bg-gradient-to-b from-[rgba(11,31,58,0.86)] via-[rgba(11,31,58,0.45)] to-transparent" />

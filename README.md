@@ -174,3 +174,13 @@ npm run test:all    # everything: db → tsc → eslint → build → unit/integ
 ```
 
 `.env.test` has the non-secret test settings; put `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and `MEDIA_BUCKET=media-test` in `.env.test.local` to run the real-upload cases (they skip otherwise). Tests refuse any Supabase `DATABASE_URL_TEST`.
+
+### Resilience & performance notes
+
+- **Environment** is validated with Zod at boot (`src/lib/env.ts`, `src/instrumentation.ts`): a malformed value (bad `DATABASE_URL`, short `AUTH_SECRET`, wrong `MAIL_MODE`…) aborts a production start with a clear message; missing values are allowed — the site runs without a database or mail.
+- **Error boundaries**: `src/app/[lang]/error.tsx` (az/en/ru), `src/app/global-error.tsx`, `src/app/(admin)/admin/error.tsx`; 404s are localized in `src/app/[lang]/not-found.tsx`.
+- **Offline**: `public/sw.js` keeps visited public pages and static assets (network-first for pages, cache-first for `/_next/static`, stale-while-revalidate for `/assets` and `/_next/image`); `/admin` and `/api` are never cached. `public/offline.html` is the fallback; `OfflineBanner` shows a localized notice when the browser loses its connection. Bump `VERSION` in `sw.js` to invalidate old caches.
+- **Network**: every browser `fetch` goes through `fetchWithTimeout` (`src/lib/fetch.ts`, 15–60 s, abortable); TanStack Query retries twice with exponential backoff, mutations never retry.
+- **Hero LCP**: the intro choreography only runs from `md` up with `prefers-reduced-motion: no-preference`; phones get the headline in the first paint (CSS in `globals.css`, `[data-phase]`).
+- **Images**: Supabase uploads go through `next/image` (`images.remotePatterns`, AVIF/WebP).
+- The project folder syncs with iCloud on the author's machine, which drops `name 2.ts` copies into generated folders; `prebuild` and `test:all` sweep them.

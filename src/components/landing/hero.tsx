@@ -39,7 +39,7 @@ export function Hero({ lang, t, content }: { lang: Locale; t: Dictionary; conten
             {partnerLogos.length > 0 && (
               <ul className="m-0 mt-8 flex list-none flex-wrap items-center gap-x-10 gap-y-5 p-0" aria-label="Partners">
                 {partnerLogos.map((l) => {
-                  const img = <Image src={l.logoUrl} alt={l.name} width={140} height={48} className="h-8 w-auto max-w-[140px] object-contain opacity-70 grayscale transition-opacity hover:opacity-100" unoptimized />;
+                  const img = <Image src={l.logoUrl} alt={l.name} width={140} height={48} className="h-8 w-auto max-w-[140px] object-contain opacity-70 grayscale transition-opacity hover:opacity-100" />;
                   return (
                     <li key={l.id}>
                       {l.url ? (

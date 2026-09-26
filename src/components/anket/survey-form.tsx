@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/i18n/config";
 import { CHANNEL_IDS, getSurvey, resolveService, type AnketPayload } from "@/lib/anket/survey";
+import { fetchWithTimeout } from "@/lib/fetch";
 import { LEGACY_ORDER } from "@/lib/services";
 import { legalHref } from "@/lib/legal";
 import { CONTACT_EMAIL } from "@/lib/site";
@@ -134,7 +135,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
       openedAt: openedAt.current,
     };
     try {
-      const res = await fetch("/api/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ source: "anket", ...payload }) });
+      const res = await fetchWithTimeout("/api/leads", { method: "POST", timeoutMs: 15_000, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ source: "anket", ...payload }) });
       if (!res.ok) throw new Error(String(res.status));
       setSent(true);
       track({ name: "enquiry_submit", params: { service_id: serviceId, locale: lang } });

@@ -13,8 +13,15 @@ import { Logo } from "@/components/ui/logo";
 
 type Props = { params: Promise<{ lang: string; slug: string }> };
 
-// Rendered on demand from the database; project actions revalidate it.
-export const dynamic = "force-dynamic";
+// Cached like the home page (ISR, filled on first request — the build does not
+// need the database); project actions revalidate the path on every edit. No
+// loading.tsx here on purpose: a streamed shell would commit a 200 before
+// notFound() could turn an unknown slug into a real 404.
+export const revalidate = 3600;
+export const dynamicParams = true;
+export function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params;
@@ -66,7 +73,7 @@ export default async function ProjectPage({ params }: Props) {
           )}
           {p.coverUrl && (
             <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-[20px] bg-light">
-              <Image src={p.coverUrl} alt="" fill sizes="(min-width: 1080px) 1080px, 100vw" className="object-cover" unoptimized />
+              <Image src={p.coverUrl} alt="" fill sizes="(min-width: 1080px) 1080px, 100vw" className="object-cover" priority />
             </div>
           )}
           <div className="mt-8 h-px bg-navy" />

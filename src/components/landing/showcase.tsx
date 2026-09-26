@@ -42,7 +42,7 @@ export function Showcase({ lang, t, content }: { lang: Locale; t: Dictionary; co
                 <article className="grid grid-cols-12 items-center gap-x-4 md:gap-x-8 gap-y-8">
                   <div className={`col-span-12 md:col-span-5 ${i % 2 ? "md:order-2 md:col-start-8" : ""}`}>
                     <div className="tile aspect-[4/3] bg-ink-2">
-                      <Image src={p.coverUrl ?? TILES[i % TILES.length]} alt="" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover opacity-90" unoptimized={!!p.coverUrl} />
+                      <Image src={p.coverUrl ?? TILES[i % TILES.length]} alt="" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover opacity-90" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[rgba(11,31,58,0.85)] via-transparent to-transparent" />
                       <div className="absolute bottom-6 left-6 right-6">
                         <div className="text-[clamp(56px,7vw,112px)] font-semibold leading-[0.95] tracking-[-0.04em] text-white">{figure}</div>

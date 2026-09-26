@@ -97,7 +97,7 @@ export function Sidebar() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 grid size-12 place-items-center rounded-full bg-ad-accent text-ad-accent-fg shadow-lg lg:hidden"
+        className="fixed bottom-5 right-5 z-40 grid size-12 place-items-center rounded-full bg-ad-accent text-ad-accent-fg shadow-lg [bottom:calc(1.25rem+env(safe-area-inset-bottom))] [right:calc(1.25rem+env(safe-area-inset-right))] lg:hidden"
         aria-label="Menyu"
       >
         <Menu className="size-5" />

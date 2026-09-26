@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { MediaFolder } from "@/lib/supabase";
+import { fetchWithTimeout } from "@/lib/fetch";
 import { Button } from "./ui/button";
 
 export type ImageValue = { url: string | null; path: string | null };
@@ -43,7 +44,7 @@ export function ImageDrop({
       const body = new FormData();
       body.append("file", file);
       body.append("folder", folder);
-      const res = await fetch("/api/admin/upload", { method: "POST", body });
+      const res = await fetchWithTimeout("/api/admin/upload", { method: "POST", body, timeoutMs: 60_000 });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? "Yükləmək alınmadı");
       onChange({ url: json.url as string, path: json.path as string });

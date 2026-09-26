@@ -1,10 +1,12 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Inter_Tight, Newsreader } from "next/font/google";
 import { notFound } from "next/navigation";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { CONTACT_EMAIL, SITE_URL, absoluteUrl } from "@/lib/site";
+import { OfflineBanner } from "@/components/ui/offline-banner";
+import { ServiceWorkerRegister } from "@/components/ui/sw-register";
 import "../globals.css";
 
 const interTight = Inter_Tight({
@@ -30,6 +32,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 type Props = { children: React.ReactNode; params: Promise<{ lang: string }> };
+
+// notch/home-indicator safe areas (padding lives in globals.css via env())
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#0b1f3a" };
 
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
@@ -70,7 +75,13 @@ export default async function LangLayout({ children, params }: Props) {
   return (
     <html lang={lang} className={`${interTight.variable} ${newsreader.variable} ${plexMono.variable}`}>
       <body>
+        {/* framer-motion reveals start at opacity 0 in the HTML; without JavaScript they would never appear */}
+        <noscript>
+          <style>{`[style*="opacity: 0"]{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
         {children}
+        <OfflineBanner lang={lang} />
+        <ServiceWorkerRegister />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
         {/* GA4 — loaded after hydration (afterInteractive); off entirely when the ID is unset */}
         {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-test("RSP-01: no horizontal scroll and no overlapping header at 360 / 768 / 1024 / 1440", async ({ page }) => {
-  for (const width of [360, 768, 1024, 1440]) {
+test("RSP-01: no horizontal scroll and no overlapping header at 320 / 360 / 768 / 1024 / 1440 / 1920", async ({ page }) => {
+  for (const width of [320, 360, 768, 1024, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     for (const path of ["/az", "/az/anket?xidmet=qa", "/az/mexfilik-siyaseti"]) {
       await page.goto(path);

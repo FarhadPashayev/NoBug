@@ -13,7 +13,7 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   reporter: [["list"], ["html", { open: "never" }]],
-  use: { baseURL, trace: "retain-on-failure", screenshot: "only-on-failure" },
+  use: { baseURL, trace: "retain-on-failure", screenshot: "only-on-failure", serviceWorkers: "block" },
   webServer: { command: "node tests/serve.mjs", url: `${baseURL}/az`, reuseExistingServer: true, timeout: 120_000 },
   projects: [
     { name: "setup", testMatch: /auth\.setup\.ts/, use: { channel: "chrome" } },

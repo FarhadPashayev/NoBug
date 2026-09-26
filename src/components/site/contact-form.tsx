@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dict";
+import { fetchWithTimeout } from "@/lib/fetch";
 
 type Status = "idle" | "sending" | "sent" | "error";
 type Errors = Partial<Record<"name" | "email" | "subject", string>>;
@@ -43,8 +44,9 @@ export function ContactForm({ lang, t, tone = "navy" }: { lang: Locale; t: Dicti
     }
     setStatus("sending");
     try {
-      const res = await fetch("/api/leads", {
+      const res = await fetchWithTimeout("/api/leads", {
         method: "POST",
+        timeoutMs: 15_000,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           source: "contact",
