@@ -183,4 +183,7 @@ npm run test:all    # everything: db → tsc → eslint → build → unit/integ
 - **Network**: every browser `fetch` goes through `fetchWithTimeout` (`src/lib/fetch.ts`, 15–60 s, abortable); TanStack Query retries twice with exponential backoff, mutations never retry.
 - **Hero LCP**: the intro choreography only runs from `md` up with `prefers-reduced-motion: no-preference`; phones get the headline in the first paint (CSS in `globals.css`, `[data-phase]`).
 - **Images**: Supabase uploads go through `next/image` (`images.remotePatterns`, AVIF/WebP).
+- **Service pages**: `/{lang}/xidmetler/{slug}` — one indexable page per service (metadata, hreflang, JSON-LD, ISR); the sitemap reads services and projects from the database.
+- **Security headers / CSP**: `src/lib/security-headers.ts`, applied by the proxy (every routed response and its redirects) and `next.config.ts` (static files, API).
+- **Form rules**: `src/lib/validation.ts` (name / e-mail) is shared by the forms and `/api/leads`.
 - The project folder syncs with iCloud on the author's machine, which drops `name 2.ts` copies into generated folders; `prebuild` and `test:all` sweep them.

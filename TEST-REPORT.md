@@ -190,3 +190,19 @@ Desktop stays 98–99. **Why production does not follow the local gain:** `www.n
 - Security headers present; `/assets/*` served with `max-age=604800, stale-while-revalidate`.
 - Unknown project slug → HTTP 404 with the localized page; known slug served from the ISR cache (`x-nextjs-cache: HIT`).
 - Desktop intro unchanged (phase reaches `final`, animated SVG swapped in); phones and reduced-motion get the static wordmark and visible copy immediately.
+
+---
+
+# Part 4 — Customer feedback round (2026-09-27, commit `d023613`)
+
+| Item | Finding | Fix | Verified |
+| --- | --- | --- | --- |
+| **B** anket step 2 chips unreadable (dark box, dark text) | Not reproducible in a normal browser; it is Android Chrome / Samsung *auto dark mode* inverting the light page while keeping the text navy | `color-scheme: light only` on the site (meta + CSS) so browsers stop forcing a dark theme; chips get an opaque light background instead of `transparent` | forced-dark emulation, axe contrast |
+| **C** weak validation on name / e-mail | `<script>` was stored (escaped on render), any string was a "name" | Shared rules in `src/lib/validation.ts`: name = letters of any script, spaces, hyphens, apostrophes (2–120); strict e-mail; `< > / \ " '` rejected in name, e-mail and subject — enforced client-side (inline az/en/ru messages) **and** in `/api/leads` (400 + `fieldErrors`) | unit `validation.test.ts`, API `LEAD-06`, E2E `ANK-13`, `ELQ-07`; production: `name: "<script>"` → 400 |
+| **D** security scan: CSP, X-Frame-Options, nosniff, Referrer-Policy, Permissions-Policy missing | Four of the five were added on 09-26 but only for routed pages; the scan hit `https://nobug.az` (a 308) | `src/lib/security-headers.ts`: CSP (`default-src 'self'`, script/style `'self' 'unsafe-inline'` + GA and Cloudflare origins, `object-src 'none'`, `frame-ancestors 'self'`, `form-action 'self'`), HSTS preload, nosniff, `X-Frame-Options: SAMEORIGIN`, Referrer-Policy, Permissions-Policy, COOP — set by the proxy on every response it sees (including its own redirects) and by `next.config` for static files / API | E2E `SEC-01` (pages, `/`, 404, `/admin`, `/api`, sitemap), `SEC-02` (no CSP violations); production `www.nobug.az/az` carries all of them |
+| **A** SEO: one-page site, services not indexable | — | `/{lang}/xidmetler/{slug}` for every service (title, description, canonical, hreflang az/en/ru/x-default, JSON-LD `Service`, the three survey questions, CTA to the anket, links to the other services; ISR, the 12 built-ins prerendered, panel-added services on demand); "Ətraflı" link under every card; footer service links → pages (seed default and production settings updated through the panel); sitemap generated from the DB (services + projects with a write-up) | E2E `SEO-04`; production: 36 service URLs in the sitemap, `xidmetler/qa` → 200 |
+| **A** unused JS / late main content | The late "main content" was the animated hero SVG + hidden copy (fixed in Part 3); `Header` and `ContactForm` received the whole dictionary as props (≈ 16 KB of RSC payload) | Only the strings they use are passed | build; RSC payload smaller |
+
+**Still open from the scan:** `https://nobug.az/` (apex) answers with a 308 that is produced by Vercel's domain-level redirect *before* the app runs, so it carries no CSP. Either scan the canonical `https://www.nobug.az`, or in Vercel → Domains make `nobug.az` a plain alias (the proxy then redirects it with the full header set), or add the headers in a Cloudflare Transform Rule.
+
+**Lighthouse after this round (production):** home mobile 73–79 (FCP 3.0 s, LCP 4.0 s — the Cloudflare hop described in Part 3 still dominates; the same build scores 93 served directly), home desktop 96, **service page mobile 97 / LCP 2.4 s**. "Unused JavaScript" ≈ 60 KB is the React/Next runtime plus framer-motion features not executed at load; a `LazyMotion` refactor would trim ~20 KB and is the next code-side lever after the Cloudflare change.
