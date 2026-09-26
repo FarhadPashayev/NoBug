@@ -9,9 +9,13 @@ import { OfflineBanner } from "@/components/ui/offline-banner";
 import { ServiceWorkerRegister } from "@/components/ui/sw-register";
 import "../globals.css";
 
+// One variable file per subset (latin 45 KB, latin-ext 90 KB, cyrillic 17 KB)
+// instead of nine static weights; the mono labels and the single serif quote
+// are not preloaded — with font-display: swap they arrive a moment later
+// instead of standing between the visitor and the first paint.
 const interTight = Inter_Tight({
   subsets: ["latin", "latin-ext", "cyrillic"],
-  weight: ["400", "500", "600"],
+  weight: "variable",
   variable: "--font-inter-tight",
   display: "swap",
 });
@@ -23,12 +27,14 @@ const newsreader = Newsreader({
   style: ["italic"],
   variable: "--font-newsreader",
   display: "swap",
+  preload: false,
 });
 const plexMono = IBM_Plex_Mono({
   subsets: ["latin", "latin-ext", "cyrillic"],
   weight: ["400", "500"],
   variable: "--font-plex-mono",
   display: "swap",
+  preload: false,
 });
 
 type Props = { children: React.ReactNode; params: Promise<{ lang: string }> };

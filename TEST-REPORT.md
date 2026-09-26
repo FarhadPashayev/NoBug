@@ -149,3 +149,44 @@ Mobile is below the ≥ 90 / LCP < 2.5 s target. Desktop and everything else pas
 - The production forms were exercised once each with `QA-TEST` data and cleaned up; the inbox holds no `QA-TEST` rows.
 - E-mail notification is `MAIL_MODE=off` in production, as the plan states; when it is switched on, ANK-11/ELQ-03 need a re-run for the confirmation mails.
 - The project folder is under iCloud sync, which keeps creating `… 2.ts` copies inside `.next/types` and `src/generated`; `npm run test:all` deletes them before `tsc`. Excluding the folder from iCloud avoids it.
+
+---
+
+# Part 3 — Performance & resilience round (2026-09-26)
+
+Scope of the brief: fast and stable on every device and on poor connections. Audit first, then fixes; the full pipeline (`npm run test:all`) is green after every step.
+
+## Audit → fix
+
+| # | Finding | Fix | Files |
+| --- | --- | --- | --- |
+| P0 | Mobile LCP 4.6 s: the hero copy was hidden (`opacity:0` in the HTML) until the desktop intro finished, and the animated wordmark SVG keeps drawing for ~3.4 s, which Chrome counts as the image's paint | Intro only from `md` up with `prefers-reduced-motion: no-preference` (CSS `[data-phase] .hero-line`); phones render the headline in the first HTML; static wordmark (`logo-navy-amber.svg`) unless the desktop intro actually plays | `hero-intro.tsx`, `globals.css` |
+| P0 | 11 preloaded woff2 files (245 KB) before the first paint | Inter Tight as a variable font (3 subset files, 152 KB preloaded); Plex Mono and Newsreader load on demand with `swap` | `[lang]/layout.tsx` |
+| P0 | Supabase uploads bypassed `next/image` (`unoptimized`) | `images.remotePatterns` + AVIF/WebP, `priority` on the project cover | `next.config.ts`, hero/showcase/service-card/project page |
+| P1 | No error boundaries | `[lang]/error.tsx` (az/en/ru), `global-error.tsx`, `(admin)/admin/error.tsx` | |
+| P1 | No env validation | Zod schema + `instrumentation.ts` (production boot fails on malformed values, missing ones stay optional) | `src/lib/env.ts` |
+| P1 | No timeout/abort on browser requests; TanStack `retry: 1` without backoff | `fetchWithTimeout` (15 s forms, 20 s admin API, 60 s uploads); queries retry ×2 with 1→2→4 s backoff, mutations never retry | `src/lib/fetch.ts`, `client.ts`, forms, `providers.tsx` |
+| P1 | Nothing for a dropped connection | `public/sw.js` (network-first pages, cache-first `/_next/static`, SWR assets; `/admin` + `/api` untouched), `offline.html`, `OfflineBanner` (az/en/ru) | |
+| P1 | Project detail page fully dynamic | ISR (`revalidate` + empty `generateStaticParams`), real 404 status kept (no streamed shell) | `layiheler/[slug]/page.tsx` |
+| P2 | No `viewport-fit`, safe areas, security/cache headers, browserslist | `viewport` export, `env(safe-area-inset-*)` on gutters/header/admin button; `Cache-Control` for `/assets`, nosniff/referrer/frame/permissions headers; `browserslist` | `next.config.ts`, `globals.css`, `sidebar.tsx`, `package.json` |
+| P2 | Unused packages | removed `@radix-ui/react-dropdown-menu`, `react-label`, `react-select` | |
+| P2 | Reveal animations invisible without JavaScript | `<noscript>` override | `[lang]/layout.tsx` |
+| P2 | Responsive coverage | RSP-01 now 320 / 360 / 768 / 1024 / 1440 / 1920 | tests |
+
+## Lighthouse (mobile, simulated Slow 4G + 4× CPU)
+
+| | Performance | FCP | LCP | CLS | SI | Font bytes |
+| --- | --- | --- | --- | --- | --- | --- |
+| Production before (2026-09-26 morning) | 77 | 2.3 s | 4.6 s | 0 | 4.9 s | 245 KB / 11 files |
+| Local build, before this round | 85 | 0.9 s | 4.4 s | 0 | 0.9 s | 245 KB / 11 files |
+| Local build, after | **93** | 0.9 s | 3.2 s | 0.003 | 0.9 s | 152 KB preloaded (233 KB total) / 9 files |
+| Production after | see below | | | | | |
+
+Desktop stays 98–99. The remaining simulated LCP gap (3.2 s vs the 2.5 s target) is Lighthouse's model tying the text LCP to the Inter Tight latin-ext file (90 KB — Azerbaijani letters live in that subset). In a real Chrome run with the same throttling, `PerformanceObserver` reports the hero paragraph as LCP at **1.1 s** (fallback font first, swap later). Next lever: self-hosted Inter Tight subset to the Azerbaijani/Turkish glyphs (~20 KB) via `next/font/local`.
+
+## Verified by hand (production build, Chrome)
+
+- Service worker registers and activates; a visited page opens offline from cache; an unvisited page shows `offline.html`; the banner shows "İnternet bağlantısı yoxdur…" / "Bağlantı bərpa olundu." in the page language.
+- Security headers present; `/assets/*` served with `max-age=604800, stale-while-revalidate`.
+- Unknown project slug → HTTP 404 with the localized page; known slug served from the ISR cache (`x-nextjs-cache: HIT`).
+- Desktop intro unchanged (phase reaches `final`, animated SVG swapped in); phones and reduced-motion get the static wordmark and visible copy immediately.

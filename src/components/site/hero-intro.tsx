@@ -29,6 +29,8 @@ import {
 type Phase = "intro" | "move" | "final";
 
 const LOGO = "/assets/anim/nobug-logo-animated-light.svg";
+// same wordmark, no SMIL: the animated file keeps drawing for ~3.4 s, which is what the LCP would wait for on phones
+const LOGO_STATIC = "/assets/logo-navy-amber.svg";
 const SEEN_KEY = "nobug.hero-intro";
 const SVG_DURATION = 3400; // the SVG's own animation ends at ~3.3s
 const MOVE_DURATION = 700;
@@ -60,7 +62,7 @@ export function HeroIntro({
   const [phase, setPhase] = useState<Phase>("intro");
   const [transform, setTransform] = useState<string | null>(null);
   // the static wordmark is in the HTML; the intro swaps in a cache-busted copy so its animation restarts
-  const [src, setSrc] = useState<string>(image ?? LOGO);
+  const [src, setSrc] = useState<string>(image ?? LOGO_STATIC);
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
