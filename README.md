@@ -161,3 +161,16 @@ Leads are created only by `POST /api/leads` (contact form + anket; `/api/contact
 `src/app/(admin)/admin/*` pages · `src/actions/*` server actions (`guarded()` = session + Zod + error → `{ ok, error, fieldErrors }`) · `src/schemas/*` Zod · `src/lib/{db,auth,supabase,content,seed}.ts` · `src/components/admin/*` (CrudManager, DataTable, LocalizedField, ImageDrop, RichEditor, SortableList).
 
 `/admin` is `noindex`, disallowed in robots.txt and absent from the sitemap. `src/proxy.ts` (Node runtime) redirects signed-out visitors to `/admin/login`.
+
+### Testing
+
+`TEST-REPORT.md` holds the latest run. Layers: **unit** (Vitest — schemas, `t()`, slugs, CSV, rate limiter, sniffing, sanitizer), **integration** (Vitest + Prisma against `DATABASE_URL_TEST`, session and storage mocked), **API** (`fetch` against `next start` on `TEST_PORT`), **E2E** (Playwright, Chrome channel; admin at 1440×900 with a saved login, public pages plus a 390 px mobile run and an axe check).
+
+```bash
+npm run test:db     # drop/recreate the test DB, push the schema, load tests/seed.ts
+npm test            # test:db + unit + integration
+npm run test:e2e    # Playwright (starts `node tests/serve.mjs` itself)
+npm run test:all    # everything: db → tsc → eslint → build → unit/integration → api → e2e
+```
+
+`.env.test` has the non-secret test settings; put `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and `MEDIA_BUCKET=media-test` in `.env.test.local` to run the real-upload cases (they skip otherwise). Tests refuse any Supabase `DATABASE_URL_TEST`.

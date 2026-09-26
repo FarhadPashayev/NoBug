@@ -17,7 +17,13 @@ export const runtime = "nodejs";
  * in the panel's inbox, then the notification + confirmation emails.
  */
 
-const bad = (message: string, status = 400) => NextResponse.json({ ok: false, error: message }, { status });
+const bad = (message: string, status = 400, fieldErrors?: Record<string, string>) => NextResponse.json({ ok: false, error: message, ...(fieldErrors && { fieldErrors }) }, { status });
+const fieldErrorsOf = (e: z.ZodError) => Object.fromEntries(e.issues.map((i) => [i.path.join(".") || "_", i.message]));
+
+/** Leads are never readable through the public API. */
+export function GET() {
+  return NextResponse.json({ error: "Not found" }, { status: 404 });
+}
 
 const Contact = z.object({
   source: z.literal("contact").default("contact"),
@@ -76,7 +82,7 @@ export async function POST(req: NextRequest) {
 
 async function handleContact(raw: unknown) {
   const parsed = Contact.safeParse(raw);
-  if (!parsed.success) return bad(parsed.error.issues[0]?.message ?? "Validation failed");
+  if (!parsed.success) return bad("Validation failed", 400, fieldErrorsOf(parsed.error));
   const { name, email, subject: subjectLine } = parsed.data;
   const lang = isLocale(parsed.data.lang) ? parsed.data.lang : "az";
   const when = formatDate();
@@ -89,12 +95,12 @@ async function handleContact(raw: unknown) {
   await sendMail({ to: MAIL_TO, subject, text, html, replyTo: email });
   const c = CONFIRM[lang];
   await sendMail({ to: email, subject: c.subject, text: c.body(name) });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true }, { status: 201 });
 }
 
 async function handleAnket(raw: unknown) {
   const parsed = Anket.safeParse(raw);
-  if (!parsed.success) return bad("Validation failed");
+  if (!parsed.success) return bad("Validation failed", 400, fieldErrorsOf(parsed.error));
   const body = parsed.data;
   if (body.service === null) return bad("Unknown service");
   if (body.channel === "email" && !isEmail(body.contact)) return bad("Invalid email");
@@ -147,5 +153,5 @@ async function handleAnket(raw: unknown) {
   );
   await sendMail({ to: MAIL_TO, subject, text, html, replyTo: body.channel === "email" ? body.contact : undefined });
   if (body.channel === "email") await sendMail({ to: body.contact, subject: sv.confirmSubject, text: sv.confirmBody(body.name, serviceName) });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true }, { status: 201 });
 }

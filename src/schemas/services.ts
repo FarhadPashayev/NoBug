@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { image, localizedString, slug, str } from "./common";
+import { image, localizedString, slug } from "./common";
 
 export const serviceCategorySchema = z.object({
   slug,
@@ -13,7 +13,8 @@ export const serviceSchema = z.object({
   shortDescription: localizedString(600, false),
   details: localizedString(20000, false),
   /** lucide icon name ("Server") — ignored when an image is uploaded */
-  icon: str(60).default(""),
+  /** PascalCase lucide name ("Shield"); existence is checked on the server */
+  icon: z.string().trim().max(60).regex(/^([A-Z][A-Za-z0-9]*)?$/, "Lucide ikon adı (məs. Shield)").default(""),
   image,
   categoryId: z.string().nullable().default(null),
   isActive: z.boolean().default(true),

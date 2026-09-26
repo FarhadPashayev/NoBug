@@ -8,9 +8,11 @@ export const failed = (error: string): ActionResult<never> => ({ ok: false, erro
 
 /** Throw inside an action to send a specific message to the user. */
 export class ActionError extends Error {
-  constructor(message: string) {
+  fieldErrors?: Record<string, string>;
+  constructor(message: string, fieldErrors?: Record<string, string>) {
     super(message);
     this.name = "ActionError";
+    this.fieldErrors = fieldErrors;
   }
 }
 
@@ -26,7 +28,7 @@ export async function guarded<T>(fn: () => Promise<T>): Promise<ActionResult<T>>
       return { ok: false, error: "Formda xəta var", fieldErrors };
     }
     if (e instanceof DatabaseNotConfiguredError) return failed("Verilənlər bazası qoşulmayıb (DATABASE_URL)");
-    if (e instanceof ActionError) return failed(e.message);
+    if (e instanceof ActionError) return { ok: false, error: e.message, fieldErrors: e.fieldErrors };
     console.error("[action]", e);
     return failed(e instanceof Error && /Sessiya/.test(e.message) ? e.message : "Gözlənilməz xəta");
   }

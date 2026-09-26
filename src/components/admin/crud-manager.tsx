@@ -211,7 +211,7 @@ export function CrudManager<Values extends FieldValues, Row extends { id: string
         toolbar={
           <div className="flex gap-2">
             {actions.reorder && rowLabel && rows.length > 1 && (
-              <Button variant="outline" onClick={() => setOrdering(rows)}>
+              <Button variant="outline" aria-label="Sıranı dəyiş" onClick={() => setOrdering(rows)}>
                 <ArrowUpDown />
                 Sıra
               </Button>

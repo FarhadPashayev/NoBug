@@ -53,7 +53,7 @@ export function LocalizedField<T extends FieldValues>({
         const set = (locale: Locale, text: string) => field.onChange({ ...value, [locale]: text });
 
         return (
-          <div className={cn("space-y-1.5", className)}>
+          <div className={cn("space-y-1.5", className)} data-localized={String(name)}>
             <div className="flex flex-wrap items-end justify-between gap-2">
               <Label htmlFor={`${id}-${active}`}>{label}</Label>
               <Tabs.Root value={active} onValueChange={(v) => setActive(v as Locale)}>

@@ -45,3 +45,10 @@ src/generated/
 
 # local dev image uploads (production uses Vercel Blob)
 public/uploads/
+
+# test env with real credentials
+.env.test.local
+tests/.auth/
+tests/screenshots/
+test-results/
+playwright-report/

@@ -84,7 +84,7 @@ async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
   const [hero, logos, projects, stats, services, groups, settings] = await Promise.all([
     prisma.hero.findUnique({ where: { id: "singleton" } }),
     prisma.partnerLogo.findMany({ where: { isActive: true }, orderBy: { order: "asc" } }),
-    prisma.project.findMany({ where: { isPublished: true }, orderBy: { order: "asc" }, include: { tags: true } }),
+    prisma.project.findMany({ where: { isPublished: true }, orderBy: [{ isFeatured: "desc" }, { order: "asc" }], include: { tags: true } }),
     prisma.stat.findMany({ orderBy: { order: "asc" } }),
     prisma.service.findMany({ where: { isActive: true }, orderBy: { order: "asc" }, include: { category: true } }),
     prisma.specGroup.findMany({ orderBy: { order: "asc" }, include: { items: { orderBy: { order: "asc" } } } }),
@@ -143,6 +143,30 @@ async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
         }
       : fallback.settings,
   };
+}
+
+/** One published project by slug, for /[lang]/layiheler/[slug]; null when unknown, unpublished or no DB. */
+export async function getProject(locale: Locale, slug: string): Promise<SiteContent["projects"][number] | null> {
+  if (!hasDatabase) return null;
+  try {
+    const p = await prisma.project.findFirst({ where: { slug, isPublished: true }, include: { tags: true } });
+    if (!p) return null;
+    return {
+      id: p.id,
+      slug: p.slug,
+      title: t(p.title, locale),
+      shortDescription: t(p.shortDescription, locale),
+      content: t(p.content, locale),
+      duration: p.duration,
+      year: p.year,
+      coverUrl: p.coverUrl,
+      tags: p.tags.map((tg) => t(tg.name, locale)),
+      isFeatured: p.isFeatured,
+    };
+  } catch (e) {
+    console.error("[content] project read failed:", e);
+    return null;
+  }
 }
 
 export async function getSiteContent(locale: Locale): Promise<SiteContent> {

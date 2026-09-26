@@ -5,6 +5,8 @@ import { prisma, assertDatabase } from "@/lib/db";
 import { deleteImages } from "@/lib/supabase";
 import { asLocalized } from "@/lib/i18n/localized";
 import { slugify } from "@/lib/utils";
+import { icons } from "lucide-react";
+import { sanitizeLocalized } from "@/lib/sanitize";
 import { serviceCategorySchema, serviceSchema } from "@/schemas/services";
 import { idSchema, reorderSchema } from "@/schemas/common";
 import { ActionError, guarded } from "./run";
@@ -31,6 +33,17 @@ function toRow(s: Prisma.ServiceGetPayload<{ include: typeof include }>) {
 export type ServiceRow = ReturnType<typeof toRow>;
 export type ServiceCategoryRow = { id: string; slug: string; name: ReturnType<typeof asLocalized>; order: number; count: number };
 
+/** A slug the user typed must be free; one derived from the name gets a numeric suffix. */
+async function resolveSlug(model: "service" | "serviceCategory", explicit: string, name: string, excludeId?: string) {
+  if (explicit) {
+    const where = { slug: explicit, NOT: excludeId ? { id: excludeId } : undefined };
+    const clash = model === "service" ? await prisma.service.findFirst({ where, select: { id: true } }) : await prisma.serviceCategory.findFirst({ where, select: { id: true } });
+    if (clash) throw new ActionError("Formda xəta var", { slug: "Bu slug artıq istifadə olunur" });
+    return explicit;
+  }
+  return uniqueSlug(model, slugify(name), excludeId);
+}
+
 async function uniqueSlug(model: "service" | "serviceCategory", base: string, excludeId?: string) {
   const root = base || model;
   let candidate = root;
@@ -52,18 +65,23 @@ export async function listServices() {
   });
 }
 
+function checkIcon(name: string) {
+  if (name && !(name in icons)) throw new ActionError("Formda xəta var", { icon: "Belə Lucide ikonu yoxdur" });
+}
+
 export async function createService(input: unknown) {
   return guarded(async () => {
     assertDatabase();
     const v = serviceSchema.parse(input);
-    const slug = await uniqueSlug("service", v.slug || slugify(v.name.az));
+    checkIcon(v.icon);
+    const slug = await resolveSlug("service", v.slug, v.name.az);
     const last = await prisma.service.aggregate({ _max: { order: true } });
     await prisma.service.create({
       data: {
         slug,
         name: json(v.name),
         shortDescription: json(v.shortDescription),
-        details: json(v.details),
+        details: json(sanitizeLocalized(v.details)),
         icon: v.icon,
         imageUrl: v.image.url,
         imagePath: v.image.path,
@@ -82,11 +100,12 @@ export async function updateService(id: unknown, input: unknown) {
     assertDatabase();
     const sid = idSchema.parse(id);
     const v = serviceSchema.parse(input);
+    checkIcon(v.icon);
     const previous = await prisma.service.findUniqueOrThrow({ where: { id: sid }, select: { imagePath: true } });
-    const slug = await uniqueSlug("service", v.slug || slugify(v.name.az), sid);
+    const slug = await resolveSlug("service", v.slug, v.name.az, sid);
     await prisma.service.update({
       where: { id: sid },
-      data: { slug, name: json(v.name), shortDescription: json(v.shortDescription), details: json(v.details), icon: v.icon, imageUrl: v.image.url, imagePath: v.image.path, categoryId: v.categoryId, isActive: v.isActive },
+      data: { slug, name: json(v.name), shortDescription: json(v.shortDescription), details: json(sanitizeLocalized(v.details)), icon: v.icon, imageUrl: v.image.url, imagePath: v.image.path, categoryId: v.categoryId, isActive: v.isActive },
     });
     if (previous.imagePath && previous.imagePath !== v.image.path) await deleteImages([previous.imagePath]);
     revalidateSite("/anket");
@@ -128,7 +147,7 @@ export async function createServiceCategory(input: unknown) {
   return guarded(async () => {
     assertDatabase();
     const v = serviceCategorySchema.parse(input);
-    const slug = await uniqueSlug("serviceCategory", v.slug || slugify(v.name.az));
+    const slug = await resolveSlug("serviceCategory", v.slug, v.name.az);
     const last = await prisma.serviceCategory.aggregate({ _max: { order: true } });
     await prisma.serviceCategory.create({ data: { slug, name: json(v.name), order: (last._max.order ?? -1) + 1 } });
     revalidateSite();
@@ -141,7 +160,7 @@ export async function updateServiceCategory(id: unknown, input: unknown) {
     assertDatabase();
     const cid = idSchema.parse(id);
     const v = serviceCategorySchema.parse(input);
-    const slug = await uniqueSlug("serviceCategory", v.slug || slugify(v.name.az), cid);
+    const slug = await resolveSlug("serviceCategory", v.slug, v.name.az, cid);
     await prisma.serviceCategory.update({ where: { id: cid }, data: { slug, name: json(v.name) } });
     revalidateSite();
     return null;
@@ -151,8 +170,11 @@ export async function updateServiceCategory(id: unknown, input: unknown) {
 export async function deleteServiceCategory(id: unknown) {
   return guarded(async () => {
     assertDatabase();
-    // services keep existing without a category (onDelete: SetNull)
-    await prisma.serviceCategory.delete({ where: { id: idSchema.parse(id) } });
+    // explicit rule: a category is deleted only once it is empty
+    const cid = idSchema.parse(id);
+    const used = await prisma.service.count({ where: { categoryId: cid } });
+    if (used) throw new ActionError(`Kateqoriyada ${used} xidmət var — əvvəlcə onları başqa kateqoriyaya keçirin`);
+    await prisma.serviceCategory.delete({ where: { id: cid } });
     revalidateSite();
     return null;
   });

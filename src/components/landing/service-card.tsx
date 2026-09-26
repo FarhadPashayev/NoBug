@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import { Plus, icons } from "lucide-react";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dict";
 import { serviceHref } from "@/lib/services";
@@ -11,7 +11,8 @@ import { TrackedLink } from "@/components/ui/tracked";
  * status badge, avatar + handle + index bottom-left, white pill CTA
  * bottom-right. The whole card is one link to the enquiry.
  */
-export function ServiceCard({ id, index, total, title, text, image, position, lang, t }: { id: string; index: number; total: number; title: string; text: string; image: string; position: "primary" | "secondary"; lang: Locale; t: Dictionary }) {
+export function ServiceCard({ id, index, total, title, text, image, icon, position, lang, t }: { id: string; index: number; total: number; title: string; text: string; image: string; icon?: string; position: "primary" | "secondary"; lang: Locale; t: Dictionary }) {
+  const Icon = icon && icon in icons ? icons[icon as keyof typeof icons] : null;
   return (
     <TrackedLink
       href={serviceHref(lang, id)}
@@ -28,6 +29,11 @@ export function ServiceCard({ id, index, total, title, text, image, position, la
 
       {/* header: name + status */}
       <div className="absolute inset-x-5 top-6 text-center">
+        {Icon && (
+          <span className="mx-auto mb-3 grid size-11 place-items-center rounded-full bg-white/12 ring-1 ring-white/25 backdrop-blur-sm" data-icon={icon}>
+            <Icon size={22} aria-hidden="true" />
+          </span>
+        )}
         <div className="text-[clamp(20px,1.7vw,24px)] font-medium leading-[1.15] tracking-[-0.02em] text-balance">{title}</div>
         <div className="mt-2.5 inline-flex items-center gap-2 text-[13px] text-white/80">
           <span className={`relative inline-flex h-2 w-2 rounded-full ${position === "primary" ? "bg-yellow" : "bg-white/70"}`}>

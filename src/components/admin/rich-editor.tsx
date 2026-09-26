@@ -40,16 +40,16 @@ export function RichEditor({ value, onChange, id, className }: { value: string; 
   return (
     <div className={cn("rounded-lg border border-ad-border bg-ad-bg focus-within:border-ad-accent focus-within:ring-2 focus-within:ring-ad-ring/40", className)}>
       <div className="flex flex-wrap gap-0.5 border-b border-ad-border p-1" role="toolbar" aria-label="Formatlama">
-        <button type="button" className={btn(editor.isActive("bold"))} onClick={() => editor.chain().focus().toggleBold().run()} aria-label="Qalın"><Bold className="size-4" /></button>
-        <button type="button" className={btn(editor.isActive("italic"))} onClick={() => editor.chain().focus().toggleItalic().run()} aria-label="Kursiv"><Italic className="size-4" /></button>
-        <button type="button" className={btn(editor.isActive("heading", { level: 2 }))} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} aria-label="Başlıq 2"><Heading2 className="size-4" /></button>
-        <button type="button" className={btn(editor.isActive("heading", { level: 3 }))} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} aria-label="Başlıq 3"><Heading3 className="size-4" /></button>
-        <button type="button" className={btn(editor.isActive("bulletList"))} onClick={() => editor.chain().focus().toggleBulletList().run()} aria-label="Siyahı"><List className="size-4" /></button>
-        <button type="button" className={btn(editor.isActive("orderedList"))} onClick={() => editor.chain().focus().toggleOrderedList().run()} aria-label="Nömrəli siyahı"><ListOrdered className="size-4" /></button>
-        <button type="button" className={btn(editor.isActive("link"))} onClick={link} aria-label="Link"><Link2 className="size-4" /></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} className={btn(editor.isActive("bold"))} onClick={() => editor.chain().focus().toggleBold().run()} aria-label="Qalın"><Bold className="size-4" /></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} className={btn(editor.isActive("italic"))} onClick={() => editor.chain().focus().toggleItalic().run()} aria-label="Kursiv"><Italic className="size-4" /></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} className={btn(editor.isActive("heading", { level: 2 }))} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} aria-label="Başlıq 2"><Heading2 className="size-4" /></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} className={btn(editor.isActive("heading", { level: 3 }))} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} aria-label="Başlıq 3"><Heading3 className="size-4" /></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} className={btn(editor.isActive("bulletList"))} onClick={() => editor.chain().focus().toggleBulletList().run()} aria-label="Siyahı"><List className="size-4" /></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} className={btn(editor.isActive("orderedList"))} onClick={() => editor.chain().focus().toggleOrderedList().run()} aria-label="Nömrəli siyahı"><ListOrdered className="size-4" /></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} className={btn(editor.isActive("link"))} onClick={link} aria-label="Link"><Link2 className="size-4" /></button>
         <span className="mx-1 w-px bg-ad-border" />
-        <button type="button" className={btn(false)} onClick={() => editor.chain().focus().undo().run()} aria-label="Geri"><Undo2 className="size-4" /></button>
-        <button type="button" className={btn(false)} onClick={() => editor.chain().focus().redo().run()} aria-label="İrəli"><Redo2 className="size-4" /></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} className={btn(false)} onClick={() => editor.chain().focus().undo().run()} aria-label="Geri"><Undo2 className="size-4" /></button>
+        <button type="button" onMouseDown={(e) => e.preventDefault()} className={btn(false)} onClick={() => editor.chain().focus().redo().run()} aria-label="İrəli"><Redo2 className="size-4" /></button>
       </div>
       <EditorContent editor={editor} />
     </div>

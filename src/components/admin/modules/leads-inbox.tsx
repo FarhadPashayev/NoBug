@@ -78,7 +78,9 @@ export function LeadsInbox({ initial }: { initial?: LeadsData }) {
   const exportCsv = useMutation({
     mutationFn: async () => unwrap(await exportLeadsCsv(filter)),
     onSuccess: (csv) => {
-      const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+      // the action already prefixes a BOM; keep one either way so Excel reads UTF-8
+      const bom = csv.charCodeAt(0) === 0xfeff ? "" : "\uFEFF";
+      const url = URL.createObjectURL(new Blob([bom + csv], { type: "text/csv;charset=utf-8" }));
       const a = Object.assign(document.createElement("a"), { href: url, download: `nobug-muracietler-${new Date().toISOString().slice(0, 10)}.csv` });
       a.click();
       URL.revokeObjectURL(url);

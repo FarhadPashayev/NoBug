@@ -120,7 +120,7 @@ function GroupCard({
   }
 
   return (
-    <Card>
+    <Card data-group={group.name.az}>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ad-border px-5 py-3">
         <InlineLocalized value={group.name} label="Sahə" className="w-full max-w-md font-semibold" onSave={async (name) => { unwrap(await updateSpecGroup(group.id, { name })); onChanged(); }} />
         <div className="flex items-center gap-1">

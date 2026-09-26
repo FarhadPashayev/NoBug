@@ -20,6 +20,7 @@ export async function POST(req: Request) {
     return NextResponse.json(await uploadImage(folder as MediaFolder, file));
   } catch (e) {
     if (e instanceof Error && /konfiqurasiya/.test(e.message)) return fail(e.message, 503);
+    if (e instanceof Error && /şəkil deyil/.test(e.message)) return fail(e.message, 400);
     return handleError(e);
   }
 }

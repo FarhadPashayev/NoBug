@@ -2,8 +2,8 @@
 
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma, assertDatabase } from "@/lib/db";
-import { formatDate } from "@/lib/utils";
-import { leadFilterSchema, leadUpdateSchema, LEAD_STATUS_LABELS } from "@/schemas/leads";
+import { leadsToCsv } from "@/lib/admin/csv";
+import { leadFilterSchema, leadUpdateSchema } from "@/schemas/leads";
 import { idSchema } from "@/schemas/common";
 import { guarded } from "./run";
 
@@ -53,11 +53,6 @@ export async function exportLeadsCsv(filter: unknown) {
   return guarded(async () => {
     assertDatabase();
     const rows = await prisma.lead.findMany({ where: whereFor(filter), orderBy: { createdAt: "desc" }, take: 5000 });
-    const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const head = ["Tarix", "Ad", "E-poçt", "Telefon", "Xidmət", "Mesaj", "Mənbə", "Dil", "Status", "Qeyd", "Cavablar"];
-    const lines = rows.map((l) =>
-      [formatDate(l.createdAt), l.name, l.email, l.phone, l.service, l.message, l.source, l.locale, LEAD_STATUS_LABELS[l.status], l.notes, l.answers ? JSON.stringify(l.answers) : ""].map(esc).join(";"),
-    );
-    return "﻿" + [head.map(esc).join(";"), ...lines].join("\r\n");
+    return leadsToCsv(rows);
   });
 }

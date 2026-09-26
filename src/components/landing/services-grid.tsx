@@ -38,6 +38,7 @@ export function ServicesGrid({ lang, t, content }: { lang: Locale; t: Dictionary
                   title={s.name}
                   text={s.shortDescription}
                   image={s.imageUrl ?? GRAPHICS[i % GRAPHICS.length]}
+                  icon={s.icon}
                   position={s.primary ? "primary" : "secondary"}
                   lang={lang}
                   t={t}

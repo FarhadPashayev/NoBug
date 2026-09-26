@@ -10,12 +10,15 @@ export type Localized = { az: string; en: string; ru: string };
 const text = (max: number) => z.string().trim().max(max);
 
 /** `localizedString()` → az required; `localizedString(500, false)` → all optional. */
-export const localizedString = (max = 500, required = true, message = "Azərbaycanca doldurulmalıdır") =>
-  z.object({
+export const localizedString = (max = 500, required = true, message = "Azərbaycanca doldurulmalıdır") => {
+  const shape = z.object({
     az: required ? text(max).min(1, message) : text(max).default(""),
     en: text(max).optional().default(""),
     ru: text(max).optional().default(""),
   });
+  // an optional field may be left out entirely (API callers, tests) — it then reads as empty
+  return required ? shape : shape.default({ az: "", en: "", ru: "" });
+};
 
 export type LocalizedInput = z.infer<ReturnType<typeof localizedString>>;
 

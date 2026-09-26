@@ -35,7 +35,7 @@ export function ProjectsManager({ initial }: { initial?: ProjectRow[] }) {
         {
           key: "title",
           header: "Layihə",
-          value: (r) => `${t(r.title)} ${t(r.shortDescription)}`,
+          value: (r) => [r.title.az, r.title.en, r.title.ru, t(r.shortDescription), r.slug].join(" "),
           cell: (r) => (
             <div className="flex items-center gap-3">
               <span className="relative size-10 shrink-0 overflow-hidden rounded-md bg-ad-muted">

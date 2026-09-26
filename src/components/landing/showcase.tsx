@@ -34,8 +34,9 @@ export function Showcase({ lang, t, content }: { lang: Locale; t: Dictionary; co
             const figureLabel = p.duration ? t.tpl.showcaseMetricDuration : t.tpl.showcaseMetricYear;
             // the featured case study stays anonymous: the dictionary's client label, never a name
             const client = p.isFeatured ? cs.facts[0] : " ";
-            const href = p.isFeatured && p.content ? `/${lang}#layihe-icmali` : serviceHref(lang, "web");
-            const linkLabel = p.isFeatured && p.content ? (cs.eyebrow.split("·").pop()?.trim() ?? t.tpl.readMore) : t.tpl.readMore;
+            // projects with a write-up get a detail page; the rest link to the enquiry for web work
+            const href = p.content && content.fromDb ? `/${lang}/layiheler/${p.slug}` : p.isFeatured ? `/${lang}#layihe-icmali` : serviceHref(lang, "web");
+            const linkLabel = p.isFeatured && !p.content ? (cs.eyebrow.split("·").pop()?.trim() ?? t.tpl.readMore) : t.tpl.readMore;
             return (
               <Rise key={p.id}>
                 <article className="grid grid-cols-12 items-center gap-x-8 gap-y-8">

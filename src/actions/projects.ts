@@ -5,8 +5,10 @@ import { prisma, assertDatabase } from "@/lib/db";
 import { deleteImages } from "@/lib/supabase";
 import { asLocalized, t } from "@/lib/i18n/localized";
 import { slugify } from "@/lib/utils";
+import { sanitizeLocalized } from "@/lib/sanitize";
 import { projectSchema, type ProjectInput } from "@/schemas/projects";
 import { idSchema, reorderSchema } from "@/schemas/common";
+import { revalidatePath } from "next/cache";
 import { ActionError, guarded } from "./run";
 import { revalidateSite } from "./revalidate";
 
@@ -32,6 +34,16 @@ function toRow(p: Prisma.ProjectGetPayload<{ include: typeof include }>) {
 }
 export type ProjectRow = ReturnType<typeof toRow>;
 
+/** A slug the user typed must be free; one derived from the title gets a numeric suffix. */
+async function resolveSlug(input: ProjectInput, excludeId?: string) {
+  if (input.slug) {
+    const clash = await prisma.project.findFirst({ where: { slug: input.slug, NOT: excludeId ? { id: excludeId } : undefined }, select: { id: true } });
+    if (clash) throw new ActionError("Formda xəta var", { slug: "Bu slug artıq istifadə olunur" });
+    return input.slug;
+  }
+  return uniqueSlug(slugify(input.title.az), excludeId);
+}
+
 async function uniqueSlug(base: string, excludeId?: string) {
   const root = base || "layihe";
   let candidate = root;
@@ -55,7 +67,7 @@ function data(v: ProjectInput) {
   return {
     title: json(v.title),
     shortDescription: json(v.shortDescription),
-    content: json(v.content),
+    content: json(sanitizeLocalized(v.content)),
     duration: v.duration,
     year: v.year,
     coverUrl: v.cover.url,
@@ -77,10 +89,11 @@ export async function createProject(input: unknown) {
   return guarded(async () => {
     assertDatabase();
     const v = projectSchema.parse(input);
-    const slug = await uniqueSlug(v.slug || slugify(v.title.az));
+    const slug = await resolveSlug(v);
     const last = await prisma.project.aggregate({ _max: { order: true } });
     await prisma.project.create({ data: { ...data(v), slug, order: (last._max.order ?? -1) + 1, tags: { connectOrCreate: tagOps(v.tags) } } });
-    revalidateSite();
+    revalidateSite("/layiheler");
+    revalidatePath("/[lang]/layiheler/[slug]", "page");
     return null;
   });
 }
@@ -91,10 +104,11 @@ export async function updateProject(id: unknown, input: unknown) {
     const pid = idSchema.parse(id);
     const v = projectSchema.parse(input);
     const previous = await prisma.project.findUniqueOrThrow({ where: { id: pid }, select: { coverPath: true } });
-    const slug = await uniqueSlug(v.slug || slugify(v.title.az), pid);
+    const slug = await resolveSlug(v, pid);
     await prisma.project.update({ where: { id: pid }, data: { ...data(v), slug, tags: { set: [], connectOrCreate: tagOps(v.tags) } } });
     if (previous.coverPath && previous.coverPath !== v.cover.path) await deleteImages([previous.coverPath]);
-    revalidateSite();
+    revalidateSite("/layiheler");
+    revalidatePath("/[lang]/layiheler/[slug]", "page");
     return null;
   });
 }
@@ -104,7 +118,8 @@ export async function deleteProject(id: unknown) {
     assertDatabase();
     const row = await prisma.project.delete({ where: { id: idSchema.parse(id) } });
     await deleteImages([row.coverPath]);
-    revalidateSite();
+    revalidateSite("/layiheler");
+    revalidatePath("/[lang]/layiheler/[slug]", "page");
     return null;
   });
 }
@@ -114,7 +129,8 @@ export async function reorderProjects(input: unknown) {
     assertDatabase();
     const { ids } = reorderSchema.parse(input);
     await prisma.$transaction(ids.map((id, order) => prisma.project.update({ where: { id }, data: { order } })));
-    revalidateSite();
+    revalidateSite("/layiheler");
+    revalidatePath("/[lang]/layiheler/[slug]", "page");
     return null;
   });
 }
