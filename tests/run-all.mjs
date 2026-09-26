@@ -12,6 +12,8 @@ const run = (label, cmd, args) => {
   return r.status ?? 1;
 };
 
+// iCloud/Finder sometimes leaves "file 2.ts" copies in generated folders; they break tsc
+run("clean generated duplicates", "sh", ["-c", "find .next/types src/generated -name '* [0-9].*' -delete 2>/dev/null; true"]);
 run("db reset + seed", "node", ["tests/db-reset.mjs"]);
 run("tsc --noEmit", "npx", ["tsc", "--noEmit"]);
 run("eslint", "npx", ["eslint", "src", "tests"]);

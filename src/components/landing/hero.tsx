@@ -31,8 +31,8 @@ export function Hero({ lang, t, content }: { lang: Locale; t: Dictionary; conten
             <div className="mono-label text-grey">{t.tpl.trusted}:</div>
             <ul className="m-0 mt-5 flex list-none flex-wrap items-center gap-x-[clamp(28px,4vw,56px)] gap-y-3 p-0">
               {projects.map((p) => (
-                <li key={p.id} className="text-[clamp(17px,1.6vw,22px)] font-semibold tracking-[-0.02em] text-grey opacity-70">
-                  {p.title} <span className="ml-1 font-mono text-[11px] font-normal tracking-[0.12em] opacity-70">{p.year}</span>
+                <li key={p.id} className="text-[clamp(17px,1.6vw,22px)] font-semibold tracking-[-0.02em] text-grey">
+                  {p.title} <span className="ml-1 font-mono text-[11px] font-normal tracking-[0.12em]">{p.year}</span>
                 </li>
               ))}
             </ul>

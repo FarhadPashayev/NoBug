@@ -2,9 +2,10 @@ import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import { db } from "../db";
-import { dialog, localized, row, toast } from "../helpers";
+import { dialog, freshIp, localized, row, toast } from "../helpers";
 
 test("LEAD-08: the real public contact form creates a lead", async ({ page }) => {
+  await freshIp(page);
   await page.goto("/az#elaqe");
   await page.waitForTimeout(3500); // the form rejects submits faster than 3 s
   const name = `Forma ${Date.now()}`;
@@ -26,8 +27,8 @@ test("LEAD-09..13 / LEAD-16: read-only inbox, status flow, notes, filters, searc
   const r = row(page, "Müştəri 02");
   for (const s of ["IN_PROGRESS", "CONTACTED", "ARCHIVED"]) {
     await r.locator('select[aria-label="Status"]').selectOption(s);
+    await expect.poll(async () => (await db.lead.findFirstOrThrow({ where: { name: "Müştəri 02" } })).status).toBe(s);
     await toast(page, /Yeniləndi/);
-    expect((await db.lead.findFirstOrThrow({ where: { name: "Müştəri 02" } })).status).toBe(s);
   }
   await r.getByRole("button", { name: "Müştəri 02" }).click();
   await expect(dialog(page)).toBeVisible();

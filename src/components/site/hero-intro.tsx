@@ -133,7 +133,7 @@ export function HeroIntro({
     <>
       <div
         ref={gridRef}
-        className="grid grid-cols-12 items-start gap-x-6 gap-y-[clamp(32px,5vw,72px)]"
+        className="grid grid-cols-12 items-start gap-x-4 gap-y-[clamp(32px,5vw,72px)] md:gap-x-6"
       >
         <div
           className="col-span-12 min-w-0 max-w-[760px] md:col-span-7"

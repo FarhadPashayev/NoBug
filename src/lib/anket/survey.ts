@@ -31,7 +31,7 @@ export type SurveyLocale = {
   optional: string; // "(istəyə bağlı)"
   consent: string; // consent sentence; the privacy-policy title is rendered as a link after it
   consentLink: string;
-  errors: { name: string; contact: string; email: string; consent: string };
+  errors: { name: string; contact: string; email: string; consent: string; answer: string };
   sentTitle: string;
   sentText: string;
   sentNext: string; // what happens next
@@ -79,7 +79,7 @@ const az: SurveyLocale = {
   optional: "istəyə bağlı",
   consent: "Məlumatlarımın müraciətə cavab vermək üçün emalına razıyam.",
   consentLink: "Məxfilik siyasəti",
-  errors: { name: "Adınızı yazın.", contact: "Əlaqə məlumatını yazın.", email: "E-poçt ünvanı düzgün deyil.", consent: "Davam etmək üçün razılıq lazımdır." },
+  errors: { name: "Adınızı yazın.", contact: "Əlaqə məlumatını yazın.", email: "E-poçt ünvanı düzgün deyil.", consent: "Davam etmək üçün razılıq lazımdır.", answer: "Zəhmət olmasa cavab seçin." },
   sentTitle: "Sorğu qeydə alındı.",
   sentText: "Cavablarınız seçilmiş xidmətlə birlikdə bizə çatdı.",
   sentNext: "Növbəti addım: bir iş günü ərzində seçdiyiniz kanalla sizinlə əlaqə saxlayır, qısa görüş təyin edir və ilkin qiymətləndirmə veririk.",
@@ -135,7 +135,7 @@ const en: SurveyLocale = {
   optional: "optional",
   consent: "I agree to the processing of my data in order to respond to my enquiry.",
   consentLink: "Privacy policy",
-  errors: { name: "Enter your name.", contact: "Enter your contact details.", email: "The email address is not valid.", consent: "Consent is required to continue." },
+  errors: { name: "Enter your name.", contact: "Enter your contact details.", email: "The email address is not valid.", consent: "Consent is required to continue.", answer: "Please pick an answer." },
   sentTitle: "Your enquiry has been logged.",
   sentText: "Your answers reached us together with the selected service.",
   sentNext: "What happens next: within one business day we contact you through the channel you chose, arrange a short call and give an initial assessment.",
@@ -191,7 +191,7 @@ const ru: SurveyLocale = {
   optional: "необязательно",
   consent: "Я согласен(а) на обработку моих данных для ответа на запрос.",
   consentLink: "Политика конфиденциальности",
-  errors: { name: "Укажите имя.", contact: "Укажите контактные данные.", email: "Адрес электронной почты указан неверно.", consent: "Для продолжения нужно согласие." },
+  errors: { name: "Укажите имя.", contact: "Укажите контактные данные.", email: "Адрес электронной почты указан неверно.", consent: "Для продолжения нужно согласие.", answer: "Пожалуйста, выберите ответ." },
   sentTitle: "Запрос зафиксирован.",
   sentText: "Ваши ответы дошли до нас вместе с выбранной услугой.",
   sentNext: "Что дальше: в течение одного рабочего дня мы свяжемся с вами по выбранному каналу, назначим короткий созвон и дадим предварительную оценку.",

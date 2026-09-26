@@ -10,7 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(),
     changeFrequency: "monthly",
     priority: l === "az" ? 1 : 0.8,
-    alternates: { languages: Object.fromEntries(LOCALES.map((x) => [x, absoluteUrl(`/${x}`)])) },
+    alternates: { languages: { ...Object.fromEntries(LOCALES.map((x) => [x, absoluteUrl(`/${x}`)])), "x-default": absoluteUrl("/az") } },
   }));
   const legal: MetadataRoute.Sitemap = LEGAL_KEYS.flatMap((key) =>
     LOCALES.map((l) => ({
@@ -18,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: "yearly" as const,
       priority: 0.3,
-      alternates: { languages: Object.fromEntries(LOCALES.map((x) => [x, absoluteUrl(legalHref(x, key))])) },
+      alternates: { languages: { ...Object.fromEntries(LOCALES.map((x) => [x, absoluteUrl(legalHref(x, key))])), "x-default": absoluteUrl(legalHref("az", key)) } },
     })),
   );
   return [...home, ...legal];

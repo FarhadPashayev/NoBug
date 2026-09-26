@@ -39,7 +39,7 @@ export function Showcase({ lang, t, content }: { lang: Locale; t: Dictionary; co
             const linkLabel = p.isFeatured && !p.content ? (cs.eyebrow.split("·").pop()?.trim() ?? t.tpl.readMore) : t.tpl.readMore;
             return (
               <Rise key={p.id}>
-                <article className="grid grid-cols-12 items-center gap-x-8 gap-y-8">
+                <article className="grid grid-cols-12 items-center gap-x-4 md:gap-x-8 gap-y-8">
                   <div className={`col-span-12 md:col-span-5 ${i % 2 ? "md:order-2 md:col-start-8" : ""}`}>
                     <div className="tile aspect-[4/3] bg-ink-2">
                       <Image src={p.coverUrl ?? TILES[i % TILES.length]} alt="" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover opacity-90" unoptimized={!!p.coverUrl} />

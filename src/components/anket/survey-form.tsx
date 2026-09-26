@@ -20,10 +20,10 @@ export function SurveyForm({ lang }: { lang: Locale }) {
   const sv = getSurvey(lang);
   const router = useRouter();
   const params = useSearchParams();
-  const preselected = resolveService(params.get("xidmet"));
-
-  const [step, setStepState] = useState<Step>(preselected !== null ? 2 : 1);
-  const [service, setService] = useState<number | null>(preselected);
+  // The screen is a function of the URL: ?xidmet= → step 2, &step=3 → step 3,
+  // nothing → step 1. Back/Forward and reloads therefore land on the same step.
+  const service = resolveService(params.get("xidmet"));
+  const step: Step = service === null ? 1 : params.get("step") === "3" ? 3 : 2;
   const [answers, setAnswers] = useState<Answers>({});
   const [name, setName] = useState("");
   const [chan, setChan] = useState<number | null>(null);
@@ -33,6 +33,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
   const [consent, setConsent] = useState(false);
   const [website, setWebsite] = useState(""); // honeypot
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [missing, setMissing] = useState<number[]>([]); // unanswered question indexes (step 2)
   const [sending, setSending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [sent, setSent] = useState(false);
@@ -49,19 +50,31 @@ export function SurveyForm({ lang }: { lang: Locale }) {
   const serviceName = service === null ? "" : sv.services[service];
 
   function setStep(next: Step) {
-    setStepState(next);
     if (serviceId) track({ name: "enquiry_step", params: { step: next, service_id: serviceId } });
+    if (next === 1) router.push(`/${lang}/anket`, { scroll: false });
+    else if (serviceId) router.push(`/${lang}/anket?xidmet=${serviceId}${next === 3 ? "&step=3" : ""}`, { scroll: false });
+  }
+
+  /** Every question needs an answer before step 3 (ANK-03). */
+  function goToContact() {
+    const unanswered = questions.map(([, , multi], qi) => (multi === 1 ? !Array.isArray(answers[qi]) || !answers[qi]?.length : !answers[qi])).flatMap((m, qi) => (m ? [qi] : []));
+    setMissing(unanswered);
+    if (unanswered.length) {
+      document.getElementById(`sq-q-${unanswered[0]}`)?.focus();
+      return;
+    }
+    setStep(3);
   }
 
   function pickService(i: number) {
-    setService(i);
     setAnswers({});
-    setStepState(2);
+    setMissing([]);
     track({ name: "enquiry_start", params: { service_id: LEGACY_ORDER[i], locale: lang } });
-    router.replace(`/${lang}/anket?xidmet=${LEGACY_ORDER[i]}`, { scroll: false });
+    router.push(`/${lang}/anket?xidmet=${LEGACY_ORDER[i]}`, { scroll: false });
   }
 
   function pickAnswer(qi: number, opt: string, multi: boolean) {
+    setMissing((m) => m.filter((x) => x !== qi));
     setAnswers((prev) => {
       const next = { ...prev };
       if (multi) {
@@ -76,8 +89,6 @@ export function SurveyForm({ lang }: { lang: Locale }) {
 
   function reset() {
     setSent(false);
-    setStepState(1);
-    setService(null);
     setAnswers({});
     setName("");
     setChan(null);
@@ -145,7 +156,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
           <div className="mono-label flex-none text-muted" aria-live="polite">
             {sent ? "—" : `${sv.step} ${step} / 3`}
           </div>
-          <div className="h-0.5 min-w-[80px] flex-1 bg-hairline" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
+          <div className="h-0.5 min-w-[80px] flex-1 bg-hairline" role="progressbar" aria-label={`${sv.step} ${sent ? 3 : step} / 3`} aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
             <div className="h-full bg-accent transition-[width] duration-[320ms] ease-[var(--ease-brand)]" style={{ width: `${pct}%` }} />
           </div>
         </div>
@@ -204,7 +215,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
                 const v = answers[qi];
                 const selected = multi ? (Array.isArray(v) ? v : []) : v;
                 return (
-                  <fieldset key={label} className="m-0 border-0 p-0">
+                  <fieldset key={label} id={`sq-q-${qi}`} tabIndex={-1} aria-invalid={missing.includes(qi) || undefined} aria-describedby={missing.includes(qi) ? `sq-q-${qi}-err` : undefined} className="m-0 border-0 p-0 outline-none">
                     <legend className="flex flex-wrap items-baseline gap-4 p-0">
                       <span className="font-mono text-xs tracking-[0.08em] text-muted">0{qi + 1}</span>
                       <span className="text-[17px] font-medium leading-[1.4]">{label}</span>
@@ -220,6 +231,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
                         );
                       })}
                     </div>
+                    {missing.includes(qi) && <FieldError id={`sq-q-${qi}-err`}>{sv.errors.answer}</FieldError>}
                   </fieldset>
                 );
               })}
@@ -229,7 +241,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
               <button type="button" onClick={() => setStep(1)} className="btn-secondary">
                 {sv.back}
               </button>
-              <button type="button" onClick={() => setStep(3)} className="btn-primary">
+              <button type="button" onClick={goToContact} className="btn-primary">
                 {sv.next}
               </button>
             </div>
@@ -259,6 +271,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  maxLength={120}
                   placeholder={sv.namePh}
                   autoComplete="name"
                   required

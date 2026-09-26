@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { LOCALES, LOCALE_LABELS, type Locale } from "@/lib/i18n/config";
 import { track } from "@/lib/analytics";
 
@@ -16,6 +17,7 @@ export function LangSwitcher({
   paths?: Record<Locale, string>;
   tone?: "dark" | "light" | "page";
 }) {
+  const router = useRouter();
   return (
     <div className="flex items-center gap-3" role="group" aria-label="Language">
       {LOCALES.map((code) => {
@@ -27,18 +29,23 @@ export function LangSwitcher({
             hrefLang={code}
             title={LOCALE_LABELS[code].name}
             aria-current={active ? "true" : undefined}
-            onClick={() => {
-              if (!active)
-                track({
-                  name: "language_switch",
-                  params: { from: current, to: code },
-                });
+            onClick={(e) => {
+              if (active) return;
+              track({
+                name: "language_switch",
+                params: { from: current, to: code },
+              });
+              // keep ?xidmet= etc. — the same screen in the other language
+              if (window.location.search) {
+                e.preventDefault();
+                router.push(`/${code}${paths ? paths[code] : path}${window.location.search}${window.location.hash}`);
+              }
             }}
             className={`mono-label border-b py-1 transition-colors duration-140 ${
               tone === "page"
                 ? active
                   ? "border-yellow text-current"
-                  : "border-transparent text-current opacity-55 hover:opacity-100"
+                  : "border-transparent text-current opacity-80 hover:opacity-100"
                 : tone === "light"
                   ? active
                     ? "border-yellow text-ink"

@@ -81,6 +81,10 @@ export async function dragHandle(page: Page, from: Locator, to: Locator) {
   await page.waitForTimeout(150);
 }
 
+let ipSeed = Date.now() % 200;
+/** Give this browser context its own client IP so the 5/hour/IP limiter never bleeds between tests. */
+export const freshIp = async (page: Page) => page.context().setExtraHTTPHeaders({ "x-forwarded-for": `198.51.100.${(ipSeed++ % 250) + 1}` });
+
 export const noConsoleErrors = (page: Page) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));

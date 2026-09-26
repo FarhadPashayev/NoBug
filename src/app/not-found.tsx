@@ -5,6 +5,9 @@ import "./globals.css";
 export default function NotFound() {
   return (
     <html lang="az">
+      <head>
+        <title>Səhifə tapılmadı — nobug</title>
+      </head>
       <body className="flex min-h-screen items-center justify-center bg-paper px-6 text-center">
         <div>
           <div className="mono-label text-muted">404</div>

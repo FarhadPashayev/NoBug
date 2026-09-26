@@ -18,7 +18,7 @@ export function Position({ t }: { t: Dictionary }) {
         </Rise>
 
         {/* two columns: the About copy sits beside the quote card, not above it */}
-        <div className="mt-[clamp(32px,4vw,56px)] grid grid-cols-12 items-start gap-x-8 gap-y-10">
+        <div className="mt-[clamp(32px,4vw,56px)] grid grid-cols-12 items-start gap-x-4 md:gap-x-8 gap-y-10">
           <Rise className="col-span-12 lg:col-span-5">
             <p className="text-[clamp(18px,1.5vw,22px)] leading-[1.5] tracking-[-0.01em] text-ink">{t.aboutP1}</p>
             <p className="mt-6 text-[17px] leading-[1.6] text-grey">{t.aboutP2}</p>

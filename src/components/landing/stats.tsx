@@ -15,7 +15,7 @@ export function Stats({ t, content }: { t: Dictionary; content: SiteContent }) {
   return (
     <section data-bg="dark" className="text-white">
       <div className="container-site pb-[clamp(56px,7vw,112px)]">
-        <div className="grid grid-cols-12 items-center gap-x-8 gap-y-10">
+        <div className="grid grid-cols-12 items-center gap-x-4 md:gap-x-8 gap-y-10">
           <Rise className="col-span-12 max-w-[26ch] lg:col-span-6">
             <h2 className="text-[clamp(36px,5vw,72px)] font-medium leading-[1.02] tracking-[-0.035em]">{t.tpl.statsTitle}</h2>
             <p className="mt-6 max-w-[46ch] text-[17px] leading-[1.6] text-grey-navy">{t.tpl.statsText}</p>

@@ -6,7 +6,8 @@ import { LEGAL_KEYS, legalHref } from "@/lib/legal";
 import { Logo } from "@/components/ui/logo";
 import { TrackedAnchor } from "@/components/ui/tracked";
 
-const LINK = "text-[15px] leading-[1.5] text-grey transition-colors hover:text-ink";
+// long labels and the e-mail address must wrap inside narrow columns (RSP-01 at 768 px)
+const LINK = "text-[15px] leading-[1.5] text-grey transition-colors hover:text-ink [overflow-wrap:anywhere]";
 const SOCIAL: [keyof SiteContent["settings"]["social"], string][] = [
   ["linkedin", "LinkedIn"],
   ["instagram", "Instagram"],
@@ -25,8 +26,8 @@ export function Footer({ lang, t, content }: { lang: Locale; t: Dictionary; cont
   return (
     <footer data-bg="light" className="border-t border-fog bg-light text-ink">
       <div className="container-site pb-10 pt-[clamp(48px,6vw,96px)]">
-        <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
-          <div className="col-span-2 max-w-[300px] md:col-span-1">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-3 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+          <div className="col-span-2 max-w-[300px] md:col-span-3 lg:col-span-1">
             <Logo href={`/${lang}#top`} variant="brand" height={28} />
             <p className="mt-5 text-[14px] leading-[1.6] text-grey">{t.meta.description}</p>
             {socials.length > 0 && (
@@ -95,7 +96,7 @@ export function Footer({ lang, t, content }: { lang: Locale; t: Dictionary; cont
           <div className="text-[13px] text-grey">
             {t.legal[2]} {t.legal[0]}. {t.legal[1]}
           </div>
-          <div className="mono-label flex flex-wrap gap-x-6 text-grey/70">
+          <div className="mono-label flex flex-wrap gap-x-6 text-grey">
             {tools.map((tool) => (
               <span key={tool}>{tool}</span>
             ))}
@@ -110,7 +111,7 @@ function Col({ title, children }: { title: string; children: React.ReactNode }) 
   return (
     <div className="min-w-0">
       <div className="mono-label text-grey">{title}</div>
-      <ul className="m-0 mt-4 flex list-none flex-col items-start gap-3 p-0">{children}</ul>
+      <ul className="m-0 mt-4 flex list-none flex-col items-start gap-3 p-0 [overflow-wrap:anywhere]">{children}</ul>
     </div>
   );
 }

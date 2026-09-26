@@ -23,7 +23,7 @@ export default defineConfig({
       dependencies: ["setup"],
       use: { channel: "chrome", viewport: { width: 1440, height: 900 }, storageState: "tests/.auth/admin.json" },
     },
-    { name: "public", testMatch: /public\/.*\.spec\.ts/, use: { channel: "chrome", viewport: { width: 1440, height: 900 } } },
+    { name: "public", testMatch: /(public\/.*|prod)\.spec\.ts/, use: { channel: "chrome", viewport: { width: 1440, height: 900 } } },
     { name: "public-mobile", testMatch: /public\/mobile\.spec\.ts/, use: { ...devices["Pixel 7"], channel: "chrome", viewport: { width: 390, height: 844 } } },
   ],
 });

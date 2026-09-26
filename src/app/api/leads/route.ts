@@ -61,22 +61,30 @@ export async function POST(req: NextRequest) {
   const ip = clientIp(req);
   if (isRateLimited(ip)) return bad("Too many requests", 429);
 
+  // The contact form also works without JavaScript: a form-encoded POST is
+  // answered with a redirect back to the Əlaqə band instead of JSON.
+  const isForm = req.headers.get("content-type")?.includes("application/x-www-form-urlencoded") ?? false;
   let raw: unknown;
   try {
-    raw = await req.json();
+    if (isForm) {
+      const form = Object.fromEntries((await req.formData()).entries()) as Record<string, unknown>;
+      raw = { ...form, openedAt: Number(form.openedAt ?? 0) };
+    } else raw = await req.json();
   } catch {
     return bad("Invalid JSON");
   }
+  const probe = raw as { website?: unknown; openedAt?: unknown; source?: unknown; lang?: unknown };
+  const back = (ok: boolean) => NextResponse.redirect(new URL(`/${isLocale(String(probe?.lang)) ? probe.lang : "az"}?${ok ? "sent=1" : "error=1"}#elaqe`, req.url), 303);
+
   // Honeypot / timing — bots get a 200 so they learn nothing.
-  const probe = raw as { website?: unknown; openedAt?: unknown; source?: unknown };
-  if (looksLikeBot(probe?.website, probe?.openedAt)) return NextResponse.json({ ok: true });
+  if (looksLikeBot(probe?.website, probe?.openedAt)) return isForm ? back(true) : NextResponse.json({ ok: true });
 
   try {
-    if (probe?.source === "anket") return await handleAnket(raw);
-    return await handleContact(raw);
+    const res = probe?.source === "anket" ? await handleAnket(raw) : await handleContact(raw);
+    return isForm ? back(res.status < 400) : res;
   } catch (err) {
     console.error("[api/leads] send failed:", err);
-    return bad("Mail delivery failed", 502);
+    return isForm ? back(false) : bad("Mail delivery failed", 502);
   }
 }
 

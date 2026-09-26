@@ -86,6 +86,8 @@ export type Dictionary = {
   formSending: string;
   formSent: string;
   formError: string;
+  fieldRequired: string; // inline error under an empty required field
+  fieldEmailInvalid: string;
   footerCols: [string, string[]][]; // Xidmətlər (from FOOTER_SERVICES) · Şirkət · Hüquqi
   footerContact: string; // "Əlaqə" column title — items come from lib/site.ts
   legal: string[];
@@ -218,6 +220,8 @@ const az: Dictionary = {
   formSending: "Göndərilir…",
   formSent: "Sorğunuz qeydə alındı. Bir iş günü ərzində cavab veririk.",
   formError: "Göndərmək alınmadı. Bir az sonra yenidən cəhd edin və ya birbaşa e-poçt yazın.",
+  fieldRequired: "Bu sahə doldurulmalıdır.",
+  fieldEmailInvalid: "E-poçt ünvanı düzgün deyil.",
   footerCols: [
     ["Xidmətlər", ["IT infrastrukturu", "CRM və ERP", "Mobil tətbiqlər", "Süni intellekt həlləri", "AI ilə video", "Konsultasiya"]],
     ["Şirkət", ["Haqqında", "Karyera", "Əlaqə"]],
@@ -354,6 +358,8 @@ const en: Dictionary = {
   formSending: "Sending…",
   formSent: "Your enquiry has been logged. We reply within one business day.",
   formError: "Sending failed. Please try again in a moment or email us directly.",
+  fieldRequired: "This field is required.",
+  fieldEmailInvalid: "The email address is not valid.",
   footerCols: [
     ["Solutions", ["IT infrastructure", "CRM and ERP", "Mobile development", "AI solutions", "AI video", "Consulting"]],
     ["Company", ["About", "Careers", "Contact"]],
@@ -490,6 +496,8 @@ const ru: Dictionary = {
   formSending: "Отправка…",
   formSent: "Запрос зафиксирован. Отвечаем в течение одного рабочего дня.",
   formError: "Не удалось отправить. Попробуйте ещё раз чуть позже или напишите нам напрямую.",
+  fieldRequired: "Это поле обязательно.",
+  fieldEmailInvalid: "Адрес электронной почты указан неверно.",
   footerCols: [
     ["Услуги", ["IT-инфраструктура", "CRM и ERP", "Мобильная разработка", "Решения на основе ИИ", "Видео с ИИ", "Консультации"]],
     ["Компания", ["О компании", "Карьера", "Контакты"]],
