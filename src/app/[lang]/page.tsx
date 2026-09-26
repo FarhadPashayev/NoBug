@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
@@ -18,6 +19,12 @@ import { Footer } from "@/components/landing/footer";
 // when the panel calls revalidatePath; the hourly fallback covers edits made
 // directly in the database.
 export const revalidate = 3600;
+
+export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLocale(lang)) return {};
+  return { title: { absolute: getDict(lang).meta.title } };
+}
 
 // Background rhythm (fortemplate/): light → dark → dark → light → light → dark → light.
 // Each section declares data-bg; <ScrollColorWrapper> fades the page ground between them.

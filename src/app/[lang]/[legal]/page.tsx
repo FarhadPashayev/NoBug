@@ -5,6 +5,7 @@ import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { LEGAL, LEGAL_KEYS, LEGAL_SLUGS, legalHref, legalKeyFromSlug } from "@/lib/legal";
 import { absoluteUrl } from "@/lib/site";
+import { notFoundMetadata } from "@/lib/not-found";
 import { LangSwitcher } from "@/components/ui/lang-switcher";
 import { Logo } from "@/components/ui/logo";
 
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, legal } = await params;
   if (!isLocale(lang)) return {};
   const key = legalKeyFromSlug(lang, legal);
-  if (!key) return {};
+  if (!key) return notFoundMetadata(lang);
   const doc = LEGAL[lang][key];
   return {
     title: doc.title,

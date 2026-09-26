@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Every absolute URL derives from SITE_URL (NEXT_PUBLIC_SITE_URL) — never a hardcoded host.
   return {
     metadataBase: new URL(SITE_URL),
-    title: { default: t.meta.title, template: "%s — nobug" },
+    title: { default: "nobug", template: "%s — nobug" },
     description: t.meta.description,
     alternates: {
       canonical: absoluteUrl(`/${locale}`),

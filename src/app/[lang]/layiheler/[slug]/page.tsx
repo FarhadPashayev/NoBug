@@ -7,6 +7,7 @@ import { getDict } from "@/lib/i18n/dict";
 import { getProject } from "@/lib/content";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { absoluteUrl } from "@/lib/site";
+import { notFoundMetadata } from "@/lib/not-found";
 import { LangSwitcher } from "@/components/ui/lang-switcher";
 import { Logo } from "@/components/ui/logo";
 
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, slug } = await params;
   if (!isLocale(lang)) return {};
   const p = await getProject(lang, slug);
-  if (!p) return {};
+  if (!p) return notFoundMetadata(lang);
   return {
     title: p.title,
     description: p.shortDescription,
