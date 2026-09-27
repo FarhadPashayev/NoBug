@@ -5,7 +5,7 @@ import { encode as defaultEncode } from "next-auth/jwt";
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { loginSchema } from "@/schemas/auth";
-import { verifyPassword } from "./password";
+import { hashPassword, needsRehash, verifyPassword } from "./password";
 
 /**
  * Auth.js v5 — Credentials provider with *database* sessions.
@@ -54,6 +54,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user) return null;
         const ok = await verifyPassword(parsed.data.password, user.passwordHash);
         if (!ok) return null;
+        // hashes from before the cost change are re-hashed once, after a successful check
+        if (needsRehash(user.passwordHash)) prisma.user.update({ where: { id: user.id }, data: { passwordHash: await hashPassword(parsed.data.password) } }).catch(() => {});
         return { id: user.id, email: user.email, name: user.name, role: user.role };
       },
     }),

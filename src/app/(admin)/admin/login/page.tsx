@@ -11,9 +11,9 @@ export const metadata = { title: "Giriş" };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const { next } = await searchParams;
-  if (await getSession()) redirect(next && next.startsWith("/admin") ? next : "/admin");
   const ready = hasDatabase && hasAuthSecret;
-  const fresh = ready && (await needsBootstrap());
+  const [session, fresh] = await Promise.all([getSession(), ready ? needsBootstrap() : Promise.resolve(false)]);
+  if (session) redirect(next && next.startsWith("/admin") ? next : "/admin");
 
   return (
     <main className="grid min-h-dvh place-items-center px-5 py-10">

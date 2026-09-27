@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronDown, Menu, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ const STORAGE_KEY = "nobug.admin.sidebar";
  */
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [rail, setRail] = useState(false);
   const [hidden, setHidden] = useState<Record<string, boolean>>({});
@@ -64,9 +65,11 @@ export function Sidebar() {
                     <li key={href}>
                       <Link
                         href={href}
-                        // dynamic routes are not prefetched by default; the panel has
-                        // nine of them, so fetch them while the sidebar is in view
-                        prefetch={true}
+                        // dynamic routes: prefetch the one the pointer is heading for, not all
+                        // nine at once (that burst kept the server busy for seconds after login)
+                        prefetch={false}
+                        onMouseEnter={() => router.prefetch(href)}
+                        onFocus={() => router.prefetch(href)}
                         onClick={() => setOpen(false)}
                         aria-current={active ? "page" : undefined}
                         title={compact ? label : undefined}

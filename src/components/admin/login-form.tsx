@@ -25,8 +25,8 @@ export function LoginForm({ next }: { next?: string }) {
     try {
       await api("/api/admin/auth/login", { method: "POST", body: JSON.stringify(values) });
       toast.success("Xoş gəldiniz");
+      // replace() renders the dynamic dashboard fresh — a refresh() on top would render it twice
       router.replace(next && next.startsWith("/admin") ? next : "/admin");
-      router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Giriş alınmadı");
     }
