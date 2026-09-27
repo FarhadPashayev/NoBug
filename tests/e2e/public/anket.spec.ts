@@ -33,6 +33,22 @@ test("ANK-01 / ANK-06 / ANK-07: service selection drives the URL and the progres
   await expect(page.locator('main [role="alert"]')).toHaveCount(0);
 });
 
+test("ANK-14: arriving at the anket from a dark section of the home page keeps the light ground", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/az");
+  await page.locator("#elaqe").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(800);
+  expect(await page.evaluate(() => document.documentElement.style.getPropertyValue("--page-bg"))).toBe("#0B1F3A");
+  await page.getByRole("button", { name: "Menyu" }).click();
+  await page.locator("nav[aria-label='Main mobile']").getByRole("link", { name: "Layihəni müzakirə et" }).click();
+  await expect(page).toHaveURL(/\/az\/anket$/);
+  await page.waitForTimeout(500);
+  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(248, 249, 250)");
+  const first = page.getByRole("button", { name: "IT infrastrukturu" });
+  await expect(first).toBeVisible();
+  expect(await first.evaluate((el) => getComputedStyle(el).color)).toBe("rgb(11, 31, 58)");
+});
+
 test("ANK-02: each of the 12 services shows its own three questions", async ({ page }) => {
   for (const [i, code] of LEGACY_ORDER.entries()) {
     await page.goto(`/az/anket?xidmet=${code}`);

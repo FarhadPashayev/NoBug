@@ -48,7 +48,15 @@ export function ScrollColorWrapper({ children }: { children: ReactNode }) {
     sections.forEach((s) => obs.observe(s));
     apply(sections[0]);
     // (the footer is too short to reach the band — it paints its own light ground)
-    return () => obs.disconnect();
+    return () => {
+      obs.disconnect();
+      // <html> survives client-side navigation: without this, leaving the home
+      // page from a dark section carried the navy ground onto /anket and the
+      // other light-only pages (navy copy on navy)
+      root.style.removeProperty("--page-bg");
+      root.style.removeProperty("--page-fg");
+      delete root.dataset.pageBg;
+    };
   }, []);
 
   return <>{children}</>;
