@@ -43,6 +43,8 @@ export default async function LegalPage({ params }: Props) {
 
   return (
     <>
+      {/* first node of the segment: Next scrolls it into view on client navigation — never the sticky header */}
+      <span aria-hidden="true" className="block h-0" />
       <header className="sticky top-0 z-40 border-b border-navy-line bg-navy">
         <div className="mx-auto flex min-h-[72px] max-w-[1080px] flex-wrap items-center gap-4 px-[clamp(20px,5vw,64px)] py-3">
           <Logo href={`/${lang}`} variant="mark" height={26} />
