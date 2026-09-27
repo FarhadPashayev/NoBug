@@ -16,6 +16,23 @@ const nextConfig: NextConfig = {
     remotePatterns: [{ protocol: "https", hostname: supabaseHost ?? "*.supabase.co", pathname: "/storage/v1/object/public/**" }],
     minimumCacheTTL: 60 * 60 * 24 * 30,
   },
+  async redirects() {
+    // The proxy sends every page on the apex / preview host to www.nobug.az
+    // with the security headers attached. Config redirects run *before* the
+    // proxy and without those headers, so this only covers the static paths
+    // the proxy matcher skips (robots, sitemap, assets…) — otherwise the
+    // apex would serve a second copy of them.
+    const hosts = ["nobug.az", "no-bug-eta.vercel.app"];
+    const sources = ["/:file(robots\\.txt|sitemap\\.xml|sw\\.js|offline\\.html|favicon\\.ico)", "/assets/:path*", "/uploads/:path*"];
+    return hosts.flatMap((host) =>
+      sources.map((source) => ({
+        source,
+        has: [{ type: "host" as const, value: host }],
+        destination: `https://www.nobug.az${source.replace(/\(.*\)/, "")}`,
+        permanent: true,
+      })),
+    );
+  },
   async headers() {
     return [
       {

@@ -19,6 +19,20 @@ test("SEO-03: the Vercel preview host redirects to the canonical domain", async 
   expect(res.headers()["location"]).toMatch(/^https:\/\/www\.nobug\.az\/az/);
 });
 
+test("LOC-07: the apex redirect carries the security headers and covers static files", async ({ request }) => {
+  const page = await request.get("https://nobug.az/az", { maxRedirects: 0 });
+  expect(page.status()).toBe(308);
+  expect(page.headers()["location"]).toBe(`${prod}/az`);
+  expect(page.headers()["strict-transport-security"]).toContain("max-age=");
+  expect(page.headers()["content-security-policy"]).toContain("default-src 'self'");
+
+  for (const path of ["/robots.txt", "/sitemap.xml", "/assets/logo-navy-amber.svg"]) {
+    const res = await request.get(`https://nobug.az${path}`, { maxRedirects: 0 });
+    expect(res.status(), path).toBe(308);
+    expect(res.headers()["location"], path).toBe(`${prod}${path}`);
+  }
+});
+
 test("SEO-01 (prod): canonical and hreflang point at www.nobug.az", async ({ page }) => {
   await page.goto(`${prod}/az`);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${prod}/az`);
