@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { LogOut, Moon, Sun, User } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
-import { logout } from "@/actions/auth";
+import { logout } from "@/actions/logout";
 import { Breadcrumbs } from "./breadcrumbs";
 import { breadcrumbsFor } from "./nav";
 import { Button } from "./ui/button";

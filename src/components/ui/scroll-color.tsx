@@ -8,9 +8,9 @@ import { useEffect, type ReactNode } from "react";
  * Sections declare `data-bg="light" | "dark"` and keep their own text
  * colours; only the body background moves (700ms ease-in-out, set in
  * globals.css). Tracking uses IntersectionObserver with a band around the
- * middle of the viewport, so the shift happens as a section crosses centre —
- * matching the template, where a dark heading is already white while the
- * light ground is still fading out beneath it.
+ * top of the viewport (just under the header), so the ground has changed by
+ * the time a section's first line of copy scrolls into view; the fade itself
+ * is short (globals.css) so white copy never sits on the light ground.
  */
 const BG = { light: "#F8F9FA", dark: "#0B1F3A" } as const; // brand navy from the logo
 export type PageBg = keyof typeof BG;
@@ -28,7 +28,10 @@ export function ScrollColorWrapper({ children }: { children: ReactNode }) {
       root.dataset.pageBg = key;
     };
 
-    // the section whose top edge is highest within the middle band wins
+    // the section whose top edge is highest within the band wins; the band sits
+    // just under the sticky header, so a section owns the ground as soon as it
+    // reaches the top of the screen — its copy (which starts below its own
+    // padding) is never shown on the previous section's colour
     const visible = new Map<HTMLElement, number>();
     const obs = new IntersectionObserver(
       (entries) => {
@@ -40,7 +43,7 @@ export function ScrollColorWrapper({ children }: { children: ReactNode }) {
         const [el] = [...visible.entries()].sort((a, b) => b[1] - a[1])[0];
         apply(el);
       },
-      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
+      { rootMargin: "-8% 0px -88% 0px", threshold: 0 },
     );
     sections.forEach((s) => obs.observe(s));
     apply(sections[0]);
