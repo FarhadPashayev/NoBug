@@ -2,10 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { signOut } from "@/lib/auth";
 import { getSession } from "@/lib/auth/session";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { passwordSchema, profileSchema } from "@/schemas/auth";
 import { ActionError, guarded } from "./run";
+
+/** Sign out in one round trip: Auth.js deletes the Session row, clears the cookie and redirects. */
+export async function logout() {
+  await signOut({ redirectTo: "/admin/login" });
+}
 
 export async function updateProfile(input: unknown) {
   return guarded(async () => {

@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { LogOut, Moon, Sun, User } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useState, useTransition } from "react";
+import { logout } from "@/actions/auth";
 import { Breadcrumbs } from "./breadcrumbs";
 import { breadcrumbsFor } from "./nav";
 import { Button } from "./ui/button";
@@ -14,20 +14,13 @@ import type { SessionUser } from "@/lib/auth/session";
 export function Topbar({ user }: { user: SessionUser }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const router = useRouter();
+  const [leaving, startLeaving] = useTransition();
   const pathname = usePathname();
   // the icon depends on the resolved theme, which only exists after hydration
   useEffect(() => {
     const raf = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(raf);
   }, []);
-
-  async function logout() {
-    await fetch("/api/admin/auth/logout", { method: "POST" });
-    toast.success("Çıxış edildi");
-    router.replace("/admin/login");
-    router.refresh();
-  }
 
   return (
     <header className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 border-b border-ad-border bg-ad-bg/90 px-5 py-3 backdrop-blur lg:px-8">
@@ -40,7 +33,7 @@ export function Topbar({ user }: { user: SessionUser }) {
           <User className="size-4" />
           <span className="hidden sm:inline">{user.name}</span>
         </Link>
-        <Button variant="outline" size="sm" onClick={logout}>
+        <Button variant="outline" size="sm" loading={leaving} onClick={() => startLeaving(() => logout())}>
           <LogOut />
           <span className="hidden sm:inline">Çıxış</span>
         </Button>
