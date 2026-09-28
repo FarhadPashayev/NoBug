@@ -9,7 +9,7 @@ import { loginSchema, type LoginInput } from "@/schemas/auth";
 import { api } from "@/lib/admin/client";
 import { Button } from "./ui/button";
 import { Card, CardBody } from "./ui/card";
-import { Field, Input } from "./ui/field";
+import { Field, Input, PasswordInput } from "./ui/field";
 
 export function LoginForm({ next }: { next?: string }) {
   const router = useRouter();
@@ -43,7 +43,7 @@ export function LoginForm({ next }: { next?: string }) {
             <Input id="email" type="email" autoComplete="email" autoFocus aria-invalid={!!errors.email} {...register("email")} />
           </Field>
           <Field label="Şifrə" htmlFor="password" error={errors.password?.message}>
-            <Input id="password" type="password" autoComplete="current-password" aria-invalid={!!errors.password} {...register("password")} />
+            <PasswordInput id="password" autoComplete="current-password" aria-invalid={!!errors.password} {...register("password")} />
           </Field>
 
           {error && (

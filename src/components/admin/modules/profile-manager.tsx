@@ -11,7 +11,7 @@ import { passwordSchema, profileSchema, type PasswordInput, type ProfileInput } 
 import type { SessionUser } from "@/lib/auth/session";
 import { Button } from "../ui/button";
 import { Card, CardBody, CardFooter, CardHeader } from "../ui/card";
-import { Field, Input } from "../ui/field";
+import { Field, Input, PasswordInput as PasswordField } from "../ui/field";
 
 export function ProfileManager({ user }: { user: SessionUser }) {
   const router = useRouter();
@@ -63,13 +63,13 @@ export function ProfileManager({ user }: { user: SessionUser }) {
           <CardHeader title="Şifrə" description="Ən azı 10 simvol. Dəyişdikdən sonra digər cihazlardakı sessiyalar bağlanır." />
           <CardBody className="space-y-4">
             <Field label="Cari şifrə" htmlFor="currentPassword" error={password.formState.errors.currentPassword?.message}>
-              <Input id="currentPassword" type="password" autoComplete="current-password" {...password.register("currentPassword")} />
+              <PasswordField id="currentPassword" autoComplete="current-password" {...password.register("currentPassword")} />
             </Field>
             <Field label="Yeni şifrə" htmlFor="newPassword" error={password.formState.errors.newPassword?.message}>
-              <Input id="newPassword" type="password" autoComplete="new-password" {...password.register("newPassword")} />
+              <PasswordField id="newPassword" autoComplete="new-password" {...password.register("newPassword")} />
             </Field>
             <Field label="Yeni şifrə (təkrar)" htmlFor="confirmPassword" error={password.formState.errors.confirmPassword?.message}>
-              <Input id="confirmPassword" type="password" autoComplete="new-password" {...password.register("confirmPassword")} />
+              <PasswordField id="confirmPassword" autoComplete="new-password" {...password.register("confirmPassword")} />
             </Field>
           </CardBody>
           <CardFooter>
