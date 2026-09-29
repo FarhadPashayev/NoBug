@@ -1,8 +1,10 @@
+import { config as loadEnv } from "dotenv";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { seedAdmin, seedContent } from "../src/lib/seed";
 
 // `npm run db:seed` — first admin account from env + the site's current copy.
+loadEnv({ path: [".env.local", ".env"], quiet: true }); // same precedence as Next.js; real env vars win
 const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL (or DIRECT_URL) is required to seed");
 

@@ -49,10 +49,33 @@ public/assets/         loqolar, IMG-01…07, PATTERN-lar (dəyişdirilməyib)
 2. Env: `MAIL_MODE`, `RESEND_API_KEY`, `MAIL_TO`, `MAIL_FROM`.
 3. `nobug.az` domenini Resend-də verify edin (SPF + DKIM).
 
-## Dev mühiti (dev.nobug.az)
+## Lokal dev mühiti (tövsiyə olunan)
 
-Prod-a çıxmazdan əvvəl dəyişikliklər `dev` branch-ında yoxlanılır. Vercel `dev`
-branch-ını **Preview** deployment kimi avtomatik qurur; `main` = production.
+Dəyişikliklər əvvəl öz maşınınızda, lokal bazada yoxlanılır, sonra `main`-ə push
+olunur və production-a çıxır. Prod bazasına və `media` bucket-ına toxunulmur.
+
+```bash
+npm run dev            # http://localhost:3000  (admin: /admin, .env.local-dakı ADMIN_EMAIL / ADMIN_PASSWORD)
+npm run test:all       # bütün QA dəstləri (ayrıca test bazası, port 5439)
+git add -A && git commit -m "…" && git push origin main   # → production
+```
+
+Bir dəfəlik qurulum (bu maşında artıq edilib):
+
+1. Postgres 16 lokal işləyir (`brew services start postgresql@16`), baza `nobug_dev`.
+2. `.env.local`-da: `DATABASE_URL` / `DIRECT_URL` → `postgresql://<user>@127.0.0.1:5432/nobug_dev`,
+   `AUTH_SECRET`, `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` (şəkil yükləmələri üçün),
+   `MEDIA_BUCKET=media-dev`, `NEXT_PUBLIC_SITE_URL=http://localhost:3000`, `ADMIN_*`.
+3. `npm run db:push && npm run db:seed` — sxem + saytın məzmunu + admin hesabı.
+
+Prisma CLI, seed və `db:harden` `.env.local`-ı Next.js kimi oxuyur, əlavə env
+ötürmək lazım deyil. Lokal bazanı sıfırlamaq: `dropdb nobug_dev && createdb nobug_dev`, sonra 3-cü addım.
+
+## Dev mühiti onlayn (dev.nobug.az) — istəyə bağlı
+
+Müştəriyə link göstərmək lazım olanda `dev` branch-ı Vercel **Preview** kimi
+qurulur; `main` = production. Aşağıdakı bir dəfəlik qurulum hələ edilməyib
+(Vercel-də domen + Deployment Protection söndürülməsi + Cloudflare CNAME).
 
 | | production | dev |
 |---|---|---|

@@ -1,4 +1,8 @@
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
+
+// Same precedence as Next.js: .env.local (gitignored, your machine) wins over .env.
+// Variables already in the environment (CI, the test runner) are never overridden.
+loadEnv({ path: [".env.local", ".env"], quiet: true });
 import { defineConfig } from "prisma/config";
 
 // Prisma 7: the connection lives here, not in schema.prisma. Migrations and
