@@ -22,7 +22,7 @@ export function ServicesGrid({ lang, t, content }: { lang: Locale; t: Dictionary
     <section id="xidmetler" data-bg="light" className="scroll-mt-20 text-ink">
       <div className="container-site section-pad">
         <Rise>
-          <div className="mono-label text-grey">{t.servicesMeta.replace(/\d+(?=\s)/, String(total))}</div>
+          <div className="mono-label text-grey">{t.servicesMeta.replace(/\d+(?!.*\d)/, String(total))}</div>
           <h2 className="mt-4 text-[clamp(34px,4.4vw,60px)] font-medium leading-[1.05] tracking-[-0.03em]">{t.servicesTitle}</h2>
           <p className="mt-4 max-w-[56ch] text-[17px] leading-[1.6] text-grey">{t.tpl.servicesLead}</p>
         </Rise>
