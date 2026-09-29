@@ -147,6 +147,16 @@ göstərir — **sayt normal işləməyə davam edir**.
 | Sayt parametrləri | e-poçt, telefon, ünvan, sosial linklər, footer link sütunları |
 | Profil | ad/e-poçt və şifrə dəyişmə |
 
+### Supabase Data API və RLS
+
+Supabase `public` sxemindəki hər cədvəli REST Data API ilə də açır (`anon` və
+`authenticated` rolları). Sayt bazaya yalnız Prisma ilə, `postgres` rolundan
+qoşulur, ona görə bütün cədvəllərdə RLS aktivdir (siyasətsiz) və API rollarının
+imtiyazları geri alınıb: anon açarı ilə heç bir cədvəl oxunmur. `npm run db:push`
+bunu hər dəfə avtomatik təkrarlayır (`scripts/db-harden.mjs`); yalnız `prisma db push`
+çağırsanız, ardınca `npm run db:harden` (dev üçün `DB_SCHEMA=dev`) işlədin.
+Supabase Advisor "RLS Disabled in Public" xəbərdarlıqları bununla bağlanır.
+
 ### Texniki qeydlər
 
 - **Giriş:** httpOnly cookie-də imzalanmış JWT (jose), 8 saat; login-də IP üzrə
