@@ -464,7 +464,9 @@ body {
   background-color: #f8f9fa;
 }
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  [data-bg] {
+  /* sections only: the footer is too short to ever own the page ground (the
+     observer band never reaches it), so it always paints its own light ground */
+  section[data-bg] {
     background-color: transparent;
   }
   body {
