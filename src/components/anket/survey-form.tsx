@@ -7,7 +7,7 @@ import type { Locale } from "@/lib/i18n/config";
 import { CHANNEL_IDS, getSurvey, resolveService, type AnketPayload } from "@/lib/anket/survey";
 import { fetchWithTimeout } from "@/lib/fetch";
 import { isValidEmail, isValidName } from "@/lib/validation";
-import { LEGACY_ORDER } from "@/lib/services";
+import { ACTIVE_SERVICES, LEGACY_ORDER, serviceIndex } from "@/lib/services";
 import { legalHref } from "@/lib/legal";
 import { CONTACT_EMAIL } from "@/lib/site";
 import { track } from "@/lib/analytics";
@@ -184,16 +184,16 @@ export function SurveyForm({ lang }: { lang: Locale }) {
           <div>
             <h2 className="border-b border-navy pb-3 text-[17px] font-medium leading-[1.4]">{sv.pick}</h2>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-x-[clamp(16px,3vw,40px)]">
-              {sv.services.map((title, i) => (
+              {ACTIVE_SERVICES.map((id, n) => ({ i: serviceIndex(id), n, title: sv.services[serviceIndex(id)] })).map(({ i, n, title }) => (
                 <button
-                  key={title}
+                  key={LEGACY_ORDER[i]}
                   type="button"
                   onClick={() => pickService(i)}
                   data-selected={service === i}
                   className="group relative flex min-h-11 w-full items-baseline gap-4 border-0 border-b border-hairline bg-transparent px-3 py-[11px] text-left transition-colors duration-200 ease-[var(--ease-brand)] hover:bg-surface data-[selected=true]:bg-surface"
                 >
                   <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 origin-left scale-x-0 bg-accent transition-transform duration-200 ease-[var(--ease-brand)] group-hover:scale-x-100 group-data-[selected=true]:scale-x-100" />
-                  <span className="w-6 flex-none font-mono text-xs tracking-[0.08em] text-muted transition-colors group-hover:text-navy group-data-[selected=true]:text-navy">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="w-6 flex-none font-mono text-xs tracking-[0.08em] text-muted transition-colors group-hover:text-navy group-data-[selected=true]:text-navy">{String(n + 1).padStart(2, "0")}</span>
                   <span className="min-w-0 text-base font-medium leading-[1.3]">{title}</span>
                 </button>
               ))}

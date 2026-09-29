@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 import { DICT } from "@/lib/i18n/dict";
 import { loc, type Localized } from "@/lib/i18n/localized";
-import { FOOTER_SERVICES, LEGACY_ORDER, PRIMARY_SERVICES, SECONDARY_SERVICES } from "@/lib/services";
+import { FOOTER_SERVICES, LEGACY_ORDER, PRIMARY_SERVICES, RETIRED_SERVICES, SECONDARY_SERVICES } from "@/lib/services";
 import { CONTACT_EMAIL, LINKEDIN_URL } from "@/lib/site";
 import { slugify } from "@/lib/utils";
 
@@ -90,6 +90,8 @@ export async function seedContent(prisma: PrismaClient) {
     };
     await prisma.service.upsert({ where: { slug: id }, create: { slug: id, ...data }, update: data });
   }
+  // services withdrawn from the offer stay as rows (historic leads) but inactive
+  await prisma.service.updateMany({ where: { slug: { in: RETIRED_SERVICES } }, data: { isActive: false } });
 
   // ── standards table → one group per area, one row each ───────────────
   await prisma.specGroup.deleteMany();

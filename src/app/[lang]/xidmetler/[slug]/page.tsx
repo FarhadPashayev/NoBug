@@ -7,7 +7,7 @@ import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { getService, getSiteContent } from "@/lib/content";
 import { getSurvey } from "@/lib/anket/survey";
-import { LEGACY_ORDER, isServiceId, serviceIndex } from "@/lib/services";
+import { ACTIVE_SERVICES, isServiceId, serviceIndex } from "@/lib/services";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { absoluteUrl, SITE_URL } from "@/lib/site";
 import { notFoundMetadata } from "@/lib/not-found";
@@ -27,7 +27,7 @@ const COPY: Record<Locale, { eyebrow: string; asked: string; askedNote: string; 
 export const revalidate = 3600;
 export const dynamicParams = true;
 export function generateStaticParams() {
-  return LOCALES.flatMap((lang) => LEGACY_ORDER.map((slug) => ({ lang, slug })));
+  return LOCALES.flatMap((lang) => ACTIVE_SERVICES.map((slug) => ({ lang, slug })));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

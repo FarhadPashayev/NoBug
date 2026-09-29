@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { LEGACY_ORDER } from "../../../src/lib/services";
+import { ACTIVE_SERVICES, LEGACY_ORDER, RETIRED_SERVICES } from "../../../src/lib/services";
 import { SURVEY } from "../../../src/lib/anket/survey";
 import { db } from "../db";
 import { freshIp } from "../helpers";
@@ -44,17 +44,25 @@ test("ANK-14: arriving at the anket from a dark section of the home page keeps t
   await expect(page).toHaveURL(/\/az\/anket$/);
   await page.waitForTimeout(500);
   expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(248, 249, 250)");
-  const first = page.getByRole("button", { name: "IT infrastrukturu" });
+  const first = page.getByRole("button", { name: "Veb və e-ticarət" });
   await expect(first).toBeVisible();
   expect(await first.evaluate((el) => getComputedStyle(el).color)).toBe("rgb(11, 31, 58)");
 });
 
-test("ANK-02: each of the 12 services shows its own three questions", async ({ page }) => {
-  for (const [i, code] of LEGACY_ORDER.entries()) {
+test("ANK-02: each of the 7 services on offer shows its own three questions; retired ones fall back to the list", async ({ page }) => {
+  for (const code of ACTIVE_SERVICES) {
+    const i = LEGACY_ORDER.indexOf(code);
     await page.goto(`/az/anket?xidmet=${code}`);
     const fieldsets = page.locator("fieldset");
     await expect(fieldsets).toHaveCount(sv.q[i].length);
     for (const [qi, [label]] of sv.q[i].entries()) await expect(fieldsets.nth(qi)).toContainText(label);
+  }
+  await page.goto("/az/anket");
+  await expect(page.locator("main button[data-selected]")).toHaveCount(ACTIVE_SERVICES.length);
+  for (const code of RETIRED_SERVICES) {
+    await page.goto(`/az/anket?xidmet=${code}`);
+    await expect(page.locator("fieldset")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: sv.services[LEGACY_ORDER.indexOf(code)] })).toHaveCount(0);
   }
 });
 

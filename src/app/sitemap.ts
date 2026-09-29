@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { LOCALES } from "@/lib/i18n/config";
 import { absoluteUrl } from "@/lib/site";
 import { LEGAL_KEYS, legalHref } from "@/lib/legal";
-import { LEGACY_ORDER } from "@/lib/services";
+import { ACTIVE_SERVICES } from "@/lib/services";
 import { hasDatabase, prisma } from "@/lib/db";
 
 // Locale home pages, legal pages, one page per service and per published
@@ -17,19 +17,19 @@ const entry = (path: (l: string) => string, priority: number, changeFrequency: "
   }));
 
 async function slugs(): Promise<{ services: string[]; projects: string[] }> {
-  if (!hasDatabase) return { services: [...LEGACY_ORDER], projects: [] };
+  if (!hasDatabase) return { services: [...ACTIVE_SERVICES], projects: [] };
   try {
     const [services, projects] = await Promise.all([
       prisma.service.findMany({ where: { isActive: true }, select: { slug: true }, orderBy: { order: "asc" } }),
       prisma.project.findMany({ where: { isPublished: true }, select: { slug: true, content: true }, orderBy: { order: "asc" } }),
     ]);
     return {
-      services: services.length ? services.map((s) => s.slug) : [...LEGACY_ORDER],
+      services: services.length ? services.map((s) => s.slug) : [...ACTIVE_SERVICES],
       // only projects with a write-up have a page worth indexing
       projects: projects.filter((p) => Boolean((p.content as { az?: string } | null)?.az)).map((p) => p.slug),
     };
   } catch {
-    return { services: [...LEGACY_ORDER], projects: [] };
+    return { services: [...ACTIVE_SERVICES], projects: [] };
   }
 }
 

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { DICT } from "../../../src/lib/i18n/dict";
-import { LEGACY_ORDER } from "../../../src/lib/services";
+import { ACTIVE_SERVICES, LEGACY_ORDER, RETIRED_SERVICES } from "../../../src/lib/services";
 import { SURVEY } from "../../../src/lib/anket/survey";
 
 test("SEO-04 (feedback A): every service has its own indexable page in three languages", async ({ page, request }) => {
@@ -20,13 +20,19 @@ test("SEO-04 (feedback A): every service has its own indexable page in three lan
   }
   expect((await request.get("/az/xidmetler/yoxdur")).status()).toBe(404);
   const sitemap = await (await request.get("/sitemap.xml")).text();
-  for (const slug of LEGACY_ORDER) expect(sitemap).toContain(`/az/xidmetler/${slug}</loc>`);
+  for (const slug of ACTIVE_SERVICES) expect(sitemap).toContain(`/az/xidmetler/${slug}</loc>`);
+  for (const slug of RETIRED_SERVICES) {
+    expect(sitemap).not.toContain(`/xidmetler/${slug}</loc>`);
+    const res = await request.get(`/az/xidmetler/${slug}`, { maxRedirects: 0 });
+    expect(res.status(), slug).toBe(308);
+    expect(res.headers()["location"], slug).toMatch(/\/az#xidmetler$/);
+  }
 });
 
 test("SEO-04: the home page links to every service page and the language switch stays on the service", async ({ page }) => {
   await page.goto("/az");
   const links = page.locator("#xidmetler a[href^='/az/xidmetler/']");
-  await expect(links).toHaveCount(12);
+  await expect(links).toHaveCount(ACTIVE_SERVICES.length);
   await links.first().click();
   await expect(page).toHaveURL(/\/az\/xidmetler\//);
   await page.getByRole("link", { name: "EN", exact: true }).click();

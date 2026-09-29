@@ -54,7 +54,7 @@ test("NAV-04: a direct anchor URL opens on the section", async ({ page }) => {
 test("NAV-05: every service card opens the anket at step 2 with the right service", async ({ page }) => {
   await page.goto("/az");
   const cards = page.locator("#xidmetler a[href*='xidmet=']");
-  await expect(cards).toHaveCount(12);
+  await expect(cards).toHaveCount(7);
   const hrefs = await cards.evaluateAll((a) => a.map((x) => (x as HTMLAnchorElement).getAttribute("href")!));
   for (const href of hrefs) {
     const code = new URL(href, "http://x").searchParams.get("xidmet")!;

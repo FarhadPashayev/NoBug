@@ -126,7 +126,7 @@ const az: Dictionary = {
     ["< 2 saat", "dəstək müqaviləsində birinci cavab öhdəliyi", "2026 · SLA şərtləri"],
   ],
   servicesTitle: "Xidmət indeksi",
-  servicesMeta: "Bölmə 01 · 12 xidmət",
+  servicesMeta: "Bölmə 01 · 7 xidmət",
   servicesSecondary: "Əlavə xidmətlər",
   services: [
     ["IT infrastrukturu", "Server, şəbəkə və iş stansiyalarının qurulması, miqrasiyası və aylıq dəstəyi."],
@@ -225,7 +225,7 @@ const az: Dictionary = {
   fieldEmailInvalid: "E-poçt ünvanı düzgün deyil.",
   fieldNameInvalid: "Ad yalnız hərf, boşluq və tire ola bilər.",
   footerCols: [
-    ["Xidmətlər", ["IT infrastrukturu", "CRM və ERP", "Mobil tətbiqlər", "Süni intellekt həlləri", "AI ilə video", "Konsultasiya"]],
+    ["Xidmətlər", ["Veb və e-ticarət", "Keyfiyyət təminatı", "CRM və ERP", "Mobil tətbiqlər", "Süni intellekt həlləri"]],
     ["Şirkət", ["Haqqında", "Karyera", "Əlaqə"]],
     ["Hüquqi", ["Məxfilik siyasəti", "İstifadə şərtləri", "Məlumatların emalı"]],
   ],
@@ -265,7 +265,7 @@ const en: Dictionary = {
     ["< 2 hours", "first-response commitment in the support agreement", "2026 · SLA terms"],
   ],
   servicesTitle: "Service index",
-  servicesMeta: "Section 01 · 12 services",
+  servicesMeta: "Section 01 · 7 services",
   servicesSecondary: "Additional services",
   services: [
     ["IT infrastructure", "Deployment, migration and monthly support of servers, networks and workstations."],
@@ -364,7 +364,7 @@ const en: Dictionary = {
   fieldEmailInvalid: "The email address is not valid.",
   fieldNameInvalid: "Use letters, spaces and hyphens only.",
   footerCols: [
-    ["Solutions", ["IT infrastructure", "CRM and ERP", "Mobile development", "AI solutions", "AI video", "Consulting"]],
+    ["Solutions", ["Web and e-commerce", "Quality assurance", "CRM and ERP", "Mobile development", "AI solutions"]],
     ["Company", ["About", "Careers", "Contact"]],
     ["Legal", ["Privacy policy", "Terms of use", "Data processing"]],
   ],
@@ -404,7 +404,7 @@ const ru: Dictionary = {
     ["< 2 часов", "обязательство по первому ответу в договоре поддержки", "2026 · условия SLA"],
   ],
   servicesTitle: "Указатель услуг",
-  servicesMeta: "Раздел 01 · 12 услуг",
+  servicesMeta: "Раздел 01 · 7 услуг",
   servicesSecondary: "Дополнительные услуги",
   services: [
     ["IT-инфраструктура", "Развёртывание, миграция и месячная поддержка серверов, сетей и рабочих станций."],
@@ -503,7 +503,7 @@ const ru: Dictionary = {
   fieldEmailInvalid: "Адрес электронной почты указан неверно.",
   fieldNameInvalid: "Только буквы, пробелы и дефисы.",
   footerCols: [
-    ["Услуги", ["IT-инфраструктура", "CRM и ERP", "Мобильная разработка", "Решения на основе ИИ", "Видео с ИИ", "Консультации"]],
+    ["Услуги", ["Веб и e-commerce", "Контроль качества", "CRM и ERP", "Мобильная разработка", "Решения на основе ИИ"]],
     ["Компания", ["О компании", "Карьера", "Контакты"]],
     ["Юридическое", ["Политика конфиденциальности", "Условия использования", "Обработка данных"]],
   ],

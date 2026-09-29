@@ -24,14 +24,19 @@ const nextConfig: NextConfig = {
     // apex would serve a second copy of them.
     const hosts = ["nobug.az", "no-bug-eta.vercel.app"];
     const sources = ["/:file(robots\\.txt|sitemap\\.xml|sw\\.js|offline\\.html|favicon\\.ico)", "/assets/:path*", "/uploads/:path*"];
-    return hosts.flatMap((host) =>
-      sources.map((source) => ({
-        source,
-        has: [{ type: "host" as const, value: host }],
-        destination: `https://www.nobug.az${source.replace(/\(.*\)/, "")}`,
-        permanent: true,
-      })),
-    );
+    return [
+      ...hosts.flatMap((host) =>
+        sources.map((source) => ({
+          source,
+          has: [{ type: "host" as const, value: host }],
+          destination: `https://www.nobug.az${source.replace(/\(.*\)/, "")}`,
+          permanent: true,
+        })),
+      ),
+      // services withdrawn from the offer (lib/services.ts RETIRED_SERVICES): their
+      // pages and anket deep links land on the services section
+      { source: "/:lang(az|en|ru)/xidmetler/:slug(infra|bots|ai-video|consulting|rental)", destination: "/:lang#xidmetler", permanent: true },
+    ];
   },
   async headers() {
     return [
