@@ -448,17 +448,27 @@ body {
   transition: background-color 350ms ease-in-out;
 }
 
-/* Every section paints its own ground. A single page-level colour can never
-   be right for two sections that share the screen: whichever way the switch
-   is timed, one section's copy ends up on the other's colour (white on the
-   light ground at the bottom of the screen, navy on the dark one at the top).
-   The body colour still fades underneath and drives the header tint, so the
-   soft transition survives where it is readable — in the header. */
+/* Phones: every section paints its own ground. Two sections share the small
+   screen for a long stretch of the scroll, and a single page-level colour
+   can never be right for both — one section's copy ends up on the other's
+   colour. The body still fades underneath and tints the header.
+   Desktop: sections are transparent and the whole page ground crossfades
+   (700ms) as the section in view changes — the original effect. A section's
+   copy starts below its own padding, so the fade has finished by the time
+   the copy reaches the eye. */
 [data-bg="dark"] {
   background-color: #0b1f3a;
 }
 [data-bg="light"] {
   background-color: #f8f9fa;
+}
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  [data-bg] {
+    background-color: transparent;
+  }
+  body {
+    transition-duration: 700ms;
+  }
 }
 
 body {

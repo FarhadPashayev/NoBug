@@ -6,11 +6,11 @@ import { useEffect, type ReactNode } from "react";
  * Drives the page background from the section in view.
  *
  * Sections declare `data-bg="light" | "dark"` and keep their own text
- * colours; only the body background moves (700ms ease-in-out, set in
- * globals.css). Tracking uses IntersectionObserver with a band around the
- * top of the viewport (just under the header), so the ground has changed by
- * the time a section's first line of copy scrolls into view; the fade itself
- * is short (globals.css) so white copy never sits on the light ground.
+ * colours. On desktop the sections are transparent and the body background
+ * crossfades (700ms, globals.css); on phones each section paints its own
+ * ground and the body fade only tints the header. Tracking uses an
+ * IntersectionObserver band just under the header, so the ground has
+ * changed by the time a section's first line of copy scrolls into view.
  */
 const BG = { light: "#F8F9FA", dark: "#0B1F3A" } as const; // brand navy from the logo
 export type PageBg = keyof typeof BG;
