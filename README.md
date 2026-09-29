@@ -49,6 +49,53 @@ public/assets/         loqolar, IMG-01…07, PATTERN-lar (dəyişdirilməyib)
 2. Env: `MAIL_MODE`, `RESEND_API_KEY`, `MAIL_TO`, `MAIL_FROM`.
 3. `nobug.az` domenini Resend-də verify edin (SPF + DKIM).
 
+## Dev mühiti (dev.nobug.az)
+
+Prod-a çıxmazdan əvvəl dəyişikliklər `dev` branch-ında yoxlanılır. Vercel `dev`
+branch-ını **Preview** deployment kimi avtomatik qurur; `main` = production.
+
+| | production | dev |
+|---|---|---|
+| Branch | `main` | `dev` |
+| URL | https://www.nobug.az | https://dev.nobug.az |
+| Postgres sxemi (eyni Supabase layihəsi) | `public` | `dev` (`DB_SCHEMA=dev`) |
+| Storage bucket | `media` | `media-dev` (`MEDIA_BUCKET=media-dev`, ilk yükləmədə avtomatik yaranır) |
+| Axtarış sistemləri | indekslənir | `noindex` (robots.txt, `X-Robots-Tag`, meta) |
+| Admin paneli | — | topbar-da **dev** nişanı |
+
+**İş axını**
+
+```bash
+git checkout dev && git pull
+# … dəyişiklik, commit …
+git push                      # → Vercel dev.nobug.az-ı yenidən qurur (1–2 dəq)
+# dev.nobug.az-da yoxla, lazım olsa: PROD_URL=https://dev.nobug.az npx playwright test tests/e2e/prod.spec.ts --project=public
+git checkout main && git merge --ff-only dev && git push   # → production
+git checkout dev
+```
+
+Təcili prod düzəlişi lazım olsa: `main`-də commit → push; sonra `git checkout dev && git merge main`.
+
+**Bir dəfəlik qurulum (Vercel + Cloudflare)**
+
+1. Vercel → `no-bug` → Settings → Domains → Add `dev.nobug.az`, "Git Branch" = `dev`.
+2. Cloudflare DNS → `CNAME dev → cname.vercel-dns.com`, proxy söndürülmüş (DNS only).
+3. Vercel → Settings → Environment Variables. **Preview** mühiti, branch `dev` üçün:
+   - `DB_SCHEMA=dev`
+   - `MEDIA_BUCKET=media-dev`
+   - `NEXT_PUBLIC_SITE_URL=https://dev.nobug.az`
+   - `DATABASE_URL`, `DIRECT_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `AUTH_SECRET`, `MAIL_*`, `NEXT_PUBLIC_CONTACT_EMAIL` — production ilə eyni dəyərlər (Production dəyərlərini Preview-a da tətbiq etməklə).
+   - `NEXT_PUBLIC_GA_ID` boş qalsın (dev trafiki analitikaya düşməsin).
+4. Settings → Environment Variables → "Automatically expose System Environment Variables" açıq olsun (`VERCEL_ENV=preview` buradan gəlir; `noindex` və dev nişanı ona bağlıdır).
+5. `dev` sxemi bir dəfə yaradılır və doldurulur (artıq edilib; yenidən lazım olsa):
+   ```bash
+   DB_SCHEMA=dev DIRECT_URL=<session pooler, port 5432> npm run db:push
+   DB_SCHEMA=dev DIRECT_URL=<…> ADMIN_EMAIL=… ADMIN_PASSWORD=… npm run db:seed
+   ```
+
+Dev bazası prod-dan tamamilə ayrıdır: orada yaradılan sorğular, layihələr və
+yükləmələr sayta çıxmır. Dev admin hesabı seed ilə yaradılır (prod ilə eyni e-poçt, ayrıca şifrə vermək olar).
+
 ## Müştəridən gözlənilən (handoff README §Open items)
 
 - Komanda portretləri (3 × 4:5, real foto) + ad/vəzifə → Komanda bölməsi əlavə olunur.

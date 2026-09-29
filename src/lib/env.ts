@@ -12,6 +12,7 @@ export const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DATABASE_URL: pg.optional(),
   DIRECT_URL: pg.optional(),
+  DB_SCHEMA: z.string().regex(/^[a-z_][a-z0-9_]*$/, "DB_SCHEMA must be a plain Postgres schema name").optional(),
   AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 characters").optional(),
   SUPABASE_URL: url.optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20).optional(),

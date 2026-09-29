@@ -9,4 +9,14 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.nobug.
 
 export const LINKEDIN_URL = "https://www.linkedin.com/company/nobug";
 
+/**
+ * "production" on www.nobug.az, "preview" on the dev deployment
+ * (dev.nobug.az and every other Vercel preview). Vercel sets VERCEL_ENV on
+ * the server and NEXT_PUBLIC_VERCEL_ENV in the client bundle; a local build
+ * has neither and behaves like production.
+ */
+export const SITE_ENV: "production" | "preview" =
+  (process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.VERCEL_ENV) === "preview" ? "preview" : "production";
+export const IS_PREVIEW = SITE_ENV === "preview";
+
 export const absoluteUrl = (path: string) => `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;

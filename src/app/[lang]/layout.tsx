@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
-import { CONTACT_EMAIL, SITE_URL, absoluteUrl } from "@/lib/site";
+import { CONTACT_EMAIL, IS_PREVIEW, SITE_URL, absoluteUrl } from "@/lib/site";
 import { OfflineBanner } from "@/components/ui/offline-banner";
 import { ServiceWorkerRegister } from "@/components/ui/sw-register";
 import "../globals.css";
@@ -53,6 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Every absolute URL derives from SITE_URL (NEXT_PUBLIC_SITE_URL) — never a hardcoded host.
   return {
     metadataBase: new URL(SITE_URL),
+    ...(IS_PREVIEW ? { robots: { index: false, follow: false } } : {}),
     title: { default: "nobug", template: "%s — nobug" },
     description: t.meta.description,
     alternates: {

@@ -25,7 +25,11 @@ const CSP = [
   "upgrade-insecure-requests",
 ].join("; ");
 
+// dev.nobug.az (and every other Vercel preview) must never be indexed
+const IS_PREVIEW = (process.env.VERCEL_ENV ?? process.env.NEXT_PUBLIC_VERCEL_ENV) === "preview";
+
 export const SECURITY_HEADERS: Record<string, string> = {
+  ...(IS_PREVIEW ? { "X-Robots-Tag": "noindex, nofollow" } : {}),
   "Content-Security-Policy": CSP,
   "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
   "X-Content-Type-Options": "nosniff",

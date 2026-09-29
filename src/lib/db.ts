@@ -9,7 +9,9 @@ const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 export const hasDatabase = Boolean(process.env.DATABASE_URL);
 
 function createClient() {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL ?? "" });
+  // DB_SCHEMA lets the dev deployment use the same Supabase project in a
+  // separate schema ("dev"); unset means "public"
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL ?? "" }, { schema: process.env.DB_SCHEMA || undefined });
   return new PrismaClient({ adapter, log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"] });
 }
 

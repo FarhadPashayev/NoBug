@@ -11,7 +11,7 @@ import { breadcrumbsFor } from "./nav";
 import { Button } from "./ui/button";
 import type { SessionUser } from "@/lib/auth/session";
 
-export function Topbar({ user }: { user: SessionUser }) {
+export function Topbar({ user, preview = false }: { user: SessionUser; preview?: boolean }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [leaving, startLeaving] = useTransition();
@@ -24,7 +24,17 @@ export function Topbar({ user }: { user: SessionUser }) {
 
   return (
     <header className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 border-b border-ad-border bg-ad-bg/90 px-5 py-3 backdrop-blur lg:px-8">
-      <Breadcrumbs items={breadcrumbsFor(pathname)} />
+      <div className="flex items-center gap-3">
+        <Breadcrumbs items={breadcrumbsFor(pathname)} />
+        {preview && (
+          <span
+            className="rounded-md border border-amber-500/40 bg-amber-500/15 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400"
+            title="Bu dev mühitidir (dev.nobug.az): dəyişikliklər saytın canlı versiyasına təsir etmir"
+          >
+            dev
+          </span>
+        )}
+      </div>
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" aria-label="Tema" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
           {mounted && theme === "dark" ? <Moon /> : <Sun />}

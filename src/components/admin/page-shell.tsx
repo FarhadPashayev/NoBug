@@ -1,4 +1,5 @@
 import { Topbar } from "./topbar";
+import { IS_PREVIEW } from "@/lib/site";
 import type { SessionUser } from "@/lib/auth/session";
 
 /** Topbar (breadcrumbs) + heading + padded content column, shared by every module page. */
@@ -17,7 +18,7 @@ export function PageShell({
 }) {
   return (
     <>
-      <Topbar user={user} />
+      <Topbar user={user} preview={IS_PREVIEW} />
       <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-6 lg:px-8 lg:py-8">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>

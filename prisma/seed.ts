@@ -6,7 +6,7 @@ import { seedAdmin, seedContent } from "../src/lib/seed";
 const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL (or DIRECT_URL) is required to seed");
 
-const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
+const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }, { schema: process.env.DB_SCHEMA || undefined }) });
 
 async function main() {
   const email = process.env.ADMIN_EMAIL ?? "admin@nobug.az";
