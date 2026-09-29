@@ -452,17 +452,18 @@ body {
    screen for a long stretch of the scroll, and a single page-level colour
    can never be right for both — one section's copy ends up on the other's
    colour. The body still fades underneath and tints the header.
-   Desktop: sections are transparent and the whole page ground crossfades
-   (700ms) as the section in view changes — the original effect. A section's
-   copy starts below its own padding, so the fade has finished by the time
-   the copy reaches the eye. */
+   Desktop (wide screen + mouse/trackpad, motion allowed): sections are
+   transparent and the whole page ground crossfades (700ms) as the section
+   in view changes — the original effect. Touch devices of any size keep the
+   per-section grounds: a finger fling moves several sections past the eye
+   inside one fade, which is where the copy became unreadable. */
 [data-bg="dark"] {
   background-color: #0b1f3a;
 }
 [data-bg="light"] {
   background-color: #f8f9fa;
 }
-@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   [data-bg] {
     background-color: transparent;
   }

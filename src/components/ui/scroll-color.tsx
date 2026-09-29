@@ -6,9 +6,10 @@ import { useEffect, type ReactNode } from "react";
  * Drives the page background from the section in view.
  *
  * Sections declare `data-bg="light" | "dark"` and keep their own text
- * colours. On desktop the sections are transparent and the body background
- * crossfades (700ms, globals.css); on phones each section paints its own
- * ground and the body fade only tints the header. Tracking uses an
+ * colours. On wide mouse/trackpad screens the sections are transparent and
+ * the body background crossfades (700ms, globals.css); on touch devices and
+ * narrow screens each section paints its own ground and the body fade only
+ * tints the header. Tracking uses an
  * IntersectionObserver band just under the header, so the ground has
  * changed by the time a section's first line of copy scrolls into view.
  */
