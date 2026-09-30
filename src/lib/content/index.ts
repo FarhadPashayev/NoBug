@@ -145,7 +145,7 @@ async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
   };
 }
 
-/** One active service by slug (DB, else the dictionary copy for the twelve built-in ones). */
+/** One active service by slug (DB, else the dictionary copy for the built-in ones). */
 export async function getService(locale: Locale, slug: string): Promise<SiteContent["services"][number] | null> {
   if (hasDatabase) {
     try {

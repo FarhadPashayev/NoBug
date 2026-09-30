@@ -20,11 +20,14 @@ import {
  *               (translate(24px,-16px) → 0), staggered 90ms.
  *
  * Skipped entirely (final state at once) when the visitor prefers reduced
- * motion, is on a small screen, or has already seen it in this browser
- * session — a 4-second intro on every navigation would be a cost, not a
- * welcome. The "hidden" state of the copy is expressed in CSS
- * ([data-phase] + .hero-line, globals.css) and only applies from md up, so on
- * phones the headline is painted with the first HTML — that is the LCP.
+ * motion or has already seen it in this browser session — a 4-second intro
+ * on every navigation would be a cost, not a welcome.
+ *
+ * Phones: the copy stays in the first paint (it is the LCP; the CSS that
+ * hides it only applies from md up), and the wordmark plays its own drawing
+ * in its slot above the copy instead of the centred FLIP intro. The slot is
+ * kept invisible until the animated file is in place, so the static wordmark
+ * never flashes before the drawing starts.
  */
 type Phase = "intro" | "move" | "final";
 
@@ -72,12 +75,28 @@ export function HeroIntro({
       seen = sessionStorage.getItem(SEEN_KEY) === "1";
     } catch {}
 
-    if (reduce || small || seen || image) {
+    if (reduce || seen || image) {
       // next frame: keeps the effect free of synchronous state updates
       const raf = requestAnimationFrame(() => {
         setPhase("final");
       });
       return () => cancelAnimationFrame(raf);
+    }
+    if (small) {
+      // drawing only, in place — the copy is already on screen
+      const raf = requestAnimationFrame(() => {
+        setSrc(`${LOGO}?t=${Date.now()}`);
+        setPhase("final");
+      });
+      const t = window.setTimeout(() => {
+        try {
+          sessionStorage.setItem(SEEN_KEY, "1");
+        } catch {}
+      }, SVG_DURATION);
+      return () => {
+        cancelAnimationFrame(raf);
+        window.clearTimeout(t);
+      };
     }
 
     // FLIP: measure the final slot, compute the transform that centres and

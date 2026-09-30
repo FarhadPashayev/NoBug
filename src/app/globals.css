@@ -556,7 +556,10 @@ th {
   .hero-after[data-phase="move"] {
     opacity: 0;
   }
-  /* the wordmark waits for its FLIP transform so it never flashes in the slot */
+}
+/* the wordmark waits for its FLIP transform (desktop) or for the animated file
+   (phones) so the static frame never flashes before the drawing starts */
+@media (prefers-reduced-motion: no-preference) {
   [data-phase="intro"]:not([data-logo="ready"]) .hero-logo {
     visibility: hidden;
   }

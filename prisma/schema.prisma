@@ -130,7 +130,7 @@ model Tag {
   projects Project[]
 }
 
-/// "Bir komanda, on iki istiqamət"
+/// "Bir komanda, yeddi istiqamət"
 model Stat {
   id        String   @id @default(cuid())
   value     String

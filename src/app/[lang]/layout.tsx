@@ -84,7 +84,7 @@ export default async function LangLayout({ children, params }: Props) {
       <body>
         {/* framer-motion reveals start at opacity 0 in the HTML; without JavaScript they would never appear */}
         <noscript>
-          <style>{`[style*="opacity: 0"]{opacity:1!important;transform:none!important}`}</style>
+          <style>{`[style*="opacity: 0"]{opacity:1!important;transform:none!important}.hero-logo{visibility:visible!important}`}</style>
         </noscript>
         {children}
         <OfflineBanner lang={lang} />

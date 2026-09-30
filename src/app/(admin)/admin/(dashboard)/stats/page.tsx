@@ -11,7 +11,7 @@ export default async function StatsPage() {
   // fetched here so the first paint has data; the client keeps it fresh after edits
   const initial = await listStats();
   return (
-    <PageShell user={user} title="Göstəricilər" description='"Bir komanda, on iki istiqamət" bölməsindəki rəqəmlər.'>
+    <PageShell user={user} title="Göstəricilər" description='"Bir komanda, yeddi istiqamət" bölməsindəki rəqəmlər.'>
       <StatsManager initial={initial.ok ? initial.data : undefined} />
     </PageShell>
   );

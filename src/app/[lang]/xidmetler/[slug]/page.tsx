@@ -22,7 +22,7 @@ const COPY: Record<Locale, { eyebrow: string; asked: string; askedNote: string; 
   ru: { eyebrow: "Услуга", asked: "Что мы спрашиваем в заявке", askedNote: "Три вопроса — достаточно для предварительной оценки.", others: "Другие услуги", all: "Все услуги" },
 };
 
-// One indexable page per service (SEO): ISR, the twelve built-in slugs are
+// One indexable page per service (SEO): ISR, the built-in slugs on offer are
 // prerendered, services added in the panel render on first request.
 export const revalidate = 3600;
 export const dynamicParams = true;

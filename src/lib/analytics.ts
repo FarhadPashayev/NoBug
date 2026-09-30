@@ -2,7 +2,7 @@
 
 import { sendGAEvent } from "@next/third-parties/google";
 
-// GA4 custom events. The taxonomy is the point: which of the twelve services
+// GA4 custom events. The taxonomy is the point: which of the services
 // people actually want. Measurement ID comes from NEXT_PUBLIC_GA_ID; when it
 // is unset nothing is loaded and these calls are no-ops.
 export type AnalyticsEvent =

@@ -22,7 +22,7 @@ export type Dictionary = {
   figures: [string, string, string][]; // value, label, source
   servicesTitle: string;
   servicesMeta: string;
-  servicesSecondary: string; // eyebrow of the quieter 8-item list
+  servicesSecondary: string; // eyebrow of the quieter secondary list
   services: [string, string][]; // title, one-line description — indexed in LEGACY_ORDER (lib/services.ts)
   projects: { eyebrow: string; title: string; items: [string, string, string][] }; // label, description, year
   caseStudy: {
@@ -53,7 +53,7 @@ export type Dictionary = {
     cardPrimary: string; // status badge on primary cards
     cardSecondary: string; // status badge on secondary cards
     cardSelect: string; // "+ Xidməti seç"
-    cardOf: string; // "12-dən" style meta: "{n} / 12"
+    cardOf: string; // "7-dən" style meta: "{n} / 7" — the number is replaced with the live count
     scrollPrev: string;
     scrollNext: string;
     altShelves: string;
@@ -121,7 +121,7 @@ const az: Dictionary = {
   alt05: "Üst-üstə düzülmüş sistem qatları, biri aksent rəngdə",
   alt07: "Tünd fonda kəsişən nazik optik lif xətləri, bir neçəsi aksent rəngdə",
   figures: [
-    ["12", "xidmət istiqaməti", "2026 · xidmət kataloqu"],
+    ["7", "xidmət istiqaməti", "2026 · xidmət kataloqu"],
     ["2", "istifadədə olan layihə", "2026 · beic.az, bbq.az"],
     ["< 2 saat", "dəstək müqaviləsində birinci cavab öhdəliyi", "2026 · SLA şərtləri"],
   ],
@@ -168,7 +168,7 @@ const az: Dictionary = {
     showcaseMetricDuration: "icra müddəti",
     showcaseMetricYear: "istehsalatda",
     readMore: "Ətraflı",
-    statsTitle: "Bir komanda, on iki istiqamət",
+    statsTitle: "Bir komanda, yeddi istiqamət",
     statsText: "Analitika, tətbiq və təhvildən sonrakı dəstək eyni komandanın məsuliyyətindədir.",
     founded: ["2026", "quruluş ili", "Bakı"],
     toolsLabel: "Alətlər",
@@ -181,7 +181,7 @@ const az: Dictionary = {
     cardPrimary: "Əsas istiqamət",
     cardSecondary: "Əlavə xidmət",
     cardSelect: "Xidməti seç",
-    cardOf: "12-dən",
+    cardOf: "7-dən",
     scrollPrev: "Əvvəlki",
     scrollNext: "Növbəti",
     altShelves: "Dörd nəfər ağ rəflərdə sarı və ağ qutuları nizamlayır — komanda işi",
@@ -260,7 +260,7 @@ const en: Dictionary = {
   alt05: "Stacked system layers, one in the accent colour",
   alt07: "Thin fibre lines crossing on a dark ground, a few in the accent colour",
   figures: [
-    ["12", "service areas", "2026 · service catalogue"],
+    ["7", "service areas", "2026 · service catalogue"],
     ["2", "projects in production", "2026 · beic.az, bbq.az"],
     ["< 2 hours", "first-response commitment in the support agreement", "2026 · SLA terms"],
   ],
@@ -307,7 +307,7 @@ const en: Dictionary = {
     showcaseMetricDuration: "delivery time",
     showcaseMetricYear: "in production",
     readMore: "Read more",
-    statsTitle: "One team, twelve directions",
+    statsTitle: "One team, seven directions",
     statsText: "Analysis, implementation and post-handover support sit with the same team.",
     founded: ["2026", "founded", "Baku"],
     toolsLabel: "Tooling",
@@ -320,7 +320,7 @@ const en: Dictionary = {
     cardPrimary: "Core service",
     cardSecondary: "Additional service",
     cardSelect: "Select service",
-    cardOf: "of 12",
+    cardOf: "of 7",
     scrollPrev: "Previous",
     scrollNext: "Next",
     altShelves: "Four people arranging yellow and white boxes on white shelving — teamwork",
@@ -399,7 +399,7 @@ const ru: Dictionary = {
   alt05: "Слои системы, уложенные друг на друга, один акцентного цвета",
   alt07: "Тонкие линии оптоволокна, пересекающиеся на тёмном фоне, несколько акцентного цвета",
   figures: [
-    ["12", "направлений услуг", "2026 · каталог услуг"],
+    ["7", "направлений услуг", "2026 · каталог услуг"],
     ["2", "проекта в работе", "2026 · beic.az, bbq.az"],
     ["< 2 часов", "обязательство по первому ответу в договоре поддержки", "2026 · условия SLA"],
   ],
@@ -446,7 +446,7 @@ const ru: Dictionary = {
     showcaseMetricDuration: "срок реализации",
     showcaseMetricYear: "в эксплуатации",
     readMore: "Подробнее",
-    statsTitle: "Одна команда, двенадцать направлений",
+    statsTitle: "Одна команда, семь направлений",
     statsText: "Аналитика, внедрение и поддержка после сдачи — ответственность одной команды.",
     founded: ["2026", "год основания", "Баку"],
     toolsLabel: "Инструменты",
@@ -459,7 +459,7 @@ const ru: Dictionary = {
     cardPrimary: "Основное направление",
     cardSecondary: "Дополнительная услуга",
     cardSelect: "Выбрать услугу",
-    cardOf: "из 12",
+    cardOf: "из 7",
     scrollPrev: "Назад",
     scrollNext: "Вперёд",
     altShelves: "Четыре человека раскладывают жёлтые и белые коробки на белых стеллажах — командная работа",
