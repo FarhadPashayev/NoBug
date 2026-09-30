@@ -448,29 +448,135 @@ body {
   transition: background-color 350ms ease-in-out;
 }
 
-/* Phones: every section paints its own ground. Two sections share the small
-   screen for a long stretch of the scroll, and a single page-level colour
-   can never be right for both — one section's copy ends up on the other's
-   colour. The body still fades underneath and tints the header.
-   Desktop (wide screen + mouse/trackpad, motion allowed): sections are
-   transparent and the whole page ground crossfades (700ms) as the section
-   in view changes — the original effect. Touch devices of any size keep the
-   per-section grounds: a finger fling moves several sections past the eye
-   inside one fade, which is where the copy became unreadable. */
+/* Two modes for the page ground.
+   Own-ground (phones, touch tablets, reduced motion): every section paints
+   its own colour; the body fade underneath only tints the header.
+   Crossfade (wide screen + mouse/trackpad, motion allowed): sections are
+   transparent, the whole page ground fades (700ms) to the colour of the
+   section at the centre of the screen — and everything that sits directly on
+   the ground changes ink with it. A single page colour can only be readable
+   for two sections at once if the copy follows the ground; cards, tiles and
+   filled buttons ("islands") carry their own background and keep their own
+   colours. */
 [data-bg="dark"] {
   background-color: #0b1f3a;
 }
 [data-bg="light"] {
   background-color: #f8f9fa;
 }
+
+/* ground-following ink — registered so the colours themselves can transition */
+@property --g-fg {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #0b1f3a;
+}
+@property --g-muted {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #5c6b80;
+}
+@property --g-line {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e3e7ee;
+}
+@property --g-accent {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #b57a1e;
+}
+@property --g-faint {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #5c6b80;
+}
+.hero-logo-dark {
+  display: none;
+}
+
 @media (min-width: 1024px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  /* sections only: the footer is too short to ever own the page ground (the
-     observer band never reaches it), so it always paints its own light ground */
-  section[data-bg] {
-    background-color: transparent;
+  html {
+    --g-fg: #0b1f3a; /* ink */
+    --g-muted: #5c6b80; /* grey */
+    --g-line: #e3e7ee; /* fog */
+    --g-accent: #b57a1e; /* yellow-700: accent text on light */
+    --g-faint: #5c6b80; /* the quietest line: full grey on light (a 60% tint is unreadable there) */
+    /* the ink flips in the middle of the 700ms ground fade, where both the
+       old and the new colour still read against the half-way ground */
+    transition:
+      --g-fg 160ms linear 270ms,
+      --g-muted 160ms linear 270ms,
+      --g-accent 160ms linear 270ms,
+      --g-faint 160ms linear 270ms,
+      --g-line 400ms linear 150ms;
+  }
+  html[data-page-bg="dark"] {
+    --g-fg: #ffffff;
+    --g-muted: #a9b7cb; /* grey-navy */
+    --g-line: #24354f; /* navy-line */
+    --g-accent: #efa83c; /* yellow */
+    --g-faint: #6a7a91; /* grey-navy at 60% over navy */
   }
   body {
     transition-duration: 700ms;
+  }
+
+  /* sections only: the footer always paints its own light ground */
+  section[data-bg] {
+    background-color: transparent;
+    color: var(--g-fg);
+  }
+  /* islands reset the inherited ink to their own */
+  section[data-bg] .bg-white {
+    color: var(--color-ink);
+  }
+  section[data-bg] :is(.bg-ink, .bg-ink-2, .bg-navy-800, .tile) {
+    color: #fff;
+  }
+  /* on the ground = not an island and not inside one */
+  section[data-bg] :is(.text-ink, .text-white, .hover\:text-ink:hover):not(:is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow), :is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow) *) {
+    color: var(--g-fg);
+  }
+  section[data-bg] :is(.text-grey, .text-grey-navy):not(:hover.hover\:text-ink):not(:is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow), :is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow) *) {
+    color: var(--g-muted);
+  }
+  section[data-bg] .text-white\/80:not(:is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow) *) {
+    color: color-mix(in srgb, var(--g-fg) 80%, transparent);
+  }
+  section[data-bg] .text-grey-navy\/60:not(:is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow) *) {
+    color: var(--g-faint);
+  }
+  section[data-bg] .text-yellow:not(:is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow) *) {
+    color: var(--g-accent);
+  }
+  section[data-bg] :is(.border-fog, .border-fog-navy, .lg\:border-fog-navy):not(:is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow), :is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow) *) {
+    border-color: var(--g-line);
+  }
+  section[data-bg] .hover\:border-white:hover:not(:is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow) *) {
+    border-color: var(--g-fg);
+  }
+  section[data-bg] .pill-outline:not(:is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow) *) {
+    color: var(--g-fg);
+    border-color: var(--g-line);
+  }
+  section[data-bg] .pill-outline:is(:hover, :focus-visible):not(:is(.bg-white, .bg-ink, .bg-ink-2, .bg-navy-800, .tile, .pill-yellow) *) {
+    border-color: var(--g-fg);
+  }
+  /* hero wordmark: the navy frame on light, the white frame on navy */
+  .hero-logo-dark {
+    display: block;
+    opacity: 0;
+    transition: opacity 160ms linear 270ms;
+  }
+  .hero-logo-light {
+    transition: opacity 160ms linear 270ms;
+  }
+  html[data-page-bg="dark"] .hero-logo-dark {
+    opacity: 1;
+  }
+  html[data-page-bg="dark"] .hero-logo-light {
+    opacity: 0;
   }
 }
 

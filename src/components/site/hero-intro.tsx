@@ -34,6 +34,7 @@ type Phase = "intro" | "move" | "final";
 const LOGO = "/assets/anim/nobug-logo-animated-light.svg";
 // same wordmark, no SMIL: the animated file keeps drawing for ~3.4 s, which is what the LCP would wait for on phones
 const LOGO_STATIC = "/assets/logo-navy-amber.svg";
+const LOGO_STATIC_DARK = "/assets/logo-white-amber.svg";
 const SEEN_KEY = "nobug.hero-intro";
 const SVG_DURATION = 3400; // the SVG's own animation ends at ~3.3s
 const MOVE_DURATION = 700;
@@ -205,16 +206,23 @@ export function HeroIntro({
               // an uploaded banner image takes the whole column as a tile
               className={image ? "w-full overflow-hidden rounded-[24px]" : "mx-auto w-[70%] py-[clamp(12px,2vw,24px)]"}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- animated SVG must not go through the image optimizer */}
-              <img
-                src={src}
-                alt=""
-                width={960}
-                height={image ? 720 : 290}
-                fetchPriority="high"
-                decoding="async"
-                className={image ? "block h-auto w-full object-cover" : "block h-auto w-full"}
-              />
+              <div className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element -- animated SVG must not go through the image optimizer */}
+                <img
+                  src={src}
+                  alt=""
+                  width={960}
+                  height={image ? 720 : 290}
+                  fetchPriority="high"
+                  decoding="async"
+                  className={image ? "block h-auto w-full object-cover" : "hero-logo-light block h-auto w-full"}
+                />
+                {/* white wordmark for the navy ground — desktop crossfade only (display:none elsewhere, so it is never fetched) */}
+                {!image && (
+                  // eslint-disable-next-line @next/next/no-img-element -- plain SVG frame
+                  <img src={LOGO_STATIC_DARK} alt="" width={960} height={290} loading="lazy" decoding="async" className="hero-logo-dark absolute inset-0 h-auto w-full" />
+                )}
+              </div>
             </div>
           </div>
         </div>
