@@ -29,12 +29,12 @@ export function FaqList({ items }: { items: Item[] }) {
               className="group flex w-max max-w-full items-center gap-3 border-0 bg-transparent p-0 text-left outline-none"
             >
               {/* the question: navy bubble, square at the bottom-left like a sent message */}
-              <span className="bg-ink inline-block max-w-full rounded-[24px] rounded-bl-[6px] px-6 py-4 text-[clamp(17px,1.5vw,21px)] font-medium leading-[1.3] tracking-[-0.015em] text-white shadow-[0_8px_24px_-12px_rgba(11,31,58,0.5)] transition-transform duration-200 ease-[var(--ease-brand)] group-hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-yellow group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-light">
+              <span className="bg-ink inline-block max-w-full rounded-[24px] rounded-bl-[6px] px-6 py-4 text-[clamp(17px,1.5vw,21px)] font-medium leading-[1.3] tracking-[-0.015em] text-white shadow-[0_8px_24px_-12px_rgba(11,31,58,0.5)] transition-[translate] duration-200 ease-[var(--ease-brand)] group-hover:-translate-y-0.5 group-focus-visible:ring-2 group-focus-visible:ring-yellow group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-light">
                 {f.question}
               </span>
               <span
                 aria-hidden="true"
-                className="bg-white grid size-11 flex-none place-items-center rounded-full border border-fog text-ink shadow-[0_4px_14px_rgba(11,31,58,0.08)] transition-transform duration-200 ease-[var(--ease-brand)] group-hover:scale-105"
+                className="bg-white grid size-11 flex-none place-items-center rounded-full border border-fog text-ink shadow-[0_4px_14px_rgba(11,31,58,0.08)] transition-[scale] duration-200 ease-[var(--ease-brand)] group-hover:scale-105"
               >
                 {expanded ? <Minus size={18} /> : <Plus size={18} />}
               </span>
