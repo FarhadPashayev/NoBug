@@ -12,6 +12,7 @@ import { Position } from "@/components/landing/position";
 import { ServicesGrid } from "@/components/landing/services-grid";
 import { Standards } from "@/components/landing/standards";
 import { Faq } from "@/components/landing/faq";
+import { Testimonials } from "@/components/landing/testimonials";
 import { Cta } from "@/components/landing/cta";
 import { Footer } from "@/components/landing/footer";
 
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return { title: { absolute: getDict(lang).meta.title } };
 }
 
-// Background rhythm (fortemplate/): light → dark → dark → light → light → light (FAQ) → dark → light.
+// Background rhythm (fortemplate/): light → dark → dark → light → light → dark (rəylər) → light (FAQ) → dark → light.
 // Each section declares data-bg; <ScrollColorWrapper> fades the page ground between them.
 export default async function HomePage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
@@ -45,6 +46,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
         <Position t={t} />
         <ServicesGrid lang={lang} t={t} content={content} />
         <Standards t={t} content={content} />
+        <Testimonials t={t} content={content} />
         <Faq lang={lang} t={t} content={content} />
         <Cta lang={lang} t={t} content={content} />
       </main>

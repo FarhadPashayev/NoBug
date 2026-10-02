@@ -270,3 +270,24 @@ model Faq {
 
   @@index([order])
 }
+
+/// "Müştərilər nə deyir" — client reviews; the featured one is the big photo card
+model Testimonial {
+  id         String   @id @default(cuid())
+  name       String
+  /// role / company line under the name
+  role       Json?
+  quote      Json
+  rating     Int      @default(5)
+  avatarUrl  String?
+  avatarPath String?
+  /// photo for the featured card only
+  photoUrl   String?
+  photoPath  String?
+  isFeatured Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  order      Int      @default(0)
+  updatedAt  DateTime @updatedAt
+
+  @@index([order])
+}

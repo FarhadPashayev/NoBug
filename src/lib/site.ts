@@ -7,7 +7,8 @@ export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "no.bug.mm
 // Canonical host: nobug.az redirects (308) to www, so the www form is the default.
 export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.nobug.az").replace(/\/+$/, "");
 
-export const LINKEDIN_URL = "https://www.linkedin.com/company/nobug";
+export const LINKEDIN_URL = "https://www.linkedin.com/company/nobugsolutions/";
+export const INSTAGRAM_URL = "https://www.instagram.com/nobugsolutions/";
 
 /**
  * "production" on www.nobug.az, "preview" on the dev deployment

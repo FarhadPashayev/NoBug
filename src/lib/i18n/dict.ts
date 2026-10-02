@@ -92,6 +92,7 @@ export type Dictionary = {
   footerCols: [string, string[]][]; // Xidmətlər (from FOOTER_SERVICES) · Şirkət · Hüquqi
   footerContact: string; // "Əlaqə" column title — items come from lib/site.ts
   legal: string[];
+  testimonials: { title: string; lead: string; ratingLabel: string }; // "Müştərilər nə deyir" — reviews come from the panel
   faq: { title: string; lead: string; ask: string; items: [string, string][] }; // question, answer — seed copy; the panel owns it afterwards
   consent: { text: string; accept: string; decline: string; more: string }; // cookie banner (only when analytics is on)
   menu: string;
@@ -247,6 +248,7 @@ const az: Dictionary = {
     ],
   },
   consent: { text: "Sayt ziyarətlərin sayını ölçmək üçün Google Analytics cookie-lərindən istifadə edir. Razısınız?", accept: "Qəbul et", decline: "Rədd et", more: "Məxfilik siyasəti" },
+  testimonials: { title: "Müştərilər nə deyir", lead: "Təhvil verdiyimiz işlər haqqında müştərilərin öz sözləri.", ratingLabel: "5-dən {n}" },
   menu: "Menyu",
   home: "Ana səhifə",
 };
@@ -400,6 +402,7 @@ const en: Dictionary = {
     ],
   },
   consent: { text: "This site uses Google Analytics cookies to measure visits. Do you agree?", accept: "Accept", decline: "Decline", more: "Privacy policy" },
+  testimonials: { title: "What our clients say", lead: "Clients in their own words about the work we handed over.", ratingLabel: "{n} out of 5" },
   menu: "Menu",
   home: "Home",
 };
@@ -553,6 +556,7 @@ const ru: Dictionary = {
     ],
   },
   consent: { text: "Сайт использует cookie Google Analytics для подсчёта посещений. Вы согласны?", accept: "Принять", decline: "Отклонить", more: "Политика конфиденциальности" },
+  testimonials: { title: "Что говорят клиенты", lead: "Слова клиентов о работе, которую мы сдали.", ratingLabel: "{n} из 5" },
   menu: "Меню",
   home: "Главная",
 };

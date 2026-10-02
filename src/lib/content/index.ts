@@ -21,6 +21,7 @@ export type SiteContent = {
   services: { id: string; slug: string; name: string; shortDescription: string; details: string; icon: string; imageUrl: string | null; primary: boolean; categorySlug: string | null }[];
   specs: { area: string; approach: string; tooling: string; status: string }[];
   faq: { id: string; question: string; answer: string }[];
+  testimonials: { id: string; name: string; role: string; quote: string; rating: number; avatarUrl: string | null; photoUrl: string | null; isFeatured: boolean }[];
   settings: {
     email: string;
     phones: string[];
@@ -72,6 +73,7 @@ function fromDictionary(locale: Locale): SiteContent {
     }),
     specs: d.techRows.map(([area, approach, tooling, status]) => ({ area, approach, tooling, status })),
     faq: d.faq.items.map(([question, answer], i) => ({ id: `dict-faq-${i}`, question, answer })),
+    testimonials: [], // never invented: the panel is the only source
     settings: {
       email: CONTACT_EMAIL,
       phones: [],
@@ -89,7 +91,7 @@ function fromDictionary(locale: Locale): SiteContent {
 }
 
 async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
-  const [hero, logos, projects, stats, services, groups, settings, faq] = await Promise.all([
+  const [hero, logos, projects, stats, services, groups, settings, faq, testimonials] = await Promise.all([
     prisma.hero.findUnique({ where: { id: "singleton" } }),
     prisma.partnerLogo.findMany({ where: { isActive: true }, orderBy: { order: "asc" } }),
     prisma.project.findMany({ where: { isPublished: true }, orderBy: [{ isFeatured: "desc" }, { order: "asc" }], include: { tags: true } }),
@@ -98,6 +100,7 @@ async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
     prisma.specGroup.findMany({ orderBy: { order: "asc" }, include: { items: { orderBy: { order: "asc" } } } }),
     prisma.siteSettings.findUnique({ where: { id: "singleton" }, include: { footerLinks: { orderBy: { order: "asc" } } } }),
     prisma.faq.findMany({ where: { isActive: true }, orderBy: { order: "asc" } }),
+    prisma.testimonial.findMany({ where: { isActive: true }, orderBy: [{ isFeatured: "desc" }, { order: "asc" }] }),
   ]);
   // an empty database (tables pushed, nothing seeded) keeps the dictionary copy
   if (!hero || !services.length) return null;
@@ -142,6 +145,7 @@ async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
     })),
     specs: groups.flatMap((g) => g.items.map((i) => ({ area: t(g.name, locale), approach: t(i.name, locale), tooling: i.value, status: i.unit }))),
     faq: faq.map((f) => ({ id: f.id, question: t(f.question, locale), answer: t(f.answer, locale) })),
+    testimonials: testimonials.map((r) => ({ id: r.id, name: r.name, role: t(r.role, locale), quote: t(r.quote, locale), rating: r.rating, avatarUrl: r.avatarUrl, photoUrl: r.photoUrl, isFeatured: r.isFeatured })),
     settings: settings
       ? {
           email: settings.email || CONTACT_EMAIL,

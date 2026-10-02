@@ -8,7 +8,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  */
 
 export const MEDIA_BUCKET = process.env.MEDIA_BUCKET || "media";
-export const MEDIA_FOLDERS = ["hero", "partners", "projects", "services"] as const;
+export const MEDIA_FOLDERS = ["hero", "partners", "projects", "services", "testimonials"] as const;
 export type MediaFolder = (typeof MEDIA_FOLDERS)[number];
 
 export const hasStorage = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);

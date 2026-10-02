@@ -3,7 +3,7 @@ import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 import { DICT } from "@/lib/i18n/dict";
 import { loc, type Localized } from "@/lib/i18n/localized";
 import { FOOTER_SERVICES, LEGACY_ORDER, PRIMARY_SERVICES, RETIRED_SERVICES, SECONDARY_SERVICES } from "@/lib/services";
-import { CONTACT_EMAIL, LINKEDIN_URL } from "@/lib/site";
+import { CONTACT_EMAIL, INSTAGRAM_URL, LINKEDIN_URL } from "@/lib/site";
 import { slugify } from "@/lib/utils";
 
 // Moves the copy that ships in src/lib/i18n/dict.ts into the database in all
@@ -118,7 +118,7 @@ export async function seedContent(prisma: PrismaClient) {
     address: json(L((d) => d.contactRows[0][1])),
     hours: json(L((d) => d.contactRows[1][1])),
     linkedin: LINKEDIN_URL,
-    instagram: "",
+    instagram: INSTAGRAM_URL,
     facebook: "",
     youtube: "",
     x: "",

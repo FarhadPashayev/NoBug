@@ -1,4 +1,4 @@
-import { BarChart3, FileText, HelpCircle, Image as ImageIcon, Inbox, LayoutDashboard, ListTree, Settings, Table2, type LucideIcon } from "lucide-react";
+import { BarChart3, FileText, HelpCircle, Image as ImageIcon, Inbox, LayoutDashboard, ListTree, MessageSquareQuote, Settings, Table2, type LucideIcon } from "lucide-react";
 
 export type NavItem = { href: string; label: string; icon: LucideIcon };
 export type NavGroup = { label: string; items: NavItem[] };
@@ -14,6 +14,7 @@ export const NAV: NavGroup[] = [
       { href: "/admin/stats", label: "Göstəricilər", icon: BarChart3 },
       { href: "/admin/services", label: "Xidmətlər", icon: ListTree },
       { href: "/admin/specs", label: "Standartlar", icon: Table2 },
+      { href: "/admin/testimonials", label: "Rəylər", icon: MessageSquareQuote },
       { href: "/admin/faq", label: "Suallar", icon: HelpCircle },
     ],
   },
