@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
     // the proxy matcher skips (robots, sitemap, assets…) — otherwise the
     // apex would serve a second copy of them.
     const hosts = ["nobug.az", "no-bug-eta.vercel.app"];
-    const sources = ["/:file(robots\\.txt|sitemap\\.xml|sw\\.js|offline\\.html|favicon\\.ico)", "/assets/:path*", "/uploads/:path*"];
+    const sources = ["/:file(robots\\.txt|sitemap\\.xml|llms\\.txt|llms-full\\.txt|sw\\.js|offline\\.html|favicon\\.ico)", "/assets/:path*", "/uploads/:path*"];
     return [
       ...hosts.flatMap((host) =>
         sources.map((source) => ({

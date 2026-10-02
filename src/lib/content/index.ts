@@ -20,6 +20,7 @@ export type SiteContent = {
   stats: { value: string; label: string; source: string }[];
   services: { id: string; slug: string; name: string; shortDescription: string; details: string; icon: string; imageUrl: string | null; primary: boolean; categorySlug: string | null }[];
   specs: { area: string; approach: string; tooling: string; status: string }[];
+  faq: { id: string; question: string; answer: string }[];
   settings: {
     email: string;
     phones: string[];
@@ -27,8 +28,13 @@ export type SiteContent = {
     hours: string;
     social: { linkedin: string; instagram: string; facebook: string; youtube: string; x: string };
     footerLinks: Record<"services" | "company" | "legal", { label: string; href: string }[]>;
+    legal: LegalEntity;
   };
 };
+
+/** Legal-entity details from Sayt parametrləri; every field may be empty until the client provides it. */
+export type LegalEntity = { name: string; taxId: string; address: string };
+const NO_ENTITY: LegalEntity = { name: "", taxId: "", address: "" };
 
 /** "/anket" → "/az/anket"; "#xidmetler" → "/az#xidmetler"; absolute URLs untouched. */
 export function localizeHref(href: string, locale: Locale) {
@@ -65,6 +71,7 @@ function fromDictionary(locale: Locale): SiteContent {
       return { id, slug: id, name, shortDescription, details: "", icon: "", imageUrl: null, primary, categorySlug: primary ? "esas" : "elave" };
     }),
     specs: d.techRows.map(([area, approach, tooling, status]) => ({ area, approach, tooling, status })),
+    faq: d.faq.items.map(([question, answer], i) => ({ id: `dict-faq-${i}`, question, answer })),
     settings: {
       email: CONTACT_EMAIL,
       phones: [],
@@ -76,12 +83,13 @@ function fromDictionary(locale: Locale): SiteContent {
         company: d.footerCols[1][1].map((label, i) => ({ label, href: `/${locale}${["#haqqinda", "#karyera", "#elaqe"][i] ?? "#top"}` })),
         legal: [],
       },
+      legal: NO_ENTITY,
     },
   };
 }
 
 async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
-  const [hero, logos, projects, stats, services, groups, settings] = await Promise.all([
+  const [hero, logos, projects, stats, services, groups, settings, faq] = await Promise.all([
     prisma.hero.findUnique({ where: { id: "singleton" } }),
     prisma.partnerLogo.findMany({ where: { isActive: true }, orderBy: { order: "asc" } }),
     prisma.project.findMany({ where: { isPublished: true }, orderBy: [{ isFeatured: "desc" }, { order: "asc" }], include: { tags: true } }),
@@ -89,6 +97,7 @@ async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
     prisma.service.findMany({ where: { isActive: true }, orderBy: { order: "asc" }, include: { category: true } }),
     prisma.specGroup.findMany({ orderBy: { order: "asc" }, include: { items: { orderBy: { order: "asc" } } } }),
     prisma.siteSettings.findUnique({ where: { id: "singleton" }, include: { footerLinks: { orderBy: { order: "asc" } } } }),
+    prisma.faq.findMany({ where: { isActive: true }, orderBy: { order: "asc" } }),
   ]);
   // an empty database (tables pushed, nothing seeded) keeps the dictionary copy
   if (!hero || !services.length) return null;
@@ -132,6 +141,7 @@ async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
       categorySlug: s.category?.slug ?? null,
     })),
     specs: groups.flatMap((g) => g.items.map((i) => ({ area: t(g.name, locale), approach: t(i.name, locale), tooling: i.value, status: i.unit }))),
+    faq: faq.map((f) => ({ id: f.id, question: t(f.question, locale), answer: t(f.answer, locale) })),
     settings: settings
       ? {
           email: settings.email || CONTACT_EMAIL,
@@ -140,6 +150,7 @@ async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
           hours: t(settings.hours, locale),
           social: { linkedin: settings.linkedin, instagram: settings.instagram, facebook: settings.facebook, youtube: settings.youtube, x: settings.x },
           footerLinks: { services: links("services"), company: links("company"), legal: links("legal") },
+          legal: { name: settings.legalName, taxId: settings.taxId, address: t(settings.legalAddress, locale) },
         }
       : fallback.settings,
   };
@@ -193,5 +204,16 @@ export async function getSiteContent(locale: Locale): Promise<SiteContent> {
   } catch (e) {
     console.error("[content] database read failed, using dictionary:", e);
     return fromDictionary(locale);
+  }
+}
+
+/** The legal pages print the entity block; they are static, so this is cached per render and revalidated with the settings. */
+export async function getLegalEntity(locale: Locale): Promise<LegalEntity> {
+  if (!hasDatabase) return NO_ENTITY;
+  try {
+    const s = await prisma.siteSettings.findUnique({ where: { id: "singleton" }, select: { legalName: true, taxId: true, legalAddress: true } });
+    return s ? { name: s.legalName, taxId: s.taxId, address: t(s.legalAddress, locale) } : NO_ENTITY;
+  } catch {
+    return NO_ENTITY;
   }
 }

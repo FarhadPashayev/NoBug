@@ -19,6 +19,9 @@ export async function getSettings() {
       email: s.email,
       address: asLocalized(s.address),
       hours: asLocalized(s.hours),
+      legalName: s.legalName,
+      taxId: s.taxId,
+      legalAddress: asLocalized(s.legalAddress),
       linkedin: s.linkedin,
       instagram: s.instagram,
       facebook: s.facebook,
@@ -38,6 +41,9 @@ export async function saveSettings(input: unknown) {
       email: v.email,
       address: json(v.address),
       hours: json(v.hours),
+      legalName: v.legalName,
+      taxId: v.taxId,
+      legalAddress: json(v.legalAddress),
       linkedin: v.linkedin,
       instagram: v.instagram,
       facebook: v.facebook,
@@ -50,7 +56,7 @@ export async function saveSettings(input: unknown) {
       prisma.footerLink.deleteMany({ where: { settingsId: "singleton" } }),
       prisma.footerLink.createMany({ data: v.footerLinks.map((l, order) => ({ settingsId: "singleton", group: l.group, label: json(l.label), url: l.url, order })) }),
     ]);
-    revalidateSite("/anket");
+    revalidateSite("/anket", "/llms.txt", "/llms-full.txt", "/mexfilik-siyaseti", "/istifade-shertleri", "/melumatlarin-emali", "/privacy-policy", "/terms-of-use", "/data-processing", "/politika-konfidencialnosti", "/usloviya-ispolzovaniya", "/obrabotka-dannyh");
     return null;
   });
 }

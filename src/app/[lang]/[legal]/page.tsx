@@ -5,15 +5,25 @@ import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { LEGAL, LEGAL_KEYS, LEGAL_SLUGS, legalHref, legalKeyFromSlug } from "@/lib/legal";
 import { absoluteUrl } from "@/lib/site";
+import { getLegalEntity } from "@/lib/content";
 import { notFoundMetadata } from "@/lib/not-found";
 import { LangSwitcher } from "@/components/ui/lang-switcher";
 import { Logo } from "@/components/ui/logo";
 
 type Props = { params: Promise<{ lang: string; legal: string }> };
 
+// the entity block comes from Sayt parametrləri: re-rendered when the panel saves, hourly otherwise
+export const revalidate = 3600;
+export const dynamicParams = true;
 export function generateStaticParams() {
   return LOCALES.flatMap((lang) => LEGAL_KEYS.map((key) => ({ lang, legal: LEGAL_SLUGS[lang][key] })));
 }
+
+const ENTITY_LABELS: Record<Locale, { title: string; taxId: string; address: string }> = {
+  az: { title: "Rekvizitlər", taxId: "VÖEN", address: "Qeydiyyat ünvanı" },
+  en: { title: "Company details", taxId: "Tax ID (VÖEN)", address: "Registered address" },
+  ru: { title: "Реквизиты", taxId: "ИНН (VÖEN)", address: "Юридический адрес" },
+};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang, legal } = await params;
@@ -39,6 +49,9 @@ export default async function LegalPage({ params }: Props) {
   if (!key) notFound();
   const doc = LEGAL[lang][key];
   const t = getDict(lang);
+  const entity = await getLegalEntity(lang);
+  const hasEntity = Boolean(entity.name || entity.taxId || entity.address);
+  const labels = ENTITY_LABELS[lang];
   const paths = Object.fromEntries(LOCALES.map((l) => [l, `/${LEGAL_SLUGS[l][key]}`])) as Record<Locale, string>;
 
   return (
@@ -79,6 +92,34 @@ export default async function LegalPage({ params }: Props) {
               )}
             </section>
           ))}
+
+          {hasEntity && (
+            <section className="mt-10" aria-labelledby="entity">
+              <h2 id="entity" className="text-[22px] font-medium leading-[1.24] tracking-[-0.015em]">
+                {labels.title}
+              </h2>
+              <dl className="type-body mt-4 grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1.5">
+                {entity.name && (
+                  <>
+                    <dt className="text-muted">{t.footerCols[1][0]}</dt>
+                    <dd className="m-0">{entity.name}</dd>
+                  </>
+                )}
+                {entity.taxId && (
+                  <>
+                    <dt className="text-muted">{labels.taxId}</dt>
+                    <dd className="m-0 font-mono">{entity.taxId}</dd>
+                  </>
+                )}
+                {entity.address && (
+                  <>
+                    <dt className="text-muted">{labels.address}</dt>
+                    <dd className="m-0">{entity.address}</dd>
+                  </>
+                )}
+              </dl>
+            </section>
+          )}
 
           <div className="mt-14 border-t border-hairline pt-6">
             <p className="type-small text-muted">{doc.note}</p>

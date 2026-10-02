@@ -18,6 +18,10 @@ export const settingsSchema = z.object({
   email: z.union([z.literal(""), z.string().trim().email("Düzgün e-poçt deyil")]).default(""),
   address: localizedString(200, false),
   hours: localizedString(120, false),
+  // legal entity — printed on the privacy / terms / processing pages when set
+  legalName: str(160).default(""),
+  taxId: str(40).default(""),
+  legalAddress: localizedString(240, false),
   linkedin: url.default(""),
   instagram: url.default(""),
   facebook: url.default(""),

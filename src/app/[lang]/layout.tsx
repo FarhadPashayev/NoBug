@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Inter_Tight, Newsreader } from "next/font/google";
 import { notFound } from "next/navigation";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { Consent } from "@/components/site/consent";
+import { legalHref } from "@/lib/legal";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { CONTACT_EMAIL, IS_PREVIEW, SITE_URL, absoluteUrl } from "@/lib/site";
@@ -69,6 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function LangLayout({ children, params }: Props) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
+  const dict = getDict(lang);
 
   const orgJsonLd = {
     "@context": "https://schema.org",
@@ -90,8 +92,8 @@ export default async function LangLayout({ children, params }: Props) {
         <OfflineBanner lang={lang} />
         <ServiceWorkerRegister />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
-        {/* GA4 — loaded after hydration (afterInteractive); off entirely when the ID is unset */}
-        {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
+        {/* GA4 — only after the visitor accepts the cookie banner; off entirely when the ID is unset */}
+        {process.env.NEXT_PUBLIC_GA_ID && <Consent gaId={process.env.NEXT_PUBLIC_GA_ID} t={dict.consent} privacyHref={legalHref(lang, "privacy")} />}
       </body>
     </html>
   );

@@ -52,7 +52,7 @@ const az: Record<LegalKey, LegalDoc> = {
         h: "4. Məlumat nə üçün istifadə olunur",
         list: ["müraciətinizə cavab vermək və sizinlə əlaqə saxlamaq;", "layihə üzrə ilkin qiymətləndirmə və təklif hazırlamaq;", "saytın istifadəsini ölçmək və məzmunu təkmilləşdirmək."],
       },
-      { h: "5. Hüquqi əsas", p: ["Emalın əsası razılığınızdır. Razılıq formu göndərməklə verilir. Analitika üçün razılıq brauzer parametrləri və gələcəkdə əlavə olunacaq cookie seçimi vasitəsilə idarə olunur."] },
+      { h: "5. Hüquqi əsas", p: ["Emalın əsası razılığınızdır. Razılıq formu göndərməklə verilir. Analitika üçün razılıq saytın aşağısında çıxan cookie banneri və brauzer parametrləri vasitəsilə idarə olunur; razılıq verilməyənə qədər analitika cookie-ləri yazılmır."] },
       {
         h: "6. Məlumat kimə ötürülür",
         p: ["Məlumat üçüncü tərəflərə satılmır. Yalnız aşağıdakı xidmət təminatçıları texniki emal üçün məlumata çıxış ala bilər:"],
@@ -128,7 +128,7 @@ const en: Record<LegalKey, LegalDoc> = {
       },
       { h: "3. What is not collected", p: ["No payment data is collected. Health, political opinion, religion and other sensitive categories are neither requested nor processed."] },
       { h: "4. Why it is used", list: ["to respond to your enquiry and stay in contact;", "to prepare an initial assessment and a proposal;", "to measure site usage and improve the content."] },
-      { h: "5. Legal basis", p: ["Processing is based on your consent, given by submitting the form. Consent for analytics is managed through browser settings and, in future, a cookie choice on the site."] },
+      { h: "5. Legal basis", p: ["Processing is based on your consent, given by submitting the form. Consent for analytics is managed through the cookie banner at the bottom of the site and your browser settings; no analytics cookie is set until you accept."] },
       {
         h: "6. Who it is shared with",
         p: ["Data is not sold to third parties. Only the following service providers may access it for technical processing:"],
@@ -196,7 +196,7 @@ const ru: Record<LegalKey, LegalDoc> = {
       },
       { h: "3. Что не собирается", p: ["Платёжные данные не собираются. Данные о здоровье, политических взглядах, религии и другие чувствительные категории не запрашиваются и не обрабатываются."] },
       { h: "4. Для чего используются данные", list: ["чтобы ответить на ваш запрос и поддерживать связь;", "чтобы подготовить предварительную оценку и предложение;", "чтобы измерять использование сайта и улучшать содержание."] },
-      { h: "5. Правовое основание", p: ["Основание обработки — ваше согласие, которое даётся отправкой формы. Согласие на аналитику управляется настройками браузера и, в будущем, выбором cookie на сайте."] },
+      { h: "5. Правовое основание", p: ["Основание обработки — ваше согласие, которое даётся отправкой формы. Согласие на аналитику управляется через cookie-баннер внизу сайта и настройки браузера; до вашего согласия cookie аналитики не устанавливаются."] },
       {
         h: "6. Кому передаются данные",
         p: ["Данные не продаются третьим лицам. Доступ для технической обработки могут получать только следующие поставщики услуг:"],

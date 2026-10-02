@@ -228,18 +228,22 @@ model Lead {
 
 /// Contact details, social links and footer. Single row, id = "singleton".
 model SiteSettings {
-  id          String       @id @default("singleton")
-  phones      String[]     @default([])
-  email       String       @default("")
-  address     Json
-  hours       Json
-  linkedin    String       @default("")
-  instagram   String       @default("")
-  facebook    String       @default("")
-  youtube     String       @default("")
-  x           String       @default("")
-  footerLinks FooterLink[]
-  updatedAt   DateTime     @updatedAt
+  id           String       @id @default("singleton")
+  phones       String[]     @default([])
+  email        String       @default("")
+  address      Json
+  hours        Json
+  /// legal entity details shown on the privacy / terms / processing pages
+  legalName    String       @default("")
+  taxId        String       @default("")
+  legalAddress Json?
+  linkedin     String       @default("")
+  instagram    String       @default("")
+  facebook     String       @default("")
+  youtube      String       @default("")
+  x            String       @default("")
+  footerLinks  FooterLink[]
+  updatedAt    DateTime     @updatedAt
 }
 
 model FooterLink {
@@ -253,4 +257,16 @@ model FooterLink {
   order      Int          @default(0)
 
   @@index([group, order])
+}
+
+/// "Tez-tez verilən suallar" — chat-bubble FAQ on the home page (+ FAQPage JSON-LD)
+model Faq {
+  id        String   @id @default(cuid())
+  question  Json
+  answer    Json
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
 }

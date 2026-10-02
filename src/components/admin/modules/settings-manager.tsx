@@ -21,6 +21,9 @@ const EMPTY: SettingsInput = {
   email: "",
   address: emptyLocalized(),
   hours: emptyLocalized(),
+  legalName: "",
+  taxId: "",
+  legalAddress: emptyLocalized(),
   linkedin: "",
   instagram: "",
   facebook: "",
@@ -110,6 +113,21 @@ export function SettingsManager({ initial }: { initial?: SettingsData }) {
           </div>
           <LocalizedField control={control} name="address" label="Ünvan" placeholder="Bakı, Azərbaycan" error={localizedError(errors.address)} />
           <LocalizedField control={control} name="hours" label="İş saatları" placeholder="B.e — Cümə, 09:00 — 18:00" error={localizedError(errors.hours)} />
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader title="Hüquqi rekvizitlər" description="Məxfilik siyasəti, İstifadə şərtləri və Məlumatların emalı səhifələrində göstərilir. Boş olan sətir çap olunmur." />
+        <CardBody className="grid gap-4 sm:grid-cols-2">
+          <Field label="Hüquqi ad" htmlFor="legalName" error={errors.legalName?.message}>
+            <Input id="legalName" placeholder='"nobug" MMC' {...register("legalName")} />
+          </Field>
+          <Field label="VÖEN" htmlFor="taxId" error={errors.taxId?.message}>
+            <Input id="taxId" inputMode="numeric" placeholder="1234567890" {...register("taxId")} />
+          </Field>
+          <div className="sm:col-span-2">
+            <LocalizedField control={control} name="legalAddress" label="Qeydiyyat ünvanı" placeholder="Bakı şəhəri, … küçəsi 1" error={localizedError(errors.legalAddress)} />
+          </div>
         </CardBody>
       </Card>
 

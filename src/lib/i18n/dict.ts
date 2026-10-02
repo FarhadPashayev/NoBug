@@ -92,6 +92,8 @@ export type Dictionary = {
   footerCols: [string, string[]][]; // Xidmətlər (from FOOTER_SERVICES) · Şirkət · Hüquqi
   footerContact: string; // "Əlaqə" column title — items come from lib/site.ts
   legal: string[];
+  faq: { title: string; lead: string; ask: string; items: [string, string][] }; // question, answer — seed copy; the panel owns it afterwards
+  consent: { text: string; accept: string; decline: string; more: string }; // cookie banner (only when analytics is on)
   menu: string;
   home: string;
 };
@@ -231,6 +233,20 @@ const az: Dictionary = {
   ],
   footerContact: "Əlaqə",
   legal: ['"nobug" MMC', "Bakı, Azərbaycan", "© 2026"],
+  faq: {
+    title: "Tez-tez verilən suallar",
+    lead: "Ən çox soruşulanlara qısa cavablar. Qalanı üçün bizə yazın.",
+    ask: "Sualınız qaldı? Yazın",
+    items: [
+      ["Müraciətdən sonra nə baş verir?", "Sorğu bizə e-poçtla gəlir; adətən bir iş günü ərzində ilkin qiymətləndirmə ilə qayıdırıq. İlk görüş və ilkin qiymətləndirmə ödənişsizdir."],
+      ["Hansı istiqamətlərdə işləyirsiniz?", "Yeddi istiqamət: veb və e-ticarət, keyfiyyət təminatı, CRM və ERP tətbiqi, data analitikası, rəqəmsal marketinq, mobil tətbiqlər və süni intellekt həlləri. Hər birini ayrıca da, birlikdə də götürmək olar."],
+      ["Layihə bir neçə podratçı arasında bölünür?", "Xeyr. Analitika, tətbiq və təhvildən sonrakı dəstək eyni komandanın məsuliyyətindədir; hər mərhələnin təhvil sənədi və müddəti müqavilədə göstərilir."],
+      ["Təhvildən sonra dəstək varmı?", "Var. Dəstək müqaviləsində birinci cavab öhdəliyi 2 saatdan azdır. Sistem və API izlənməsi, şifrələnmiş ehtiyat nüsxə və bərpa testi standart hissədir."],
+      ["Sayt və sənədlər hansı dillərdədir?", "Sayt, sorğu forması və hüquqi sənədlər üç dildədir: Azərbaycan, ingilis və rus."],
+      ["Şirkət haradadır və nə vaxt qurulub?", "nobug 2026-cı ildə Bakıda qurulub. Komanda mühəndislik, QA və dəstək istiqamətlərini əhatə edir; ilk layihələr beic.az və bbq.az saytlarıdır."],
+    ],
+  },
+  consent: { text: "Sayt ziyarətlərin sayını ölçmək üçün Google Analytics cookie-lərindən istifadə edir. Razısınız?", accept: "Qəbul et", decline: "Rədd et", more: "Məxfilik siyasəti" },
   menu: "Menyu",
   home: "Ana səhifə",
 };
@@ -370,6 +386,20 @@ const en: Dictionary = {
   ],
   footerContact: "Contact",
   legal: ['"nobug" LLC', "Baku, Azerbaijan", "© 2026"],
+  faq: {
+    title: "Frequently asked questions",
+    lead: "Short answers to what we are asked most. For anything else, write to us.",
+    ask: "Still have a question? Write to us",
+    items: [
+      ["What happens after I send an enquiry?", "The enquiry reaches us by e-mail; we usually come back with an initial assessment within one business day. The first meeting and the initial assessment are free of charge."],
+      ["Which areas do you work in?", "Seven: web and e-commerce, quality assurance, CRM and ERP implementation, data analytics, digital marketing, mobile development and AI solutions. Each can be taken on its own or together."],
+      ["Is the project split between several contractors?", "No. Analysis, implementation and post-handover support are the responsibility of the same team; the deliverable and the deadline of every stage are written into the contract."],
+      ["Is there support after handover?", "Yes. The support agreement carries a first-response commitment of under 2 hours. System and API monitoring, encrypted backups and restore tests are part of the standard."],
+      ["Which languages are the site and the documents in?", "The site, the enquiry form and the legal documents are in three languages: Azerbaijani, English and Russian."],
+      ["Where is the company and when was it founded?", "nobug was founded in Baku in 2026. The team covers engineering, QA and support; the first projects are beic.az and bbq.az."],
+    ],
+  },
+  consent: { text: "This site uses Google Analytics cookies to measure visits. Do you agree?", accept: "Accept", decline: "Decline", more: "Privacy policy" },
   menu: "Menu",
   home: "Home",
 };
@@ -509,6 +539,20 @@ const ru: Dictionary = {
   ],
   footerContact: "Контакты",
   legal: ['ООО "nobug"', "Баку, Азербайджан", "© 2026"],
+  faq: {
+    title: "Частые вопросы",
+    lead: "Короткие ответы на то, о чём спрашивают чаще всего. Остальное — напишите нам.",
+    ask: "Остался вопрос? Напишите",
+    items: [
+      ["Что происходит после отправки запроса?", "Запрос приходит нам на почту; обычно в течение одного рабочего дня мы возвращаемся с предварительной оценкой. Первая встреча и предварительная оценка бесплатны."],
+      ["В каких направлениях вы работаете?", "Семь направлений: веб и e-commerce, контроль качества, внедрение CRM и ERP, аналитика данных, цифровой маркетинг, мобильная разработка и решения на основе ИИ. Каждое можно взять отдельно или вместе."],
+      ["Проект делится между несколькими подрядчиками?", "Нет. Аналитика, внедрение и поддержка после сдачи — ответственность одной команды; результат и срок каждого этапа прописаны в договоре."],
+      ["Есть ли поддержка после сдачи?", "Да. В договоре поддержки закреплено обязательство первого ответа менее чем за 2 часа. Мониторинг систем и API, шифрованные резервные копии и тест восстановления входят в стандарт."],
+      ["На каких языках сайт и документы?", "Сайт, форма запроса и юридические документы — на трёх языках: азербайджанском, английском и русском."],
+      ["Где находится компания и когда основана?", "nobug основана в Баку в 2026 году. Команда охватывает разработку, QA и поддержку; первые проекты — beic.az и bbq.az."],
+    ],
+  },
+  consent: { text: "Сайт использует cookie Google Analytics для подсчёта посещений. Вы согласны?", accept: "Принять", decline: "Отклонить", more: "Политика конфиденциальности" },
   menu: "Меню",
   home: "Главная",
 };

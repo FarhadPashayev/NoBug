@@ -18,7 +18,6 @@ export function ServiceCard({ id, index, total, title, text, image, icon, positi
       href={serviceHref(lang, id)}
       event={{ name: "service_click", params: { service_id: id, position, locale: lang } }}
       className="group relative block aspect-[4/5] w-[min(78vw,300px)] flex-none snap-start overflow-hidden rounded-[28px] bg-ink text-white outline-none ring-yellow ring-offset-2 ring-offset-light focus-visible:ring-2"
-      aria-label={`${title} — ${t.tpl.cardSelect}`}
     >
       <Image src={image} alt="" fill sizes="300px" className="object-cover transition-transform duration-700 ease-[var(--ease-brand)] group-hover:scale-[1.04]" />
 

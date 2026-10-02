@@ -93,6 +93,12 @@ export async function seedContent(prisma: PrismaClient) {
   // services withdrawn from the offer stay as rows (historic leads) but inactive
   await prisma.service.updateMany({ where: { slug: { in: RETIRED_SERVICES } }, data: { isActive: false } });
 
+  // ── FAQ ──────────────────────────────────────────────────────────────
+  await prisma.faq.deleteMany();
+  await prisma.faq.createMany({
+    data: az.faq.items.map((_, i) => ({ question: json(L((d) => d.faq.items[i][0])), answer: json(L((d) => d.faq.items[i][1])), order: i, isActive: true })),
+  });
+
   // ── standards table → one group per area, one row each ───────────────
   await prisma.specGroup.deleteMany();
   for (const [order, row] of az.techRows.entries()) {

@@ -31,7 +31,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: p.title,
     description: p.shortDescription,
-    alternates: { canonical: absoluteUrl(`/${lang}/layiheler/${slug}`), languages: Object.fromEntries(LOCALES.map((l) => [l, absoluteUrl(`/${l}/layiheler/${slug}`)])) },
+    alternates: {
+      canonical: absoluteUrl(`/${lang}/layiheler/${slug}`),
+      languages: { ...Object.fromEntries(LOCALES.map((l) => [l, absoluteUrl(`/${l}/layiheler/${slug}`)])), "x-default": absoluteUrl(`/az/layiheler/${slug}`) },
+    },
   };
 }
 

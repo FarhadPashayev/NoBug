@@ -170,6 +170,14 @@ göstərir — **sayt normal işləməyə davam edir**.
 | Sayt parametrləri | e-poçt, telefon, ünvan, sosial linklər, footer link sütunları |
 | Profil | ad/e-poçt və şifrə dəyişmə |
 
+### Yoxlama siyahısı əlavələri (2026-10-02)
+
+- **Suallar (FAQ)** — panel modulu `/admin/faq`; ana səhifədə "Tez-tez verilən suallar" bölməsi (chat formasında) və FAQPage JSON-LD. Sual yoxdursa bölmə görünmür.
+- **Hüquqi rekvizitlər** — Sayt parametrləri → "Hüquqi rekvizitlər" (hüquqi ad, VÖEN, qeydiyyat ünvanı); dolu olanda Məxfilik / İstifadə şərtləri / Məlumatların emalı səhifələrində "Rekvizitlər" bloku çıxır.
+- **Cookie razılığı** — `NEXT_PUBLIC_GA_ID` təyin olunanda alt-sol küncdə banner çıxır; Google Analytics yalnız "Qəbul et"-dən sonra yüklənir, seçim brauzerdə yadda qalır. ID yoxdursa nə banner, nə analitika var.
+- **llms.txt / llms-full.txt** — bazadan avtomatik (xidmətlər, layihələr, göstəricilər, standartlar, FAQ, əlaqə, hüquqi səhifələr; tam versiya 3 dildə).
+- **Paylaşım şəkli** — xidmət səhifələrinin öz Open Graph şəkli (`/{lang}/xidmetler/{slug}/opengraph-image`).
+
 ### Supabase Data API və RLS
 
 Supabase `public` sxemindəki hər cədvəli REST Data API ilə də açır (`anon` və
