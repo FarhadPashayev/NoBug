@@ -19,7 +19,7 @@ export function ServiceCard({ id, index, total, title, text, image, icon, positi
       event={{ name: "service_click", params: { service_id: id, position, locale: lang } }}
       className="group relative block aspect-[4/5] w-[min(78vw,300px)] flex-none snap-start overflow-hidden rounded-[28px] bg-ink text-white outline-none ring-yellow ring-offset-2 ring-offset-light focus-visible:ring-2"
     >
-      <Image src={image} alt="" fill sizes="300px" className="object-cover transition-transform duration-700 ease-[var(--ease-brand)] group-hover:scale-[1.04]" />
+      <Image src={image} alt="" fill sizes="300px" className="object-cover transition-[scale] duration-700 ease-[var(--ease-brand)] group-hover:scale-[1.04]" />
 
       {/* veils for contrast: top (soft) and bottom (strong), plus a light blur band behind the footer */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[50%] bg-gradient-to-b from-[rgba(11,31,58,0.86)] via-[rgba(11,31,58,0.45)] to-transparent" />
@@ -56,7 +56,7 @@ export function ServiceCard({ id, index, total, title, text, image, icon, positi
             </span>
           </span>
         </div>
-        <span className="inline-flex h-11 flex-none items-center gap-1.5 rounded-full bg-white px-4 text-[14px] font-medium text-ink shadow-[0_4px_16px_rgba(0,0,0,0.18)] transition-transform duration-200 group-hover:-translate-y-0.5">
+        <span className="inline-flex h-11 flex-none items-center gap-1.5 rounded-full bg-white px-4 text-[14px] font-medium text-ink shadow-[0_4px_16px_rgba(0,0,0,0.18)] transition-[translate] duration-200 group-hover:-translate-y-0.5">
           <Plus size={16} aria-hidden="true" />
           {t.tpl.cardSelect}
         </span>

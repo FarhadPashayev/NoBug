@@ -60,7 +60,7 @@ export function Showcase({ lang, t, content }: { lang: Locale; t: Dictionary; co
                     <p className="mt-5 max-w-[56ch] text-[17px] leading-[1.6] text-grey-navy">{p.shortDescription}</p>
                     <Link href={href} className="group mt-6 inline-flex items-center gap-2 text-[15px] font-medium text-white">
                       {linkLabel}
-                      <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
+                      <ArrowRight size={16} className="transition-[translate] duration-200 group-hover:translate-x-1" aria-hidden="true" />
                     </Link>
                   </div>
                 </article>

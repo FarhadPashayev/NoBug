@@ -46,7 +46,7 @@ export function ServicesGrid({ lang, t, content }: { lang: Locale; t: Dictionary
                 {/* the card is the enquiry; this is the indexable page for the service */}
                 <Link href={`/${lang}/xidmetler/${s.slug}`} className="group inline-flex items-center gap-1.5 self-start text-[14px] font-medium text-grey transition-colors hover:text-ink">
                   {t.tpl.readMore}
-                  <ArrowRight size={14} className="transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
+                  <ArrowRight size={14} className="transition-[translate] duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
                 </Link>
               </div>
             ))}
@@ -59,7 +59,7 @@ export function ServicesGrid({ lang, t, content }: { lang: Locale; t: Dictionary
           <div className="flex flex-wrap gap-x-8 gap-y-2">
             <Link href={`/${lang}/anket`} className="group inline-flex items-center gap-2 text-[clamp(17px,1.5vw,22px)] font-medium tracking-[-0.02em] text-ink">
               {t.tpl.exploreEnquiry}
-              <ArrowUpRight size={18} className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+              <ArrowUpRight size={18} className="transition-[translate] duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
             </Link>
           </div>
         </div>
