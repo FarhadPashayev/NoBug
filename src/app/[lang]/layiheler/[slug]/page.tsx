@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
-import { getProject } from "@/lib/content";
+import { getProject, getSiteContent } from "@/lib/content";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { absoluteUrl } from "@/lib/site";
 import { notFoundMetadata } from "@/lib/not-found";
-import { LangSwitcher } from "@/components/ui/lang-switcher";
-import { Logo } from "@/components/ui/logo";
+import { getShowcaseCopy } from "@/lib/i18n/showcase";
+import { coverFor } from "@/lib/covers";
+import { projectHref } from "@/lib/showcase-data";
+import { CaseLayout } from "@/components/case/case-layout";
 
 type Props = { params: Promise<{ lang: string; slug: string }> };
 
@@ -35,6 +35,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: absoluteUrl(`/${lang}/layiheler/${slug}`),
       languages: { ...Object.fromEntries(LOCALES.map((l) => [l, absoluteUrl(`/${l}/layiheler/${slug}`)])), "x-default": absoluteUrl(`/az/layiheler/${slug}`) },
     },
+    openGraph: {
+      title: `${p.title} — nobug`,
+      description: p.shortDescription,
+      url: absoluteUrl(`/${lang}/layiheler/${slug}`),
+      type: "article",
+      locale: lang,
+      ...(p.coverUrl ? { images: [{ url: p.coverUrl, alt: p.title }] } : {}),
+    },
   };
 }
 
@@ -45,50 +53,40 @@ export default async function ProjectPage({ params }: Props) {
   const p = await getProject(lang, slug);
   if (!p) notFound();
   const t = getDict(lang);
+  const sc = getShowcaseCopy(lang);
+  const content = await getSiteContent(lang);
   const paths = Object.fromEntries(LOCALES.map((l) => [l, `/layiheler/${slug}`])) as Record<Locale, string>;
-  const meta = [p.year && `${t.caseStudy.labels[3]}: ${p.year}`, p.duration && `${t.caseStudy.labels[1]}: ${p.duration}`].filter(Boolean).join(" · ");
+  const list = content.projects;
+  const at = list.findIndex((o) => o.slug === slug);
+  const near = (i: number) => {
+    const o = list.length > 1 && at >= 0 ? list[(i + list.length) % list.length] : null;
+    return o && o.slug !== slug ? { title: o.title, href: projectHref(lang, o.slug) } : null;
+  };
+  const info: [string, string][] = [
+    ...(p.year ? ([[sc.case.year, p.year]] as [string, string][]) : []),
+    ...(p.duration ? ([[sc.case.duration, p.duration]] as [string, string][]) : []),
+    ...(p.tags.length ? ([[sc.case.stack, p.tags.join(", ")]] as [string, string][]) : []),
+  ];
 
   return (
-    <>
-      {/* first node of the segment: Next scrolls it into view on client navigation — never the sticky header */}
-      <span aria-hidden="true" className="block h-0" />
-      <header className="sticky top-0 z-40 border-b border-navy-line bg-navy">
-        <div className="mx-auto flex min-h-[72px] max-w-[1080px] flex-wrap items-center gap-4 px-[clamp(20px,5vw,64px)] py-3">
-          <Logo href={`/${lang}`} variant="mark" height={26} />
-          <Link href={`/${lang}#layiheler`} className="link-rule mr-auto text-[15px] text-muted-navy hover:text-paper">
-            {t.home}
-          </Link>
-          <LangSwitcher current={lang} paths={paths} />
+    <CaseLayout
+      lang={lang}
+      content={content}
+      paths={paths}
+      title={p.title}
+      info={info}
+      media={[p.coverUrl ? { src: p.coverUrl, alt: p.title } : { src: coverFor(p.slug).photo, alt: p.title, pattern: coverFor(p.slug).pattern }]}
+      prev={near(at - 1)}
+      next={near(at + 1)}
+      closeHref={`/${lang}#layiheler`}
+    >
+      <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+        <h2 className="eyebrow text-ink-950/60">{t.caseStudy.labels[2]}</h2>
+        <div>
+          {p.shortDescription && <p className="text-[clamp(20px,2.2vw,30px)] leading-[1.3] tracking-[-0.015em]">{p.shortDescription}</p>}
+          {p.content ? <div className="rich-text case-media mt-8 text-ink-950/80" dangerouslySetInnerHTML={{ __html: sanitizeRichText(p.content) }} /> : null}
         </div>
-      </header>
-
-      <main className="mx-auto max-w-[1080px] px-[clamp(20px,5vw,64px)] pb-24 pt-[clamp(40px,6vw,80px)]">
-        <article className="max-w-[68ch]">
-          {meta && <div className="mono-label text-muted">{meta}</div>}
-          <h1 className="type-h2 mt-4">{p.title}</h1>
-          {p.shortDescription && <p className="type-body mt-6 text-muted">{p.shortDescription}</p>}
-          {p.tags.length > 0 && (
-            <ul className="mt-5 flex flex-wrap gap-2">
-              {p.tags.map((tag) => (
-                <li key={tag} className="mono-label rounded-full border border-hairline px-3 py-1">
-                  {tag}
-                </li>
-              ))}
-            </ul>
-          )}
-          {p.coverUrl && (
-            <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-[20px] bg-light">
-              <Image src={p.coverUrl} alt="" fill sizes="(min-width: 1080px) 1080px, 100vw" className="object-cover" priority />
-            </div>
-          )}
-          <div className="mt-8 h-px bg-navy" />
-          {p.content ? (
-            <div className="rich-text mt-8" dangerouslySetInnerHTML={{ __html: sanitizeRichText(p.content) }} />
-          ) : (
-            <p className="type-body mt-8 text-muted">{t.tpl.readMore}…</p>
-          )}
-        </article>
-      </main>
-    </>
+      </div>
+    </CaseLayout>
   );
 }
