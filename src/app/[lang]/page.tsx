@@ -3,18 +3,18 @@ import { notFound } from "next/navigation";
 import { isLocale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { getSiteContent } from "@/lib/content";
-import { ScrollColorWrapper } from "@/components/ui/scroll-color";
-import { Header } from "@/components/landing/header";
-import { Hero } from "@/components/landing/hero";
-import { Showcase } from "@/components/landing/showcase";
-import { Stats } from "@/components/landing/stats";
-import { Position } from "@/components/landing/position";
-import { ServicesGrid } from "@/components/landing/services-grid";
-import { Standards } from "@/components/landing/standards";
-import { Faq } from "@/components/landing/faq";
-import { Testimonials } from "@/components/landing/testimonials";
-import { Cta } from "@/components/landing/cta";
-import { Footer } from "@/components/landing/footer";
+import { getShowcaseCopy } from "@/lib/i18n/showcase";
+import { aboutData, chromeCopy, contactChannels, showcaseCards } from "@/lib/showcase-data";
+import { SiteChrome } from "@/components/chrome/site-chrome";
+import { SmoothScroll } from "@/components/ui/smooth-scroll";
+import { HeroShowcase } from "@/components/showcase/hero-showcase";
+import { ServicesSection } from "@/components/sections/services";
+import { ProcessSection } from "@/components/sections/process";
+import { NumbersSection } from "@/components/sections/numbers";
+import { ProjectsSection } from "@/components/sections/projects";
+import { FaqSection, StandardsSection, TestimonialsSection } from "@/components/sections/proof";
+import { ContactSection } from "@/components/sections/contact";
+import { SiteFooter } from "@/components/sections/footer";
 
 // Content comes from the admin panel's database (src/lib/content), section
 // chrome and labels from the dictionary. The page is cached and re-rendered
@@ -28,27 +28,35 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return { title: { absolute: getDict(lang).meta.title } };
 }
 
-// Background rhythm (fortemplate/): light → dark → dark → light → light → dark (rəylər) → light (FAQ) → dark → light.
-// Each section declares data-bg; <ScrollColorWrapper> fades the page ground between them.
+// Dark showcase home: the WebGL carousel of services on top, then plain,
+// indexable HTML sections. Section numbers follow what is actually rendered.
 export default async function HomePage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const t = getDict(lang);
+  const sc = getShowcaseCopy(lang);
   const content = await getSiteContent(lang);
+  const channels = contactChannels(lang, content);
+  let n = 4;
+  const next = () => ++n;
 
   return (
-    <ScrollColorWrapper>
-      <Header lang={lang} t={{ nav: t.nav, cta: t.cta, menu: t.menu }} />
+    <div className="theme-ink bg-ink-950 text-paper">
+      <SmoothScroll />
+      <SiteChrome lang={lang} tone="ink" t={chromeCopy(lang)} about={aboutData(lang, content)} channels={channels} />
       <main>
-        <Hero lang={lang} t={t} content={content} />
-        <Showcase lang={lang} t={t} content={content} />
-        <Stats t={t} content={content} />
-        <Position t={t} />
-        <ServicesGrid lang={lang} t={t} content={content} />
-        <Standards t={t} content={content} />
-        <Testimonials t={t} content={content} />
-        <Faq lang={lang} t={t} content={content} />
-        <Cta lang={lang} t={t} content={content} />
+        <HeroShowcase
+          cards={showcaseCards(lang, content)}
+          t={{ headline: sc.headline, subline: sc.subline, cta: sc.cta, scrollHint: sc.scrollHint, carouselLabel: sc.carouselLabel, carouselHelp: sc.carouselHelp, open: sc.open, prev: sc.prev, next: sc.next, loading: sc.loading }}
+        />
+        <ServicesSection lang={lang} title={sc.sections.services} lead={sc.servicesLead} services={content.services} primaryLabel={t.tpl.cardPrimary} cta={sc.cta} />
+        <ProcessSection title={sc.sections.process} lead={sc.processLead} steps={sc.process} qaNote={sc.qaNote} />
+        <NumbersSection title={sc.sections.numbers} lead={t.tpl.statsText} stats={content.stats} logos={content.partnerLogos} clientsTitle={sc.sections.clients} />
+        <ProjectsSection lang={lang} title={sc.sections.projects} lead={t.tpl.showcaseTitle} projects={content.projects} empty={sc.projectsEmpty} />
+        {content.testimonials.length > 0 && <TestimonialsSection index={next()} title={sc.sections.testimonials} lead={t.testimonials.title} items={content.testimonials} />}
+        {content.specs.length > 0 && <StandardsSection index={next()} t={t} rows={content.specs} />}
+        {content.faq.length > 0 && <FaqSection index={next()} title={sc.sections.faq} lead={t.faq.title} items={content.faq} />}
+        <ContactSection index={next()} lang={lang} t={t} sc={sc} channels={channels} services={content.services.map((s) => s.name)} address={content.settings.address} hours={content.settings.hours} />
       </main>
       {content.faq.length > 0 && (
         <script
@@ -62,7 +70,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           }}
         />
       )}
-      <Footer lang={lang} t={t} content={content} />
-    </ScrollColorWrapper>
+      <SiteFooter lang={lang} t={t} content={content} channels={channels} rights={sc.footerRights} />
+    </div>
   );
 }

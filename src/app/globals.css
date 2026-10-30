@@ -37,6 +37,15 @@
   --font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
 
   --ease-brand: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ── showcase redesign: near-black home, paper case studies ── */
+  --color-ink-950: #080808; /* home ground */
+  --color-ink-900: #111111; /* cards / tiles on the home ground */
+  --color-ink-800: #1b1b1b;
+  --color-ink-line: rgba(237, 235, 229, 0.12); /* hairlines on the home ground */
+  --spacing-gutter: clamp(20px, 4.2vw, 56px);
+  --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --radius-xs: 2px;
 }
 
@@ -669,4 +678,211 @@ th {
   [data-phase="intro"]:not([data-logo="ready"]) .hero-logo {
     visibility: hidden;
   }
+}
+
+/* ── showcase redesign ──────────────────────────────────────────────── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+html.lenis {
+  scroll-behavior: auto;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+/* the home page is dark from the first paint, including iOS overscroll */
+body:has(.theme-ink) {
+  background: var(--color-ink-950);
+  color: var(--color-paper);
+}
+body:has(.theme-paper) {
+  background: var(--color-paper);
+  color: var(--color-ink-950);
+}
+.theme-ink :focus-visible {
+  outline-color: var(--color-yellow);
+}
+.theme-paper :focus-visible {
+  outline-color: var(--color-ink-950);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+/* 44px round icon button; inherits ink from its ground */
+@utility round-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  color: inherit;
+  transition:
+    background-color 200ms var(--ease-brand),
+    border-color 200ms var(--ease-brand),
+    opacity 200ms;
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+  @media (hover: hover) {
+    &:not(:disabled):hover {
+      border-color: currentColor;
+    }
+  }
+}
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+/* slot-machine title (slot-title.tsx): letters roll in the direction of travel */
+@keyframes slot-in {
+  from {
+    transform: translateY(calc(var(--slot-dir, 1) * 105%));
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes slot-out {
+  from {
+    transform: none;
+    opacity: 1;
+  }
+  to {
+    transform: translateY(calc(var(--slot-dir, 1) * -105%));
+    opacity: 0;
+  }
+}
+.slot-in {
+  animation: slot-in 620ms var(--ease-out-expo) both;
+}
+.slot-out {
+  animation: slot-out 420ms var(--ease-out-expo) both;
+}
+@keyframes scroll-hint {
+  0%,
+  100% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+.scroll-hint {
+  animation: scroll-hint 1.8s ease-in-out infinite;
+}
+
+/* About drawer */
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.drawer-panel {
+  animation: drawer-in 700ms var(--ease-out-expo) both;
+}
+.drawer-backdrop {
+  animation: fade-in 400ms ease both;
+}
+/* case study: the page rises out of the paper wash the home page left on screen */
+.case-in {
+  animation: rise-in 900ms var(--ease-out-expo) both;
+  animation-delay: var(--d, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawer-panel,
+  .case-in,
+  .slot-in,
+  .slot-out {
+    animation: fade-in 200ms ease both !important;
+  }
+  .scroll-hint {
+    animation: none;
+  }
+}
+
+/* form fields on the home ground */
+.field-ink {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-ink-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-paper);
+  font-size: 16px; /* ≥16px: iOS does not zoom into the field */
+  line-height: 1.5;
+  transition: border-color 200ms var(--ease-brand);
+  appearance: none;
+}
+textarea.field-ink {
+  resize: vertical;
+}
+select.field-ink {
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23edebe5' stroke-opacity='.6' stroke-width='1.5'%3E%3Cpath d='M2 4.5l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+}
+select.field-ink option {
+  background: var(--color-ink-900);
+  color: var(--color-paper);
+}
+.field-ink::placeholder {
+  color: rgba(237, 235, 229, 0.3);
+}
+.field-ink:focus {
+  outline: none;
+  border-bottom-color: var(--color-yellow);
+}
+.field-ink:focus-visible {
+  outline: none;
+}
+.field-ink[aria-invalid="true"] {
+  border-bottom-color: #ff8a80;
+}
+/* images inside project write-ups follow the vertical media list */
+.case-media img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin: 2em 0;
 }

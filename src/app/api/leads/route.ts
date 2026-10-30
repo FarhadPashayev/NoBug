@@ -6,6 +6,7 @@ import { clientIp, isRateLimited, looksLikeBot } from "@/lib/anti-spam";
 import { escapeHtml, formatDate, MAIL_TO, sendMail } from "@/lib/mail/send";
 import { recordLead } from "@/lib/admin/leads";
 import { FORBIDDEN_RE, isValidEmail, isValidName } from "@/lib/validation";
+import { contactSchema } from "@/lib/contact-schema";
 
 export const runtime = "nodejs";
 
@@ -92,6 +93,9 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleContact(raw: unknown) {
+  // the extended home-page form (name · company · phone · email · service · budget · message);
+  // the legacy 3-field shape carries `subject`
+  if (raw && typeof raw === "object" && !("subject" in raw)) return handleContactFull(raw as Record<string, unknown>);
   const parsed = Contact.safeParse(raw);
   if (!parsed.success) return bad("Validation failed", 400, fieldErrorsOf(parsed.error));
   const { name, email, subject: subjectLine } = parsed.data;
@@ -106,6 +110,42 @@ async function handleContact(raw: unknown) {
   await sendMail({ to: MAIL_TO, subject, text, html, replyTo: email });
   const c = CONFIRM[lang];
   await sendMail({ to: email, subject: c.subject, text: c.body(name) });
+  return NextResponse.json({ ok: true }, { status: 201 });
+}
+
+async function handleContactFull(raw: Record<string, unknown>) {
+  const parsed = contactSchema.safeParse(raw);
+  if (!parsed.success) return bad("Validation failed", 400, fieldErrorsOf(parsed.error));
+  const f = parsed.data;
+  const lang = isLocale(String(raw.lang)) ? (String(raw.lang) as (typeof LOCALES)[number]) : "az";
+  const when = formatDate();
+  const extra: Record<string, string> = {};
+  if (f.company) extra["Şirkət / Company"] = f.company;
+  if (f.budget) extra["Büdcə / Budget"] = f.budget;
+
+  await recordLead({ name: f.name, email: f.email, phone: f.phone, service: f.service, message: f.message, locale: lang, source: "contact", answers: Object.keys(extra).length ? extra : undefined });
+
+  const fields: [string, string][] = [
+    ["Ad / Name", f.name],
+    ["E-poçt / Email", f.email],
+    ...(f.phone ? ([["Telefon / Phone", f.phone]] as [string, string][]) : []),
+    ...Object.entries(extra),
+    ...(f.service ? ([["Xidmət / Service", f.service]] as [string, string][]) : []),
+    ...(f.message ? ([["Mesaj / Message", f.message]] as [string, string][]) : []),
+    ["Dil / Locale", lang.toUpperCase()],
+    ["Tarix / Timestamp", when],
+  ];
+  const subject = `[nobug əlaqə] ${f.service || "Müraciət"} — ${f.name}`;
+  const text = fields.map(([k, v]) => `${k}: ${v}`).join("\n");
+  const html = wrap(
+    subject,
+    `<table style="border-collapse:collapse">${fields
+      .map(([k, v]) => `<tr><td style="padding:6px 16px 6px 0;color:#6B6862;vertical-align:top;white-space:nowrap">${escapeHtml(k)}</td><td style="padding:6px 0;vertical-align:top;white-space:pre-wrap">${escapeHtml(v)}</td></tr>`)
+      .join("")}</table>`,
+  );
+  await sendMail({ to: MAIL_TO, subject, text, html, replyTo: f.email });
+  const c = CONFIRM[lang];
+  await sendMail({ to: f.email, subject: c.subject, text: c.body(f.name) });
   return NextResponse.json({ ok: true }, { status: 201 });
 }
 

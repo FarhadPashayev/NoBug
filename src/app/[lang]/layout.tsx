@@ -5,7 +5,7 @@ import { Consent } from "@/components/site/consent";
 import { legalHref } from "@/lib/legal";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
-import { CONTACT_EMAIL, IS_PREVIEW, SITE_URL, absoluteUrl } from "@/lib/site";
+import { CONTACT_EMAIL, INSTAGRAM_URL, IS_PREVIEW, LINKEDIN_URL, SITE_URL, absoluteUrl } from "@/lib/site";
 import { OfflineBanner } from "@/components/ui/offline-banner";
 import { ServiceWorkerRegister } from "@/components/ui/sw-register";
 import "../globals.css";
@@ -41,7 +41,7 @@ const plexMono = IBM_Plex_Mono({
 type Props = { children: React.ReactNode; params: Promise<{ lang: string }> };
 
 // notch/home-indicator safe areas (padding lives in globals.css via env())
-export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#0b1f3a", colorScheme: "light" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#080808", colorScheme: "light" };
 
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
@@ -72,13 +72,33 @@ export default async function LangLayout({ children, params }: Props) {
   if (!isLocale(lang)) notFound();
   const dict = getDict(lang);
 
+  // Organization + LocalBusiness (Baku); the Service nodes live on each /xidmetler page
   const orgJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "nobug",
-    url: SITE_URL,
-    email: CONTACT_EMAIL,
-    address: { "@type": "PostalAddress", addressLocality: "Baku", addressCountry: "AZ" },
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: "nobug",
+        url: SITE_URL,
+        logo: absoluteUrl("/assets/logo-navy-amber.svg"),
+        email: CONTACT_EMAIL,
+        foundingDate: "2026",
+        sameAs: [LINKEDIN_URL, INSTAGRAM_URL],
+        address: { "@type": "PostalAddress", addressLocality: "Baku", addressCountry: "AZ" },
+      },
+      {
+        "@type": "LocalBusiness",
+        "@id": `${SITE_URL}/#localbusiness`,
+        name: "nobug",
+        url: absoluteUrl(`/${lang}`),
+        image: absoluteUrl("/assets/photo/about.webp"),
+        email: CONTACT_EMAIL,
+        parentOrganization: { "@id": `${SITE_URL}/#organization` },
+        address: { "@type": "PostalAddress", addressLocality: "Baku", addressRegion: "Bakı", addressCountry: "AZ" },
+        areaServed: { "@type": "Country", name: "Azerbaijan" },
+      },
+    ],
   };
 
   return (
@@ -86,7 +106,7 @@ export default async function LangLayout({ children, params }: Props) {
       <body>
         {/* framer-motion reveals start at opacity 0 in the HTML; without JavaScript they would never appear */}
         <noscript>
-          <style>{`[style*="opacity: 0"]{opacity:1!important;transform:none!important}.hero-logo{visibility:visible!important}`}</style>
+          <style>{`[style*="opacity: 0"]{opacity:1!important;transform:none!important}.hero-logo{visibility:visible!important}[role=progressbar].absolute{display:none!important}`}</style>
         </noscript>
         {children}
         <OfflineBanner lang={lang} />
