@@ -35,6 +35,33 @@ src/
 public/assets/         loqolar, IMG-01…07, PATTERN-lar (dəyişdirilməyib)
 ```
 
+## Showcase dizaynı (2026-10, `redesign` branch)
+
+Ana səhifə tünd (`#080808`) WebGL vitrinidir, xidmət və layihə səhifələri isə açıq fonda case-study şəklindədir. Məzmun əvvəlki kimi admin paneldən gəlir (`src/lib/content`). Yeni mock data yoxdur.
+
+```
+src/components/
+  webgl/shaders/card.ts   GLSL: vertex bükülmə, RGB-shift, 7 prosedural üzlük, şəkil (cover-fit)
+  webgl/showcase-canvas   R3F karusel (kartlar, açılma animasiyası); layout.ts ölçüləri hesablayır
+  webgl/cover-canvas      eyni üzlük case səhifəsinin başında (adi three.js)
+  showcase/               hero: pin-scroll, drag/swipe, klaviatura, qövs proqres, slot başlıq, preloader, HTML fallback
+  sections/               ana səhifənin adi HTML bölmələri + əlaqə forması
+  case/                   case-study çərçivəsi + alt panel (proqres, ← →, ✕)
+  chrome/                 header, About drawer, əlaqə kanalları
+src/lib/showcase-data.ts  admin məzmunu → kart / About / kanal props
+src/lib/i18n/showcase.ts  yeni interfeys mətnləri (AZ/EN/RU)
+src/lib/covers.ts         xidmət slug → prosedural üzlük + ehtiyat foto
+src/lib/contact-schema.ts formanın zod sxemi (brauzer + /api/leads)
+```
+
+**Xidmət (karusel kartı) əlavə etmək:** admin → Xidmətlər → yeni xidmət. Kart, `/xidmetler/<slug>` səhifəsi, sitemap və footer avtomatik yaranır. Şəkil yüklənsə, karuseldə həmin şəkil göstərilir. Yüklənməsə, slug-a görə prosedural üzlük seçilir. Hazır slug-lar üçün `src/lib/covers.ts`-də üzlüyü əl ilə də seçmək olar.
+
+**Layihə əlavə etmək:** admin → Layihələr. Grid və `/layiheler/<slug>` səhifəsi avtomatik yaranır. Layihəni xidmət səhifəsində "bu istiqamətdə" siyahısına salmaq üçün ona xidmətin adı ilə eyni olan teq verin.
+
+**Kanallar:** WhatsApp və telefon düyməsi Sayt parametrlərində telefon nömrəsi yazılandan sonra görünür.
+
+**Qorunma mexanizmləri:** `prefers-reduced-motion` aktiv olanda RGB-shift, bükülmə və açılma animasiyası söndürülür, yalnız fade qalır. Zəif cihazda (≤2 nüvə və ya ≤2 GB RAM) və ya WebGL olmayanda karusel HTML scroll-snap kimi göstərilir. Kartların hamısı gizli HTML siyahısı kimi də səhifədədir (SEO və screen reader üçün).
+
 ## Dizayn qaydaları (kodda saxlanılıb)
 
 - Rəng: navy `#0B1F3A` həm fon, həm mətn; paper `#EDEBE5`; aksent `#B3121D` ekranın 5%-dən az.
