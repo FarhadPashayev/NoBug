@@ -1,16 +1,16 @@
 "use client";
 
+/* eslint-disable react-hooks/immutability -- carouselRef is a mutable animation store (not React state): input handlers and effects write it, the canvas reads it every frame */
+
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDown, ArrowRight } from "lucide-react";
 import type { ShowcaseCopy } from "@/lib/i18n/showcase";
 import { carouselLayout, createCarouselState } from "@/components/webgl/layout";
-import { scrollToHash, scrollToY } from "@/components/ui/smooth-scroll";
+import { scrollToY } from "@/components/ui/smooth-scroll";
 import { ArcProgress } from "./arc-progress";
-import { Preloader } from "./preloader";
 import { SlotTitle } from "./slot-title";
 import { hasWebGL, useClientValue, useMediaQuery } from "@/lib/use-client";
 
@@ -28,12 +28,26 @@ export type ShowcaseCardData = {
   alt: string;
 };
 
-type Copy = Pick<ShowcaseCopy, "headline" | "subline" | "cta" | "scrollHint" | "carouselLabel" | "carouselHelp" | "open" | "prev" | "next" | "loading">;
+type Copy = Pick<ShowcaseCopy, "carouselLabel" | "carouselHelp" | "open" | "loading">;
 type Mode = "pending" | "webgl" | "html";
 
 const STORAGE_KEY = "nobug:showcase-index";
 // scroll distance per card while the hero is pinned
 const STEP_SVH = 42;
+
+let seen: boolean | null = null;
+/** Only the first home visit of a browser session plays the intro. (cached — read during render) */
+function introSeen(): boolean {
+  if (seen === null) {
+    try {
+      seen = !!sessionStorage.getItem("nobug:intro-seen");
+      sessionStorage.setItem("nobug:intro-seen", "1");
+    } catch {
+      seen = false;
+    }
+  }
+  return seen;
+}
 
 let detected: Mode | null = null;
 /** Can this device run the WebGL hero well? (cached — read during render) */
@@ -63,6 +77,39 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
     return () => (window.cancelIdleCallback ?? window.clearTimeout)(id);
   }, [mode]);
   const ready = canvasReady || mode === "html";
+
+  // ── intro: flat line + 000→100 counter, then the cards sweep in and the line bends ──
+  const skipIntro = useClientValue(introSeen, false);
+  const [loadPct, setLoadPct] = useState(0);
+  const [intro, setIntro] = useState<"loading" | "play" | "skip">("loading");
+  const revealed = intro !== "loading";
+  const reveal = useCallback((skip: boolean) => {
+    setLoadPct(100);
+    setIntro(skip ? "skip" : "play");
+  }, []);
+  // hand the start time to the canvas, and let the header in
+  useEffect(() => {
+    if (intro === "loading") return;
+    carouselRef.current.introStart = intro === "skip" ? 0 : performance.now();
+    document.documentElement.dataset.intro = "done";
+  }, [intro]);
+  // the counter eases towards 90 on its own; the canvas being ready finishes it (at most ~2.6 s)
+  useEffect(() => {
+    if (revealed || mode === "pending") return;
+    const t0 = performance.now();
+    const id = window.setInterval(() => {
+      const t = performance.now() - t0;
+      setLoadPct((v) => Math.max(v, Math.min(ready ? 100 : 90, Math.round((ready ? 100 : 90) * (1 - Math.exp(-t / (ready ? 260 : 600)))))));
+    }, 90);
+    return () => window.clearInterval(id);
+  }, [mode, ready, revealed]);
+  useEffect(() => {
+    if (revealed || mode === "pending") return;
+    const skip = mode === "html" || skipIntro;
+    // waits for the first frame of the canvas; a slow device still gets the site after 6 s
+    const id = window.setTimeout(() => reveal(skip), skip ? 0 : loadPct >= 100 ? 220 : 6000);
+    return () => window.clearTimeout(id);
+  }, [loadPct, mode, reveal, revealed, skipIntro]);
   const [active, setActive] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
   const [paused, setPaused] = useState(false);
@@ -70,7 +117,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
   const [hoverCard, setHoverCard] = useState(false);
   const [leaving, setLeaving] = useState(false);
 
-  const state = useRef(createCarouselState());
+  const carouselRef = useRef(createCarouselState());
   const section = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const activeRef = useRef(0);
@@ -125,13 +172,13 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
       const r = el.getBoundingClientRect();
       const span = el.offsetHeight - window.innerHeight;
       const p = span > 0 ? Math.min(Math.max(-r.top / span, 0), 1) : 0;
-      if (!drag.current) state.current.target = p * (n - 1);
+      if (!drag.current) carouselRef.current.target = p * (n - 1);
       setIndex(Math.round(p * (n - 1)));
       setPaused(r.bottom < 0);
       // settle on the nearest card when scrolling stops inside the pin
       window.clearTimeout(idle);
       idle = window.setTimeout(() => {
-        const t = state.current.target;
+        const t = carouselRef.current.target;
         const near = Math.round(t);
         if (r.top < 0 && r.bottom > window.innerHeight && Math.abs(t - near) > 0.02) scrollToY(yForIndex(near), { duration: 0.6 });
       }, 160);
@@ -152,7 +199,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
     const saved = Number(sessionStorage.getItem(STORAGE_KEY));
     sessionStorage.removeItem(STORAGE_KEY);
     if (Number.isInteger(saved) && saved > 0 && saved < n) {
-      state.current.target = state.current.current = saved;
+      carouselRef.current.target = carouselRef.current.current = saved;
       requestAnimationFrame(() => goTo(saved, true));
     }
   }, [mode, n, goTo]);
@@ -162,9 +209,9 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
     const reset = () => {
       opening.current = false;
       setLeaving(false);
-      gsapRef.current?.killTweensOf(state.current);
-      state.current.expand = 0;
-      state.current.expandIndex = -1;
+      gsapRef.current?.killTweensOf(carouselRef.current);
+      carouselRef.current.expand = 0;
+      carouselRef.current.expandIndex = -1;
     };
     reset();
     const onShow = (e: PageTransitionEvent) => e.persisted && reset();
@@ -188,7 +235,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
       sessionStorage.setItem(STORAGE_KEY, String(i));
       setLeaving(true);
       if (pinned && !reduced) {
-        const s = state.current;
+        const s = carouselRef.current;
         s.target = i;
         s.expandIndex = i;
         // GSAP only loads for this tween
@@ -206,7 +253,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
   // drag / swipe (pointer events cover mouse, pen and touch)
   const onPointerDown = (e: React.PointerEvent) => {
     if (!pinned || e.button !== 0) return;
-    drag.current = { x: e.clientX, y: e.clientY, start: state.current.target, last: e.clientX, t: performance.now(), v: 0, axis: e.pointerType === "mouse" ? "x" : null };
+    drag.current = { x: e.clientX, y: e.clientY, start: carouselRef.current.target, last: e.clientX, t: performance.now(), v: 0, axis: e.pointerType === "mouse" ? "x" : null };
     if (e.pointerType === "mouse") setDragging(true);
   };
   const onPointerMove = (e: React.PointerEvent) => {
@@ -222,7 +269,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
     d.v = ((e.clientX - d.last) / Math.max(now - d.t, 1)) * 1000; // px/s
     d.last = e.clientX;
     d.t = now;
-    state.current.target = Math.max(-0.35, Math.min(n - 0.65, d.start - dx / spacing));
+    carouselRef.current.target = Math.max(-0.35, Math.min(n - 0.65, d.start - dx / spacing));
   };
   const endDrag = () => {
     const d = drag.current;
@@ -231,7 +278,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
     if (!d || d.axis !== "x") return;
     const { spacing } = carouselLayout(window.innerWidth, window.innerHeight);
     // a flick carries on: project the release velocity a little further
-    const projected = state.current.target - (d.v / spacing) * 0.18;
+    const projected = carouselRef.current.target - (d.v / spacing) * 0.18;
     goTo(Math.round(projected));
   };
 
@@ -263,7 +310,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
     setIndex(best);
   };
 
-  const read = useCallback(() => (pinned ? state.current.current : activeRef.current), [pinned]);
+  const read = useCallback(() => (pinned ? carouselRef.current.current : activeRef.current), [pinned]);
   const canvasCards = useMemo(() => cards.map((c) => ({ slug: c.slug, pattern: c.pattern, imageUrl: c.imageUrl })), [cards]);
   const current = cards[active];
 
@@ -289,8 +336,6 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
         onPointerLeave={endDrag}
         aria-describedby="showcase-help"
       >
-        {mode !== "html" && <Preloader ready={ready} label={t.loading} />}
-
         <p id="showcase-help" className="sr-only">
           {t.carouselHelp}
         </p>
@@ -299,7 +344,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
           <div className="absolute inset-0">
             <ShowcaseCanvas
               cards={canvasCards}
-              state={state}
+              state={carouselRef}
               reduced={reduced}
               paused={paused}
               mobile={mobile}
@@ -336,66 +381,35 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
           </ol>
         )}
 
-        {/* headline: the reference has none — a company site needs one */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 px-gutter pt-[calc(env(safe-area-inset-top)+84px)] sm:pt-[104px]">
-          <h1 className="max-w-[22ch] text-[clamp(26px,3.3vw,50px)] font-medium leading-[1.06] tracking-[-0.03em] text-balance">{t.headline}</h1>
-          <p className="mt-3 hidden max-w-[44ch] text-[15px] leading-[1.5] text-paper/60 sm:block">{t.subline}</p>
-          <a
-            href="#elaqe"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToHash("elaqe");
-            }}
-            className="pointer-events-auto mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-yellow px-5 text-[15px] font-medium text-ink-950 transition-colors hover:bg-yellow-600 sm:mt-6"
-          >
-            {t.cta}
-            <ArrowRight size={16} aria-hidden="true" />
-          </a>
-        </div>
-
-        {/* bottom centre: progress arc + rolling title of the card in front */}
-        <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-2 px-gutter pb-[max(1.75rem,calc(env(safe-area-inset-bottom)+1rem))] sm:pb-10">
-          <ArcProgress count={n} read={read} />
-          {current && (
-            <Link
-              href={current.href}
-              onClick={(e) => {
-                e.preventDefault();
-                open(active);
-              }}
-              className="group flex min-h-11 items-center gap-2 text-[clamp(17px,1.6vw,22px)] font-medium tracking-[-0.01em]"
-              aria-label={`${t.open}: ${current.title}`}
-            >
-              <SlotTitle text={current.title} direction={dir} />
-              <ArrowRight size={16} aria-hidden="true" className="opacity-50 transition-transform group-hover:translate-x-1" />
-            </Link>
-          )}
+        {/* bottom centre: line → arc, and a pill with the load counter, then the rolling title */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-[22px] pb-[max(25px,calc(env(safe-area-inset-bottom)+12px))] md:gap-7 md:pb-12">
+          <ArcProgress count={n} read={read} loading={loadPct} bent={revealed} />
+          <div className="relative flex h-[38px] min-w-[162px] items-center justify-center rounded-[3px] bg-ink-900 px-5 text-[15px] md:h-[46px] md:min-w-[208px] md:text-[18px]">
+            {revealed && current ? (
+              <a
+                href={current.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  open(active);
+                }}
+                className="pointer-events-auto flex h-full items-center"
+                aria-label={`${t.open}: ${current.title}`}
+              >
+                <SlotTitle text={current.title} direction={dir} />
+              </a>
+            ) : (
+              <span role="progressbar" aria-label={t.loading} aria-valuemin={0} aria-valuemax={100} aria-valuenow={loadPct} className="font-medium tabular-nums text-paper/60">
+                {/* each digit is its own reel: only the ones that change roll */}
+                {Array.from(String(loadPct).padStart(3, "0")).map((d, i) => (
+                  <SlotTitle key={i} text={d} direction={1} />
+                ))}
+              </span>
+            )}
+          </div>
           <div className="sr-only" aria-live="polite">
-            {current ? `${active + 1} / ${n}: ${current.title}` : ""}
+            {revealed && current ? `${active + 1} / ${n}: ${current.title}` : ""}
           </div>
         </div>
-
-        {/* prev / next for pointer users who don't drag */}
-        <div className="absolute bottom-[max(1.75rem,calc(env(safe-area-inset-bottom)+1rem))] right-gutter z-10 hidden gap-2 sm:bottom-10 md:flex">
-          <button type="button" onClick={() => goTo(active - 1)} disabled={active === 0} aria-label={t.prev} className="round-btn">
-            <ArrowRight size={16} className="rotate-180" aria-hidden="true" />
-          </button>
-          <button type="button" onClick={() => goTo(active + 1)} disabled={active === n - 1} aria-label={t.next} className="round-btn">
-            <ArrowRight size={16} aria-hidden="true" />
-          </button>
-        </div>
-
-        <a
-          href="#xidmetler"
-          onClick={(e) => {
-            e.preventDefault();
-            scrollToHash("xidmetler");
-          }}
-          className="absolute bottom-[max(1.75rem,calc(env(safe-area-inset-bottom)+1rem))] left-gutter z-10 hidden min-h-11 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-paper/55 transition-colors hover:text-paper sm:bottom-10 md:flex"
-        >
-          <ArrowDown size={14} aria-hidden="true" className="scroll-hint" />
-          {t.scrollHint}
-        </a>
 
         {/* the case study's light ground washes in over the expanding card */}
         <div aria-hidden="true" className={`pointer-events-none absolute inset-0 z-20 bg-paper transition-opacity ${leaving ? "opacity-100 delay-[650ms] duration-300" : "opacity-0 duration-0"} ${reduced || !pinned ? "!delay-0" : ""}`} />

@@ -29,7 +29,9 @@ describe("carousel covers and layout", () => {
     expect(m.w).toBeLessThan(390);
     const d = carouselLayout(1440, 900);
     expect(d.portrait).toBe(false);
-    expect(d.h).toBeLessThanOrEqual(450);
+    // reference proportions: ~55 % of the width, 1.68 : 1, at most 56 % of the height
+    expect(Math.round(d.w)).toBe(788);
+    expect(d.h).toBeLessThanOrEqual(900 * 0.56);
   });
 });
 

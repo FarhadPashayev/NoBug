@@ -52,11 +52,11 @@ export function SiteChrome({ lang, tone, t, about, channels, paths, fab = true }
 
   return (
     <>
-      <header className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-start justify-between gap-4 bg-gradient-to-b px-gutter pb-8 pt-[max(1.25rem,env(safe-area-inset-top))] sm:pt-7 ${tone === "ink" ? "from-ink-950 via-ink-950/70" : "from-paper via-paper/80"} to-transparent`}>
+      <header className={`intro-fade pointer-events-none fixed inset-x-0 top-0 z-50 flex items-start justify-between gap-4 bg-gradient-to-b px-[25px] pb-8 pt-[max(25px,env(safe-area-inset-top))] md:px-[47px] md:pt-[46px] ${tone === "ink" ? "from-ink-950 via-ink-950/70" : "from-paper via-paper/80"} to-transparent`}>
         <div className="pointer-events-auto">
-          <Logo href={`/${lang}`} variant={tone === "ink" ? "brand-dark" : "brand"} height={26} />
+          <Logo href={`/${lang}`} variant={tone === "ink" ? "brand-dark" : "brand"} height={21} />
         </div>
-        <nav aria-label="Main" className={`pointer-events-auto flex items-center gap-x-5 sm:gap-x-7 ${tone === "ink" ? "text-paper" : "text-ink-950"}`}>
+        <nav aria-label="Main" className={`pointer-events-auto -mt-3 flex items-center gap-x-5 text-[13px] md:gap-x-7 md:text-[14px] ${tone === "ink" ? "text-paper" : "text-ink-950"}`}>
           <LangSwitcher current={lang} tone="page" paths={paths} />
           <button
             ref={trigger}
@@ -64,11 +64,11 @@ export function SiteChrome({ lang, tone, t, about, channels, paths, fab = true }
             onClick={() => setOpen(true)}
             aria-expanded={open}
             aria-controls="about-panel"
-            className="min-h-11 text-[15px] font-medium transition-opacity hover:opacity-50"
+            className="min-h-11 transition-opacity hover:opacity-45"
           >
             {t.about}
           </button>
-          <Link href={`/${lang}#elaqe`} onClick={contact} className="hidden min-h-11 items-center text-[15px] font-medium transition-opacity hover:opacity-50 sm:inline-flex">
+          <Link href={`/${lang}#elaqe`} onClick={contact} className="hidden min-h-11 items-center transition-opacity hover:opacity-45 sm:inline-flex">
             {t.contact}
           </Link>
         </nav>
@@ -81,7 +81,7 @@ export function SiteChrome({ lang, tone, t, about, channels, paths, fab = true }
         onClick={whatsapp ? undefined : contact}
         {...(whatsapp ? { target: "_blank", rel: "noopener noreferrer" } : {})}
         aria-label={whatsapp ? whatsapp.label : t.contact}
-        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-yellow text-ink-950 shadow-[0_8px_30px_rgba(0,0,0,0.35)] md:hidden"
+        className="intro-fade fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-yellow text-ink-950 shadow-[0_8px_30px_rgba(0,0,0,0.35)] md:hidden"
       >
         {whatsapp ? <ChannelIcon id="whatsapp" size={24} /> : <MessageCircle size={22} aria-hidden="true" />}
       </a>

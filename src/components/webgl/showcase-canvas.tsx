@@ -6,7 +6,7 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { useEffect, useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { cardFragment, cardVertex } from "./shaders/card";
-import { carouselLayout, type CarouselState } from "./layout";
+import { carouselLayout, introProgress, type CarouselState } from "./layout";
 
 export type CanvasCard = { slug: string; pattern: number; imageUrl: string | null };
 
@@ -124,7 +124,7 @@ function Card({
           uHasTex: { value: 0 },
           uAspect: { value: 1 },
           uImgAspect: { value: 1 },
-          uRadius: { value: 0.025 },
+          uRadius: { value: 0.014 },
           uOpacity: { value: 1 },
           uBend: { value: 0 },
           uExpand: { value: 0 },
@@ -172,14 +172,16 @@ function Card({
     const u = material.uniforms;
     const offset = index - s.current;
     const active = 1 - Math.min(Math.abs(offset), 1);
-    const neighbourScale = 0.88 + 0.12 * active;
+    const neighbourScale = layout.neighbour + (1 - layout.neighbour) * active;
+    // intro: the row sweeps in from the left out of the dark, nearer cards first
+    const intro = introProgress(s.introStart, performance.now(), 1700 + index * 90);
 
-    let w = layout.w * neighbourScale;
-    let h = layout.h * neighbourScale;
-    let x = offset * layout.spacing;
+    let w = layout.w * neighbourScale * (reduced ? 1 : 0.92 + 0.08 * intro);
+    let h = layout.h * neighbourScale * (reduced ? 1 : 0.92 + 0.08 * intro);
+    let x = offset * layout.spacing - (reduced ? 0 : (1 - intro) * layout.spacing * 1.4);
     let y = layout.y;
     let z = 0;
-    let opacity = 1;
+    let opacity = intro;
 
     // opening: this card grows to the full viewport, the others fade
     const e = s.expand;
@@ -190,7 +192,7 @@ function Card({
         x *= 1 - e;
         y *= 1 - e;
         z = 1 * e; // above its neighbours
-      } else opacity = 1 - e;
+      } else opacity *= 1 - e;
     }
 
     m.scale.set(w, h, 1);
@@ -203,9 +205,9 @@ function Card({
     u.uShift.value = reduced ? 0 : THREE.MathUtils.clamp(s.velocity * 0.12, -1, 1) * (1 - e);
     u.uActive.value = Math.max(active, s.expandIndex === index ? e : 0);
     u.uAspect.value = w / h;
-    u.uRadius.value = 0.025 * (1 - e);
+    u.uRadius.value = 0.014 * (1 - e);
     u.uOpacity.value = opacity;
-    u.uBend.value = reduced ? 0 : 0.5 / viewport.width;
+    u.uBend.value = reduced ? 0 : layout.bend;
     u.uExpand.value = s.expandIndex === index ? e : 0;
   });
 

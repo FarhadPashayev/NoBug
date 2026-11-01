@@ -8,6 +8,7 @@ import { aboutData, chromeCopy, contactChannels, showcaseCards } from "@/lib/sho
 import { SiteChrome } from "@/components/chrome/site-chrome";
 import { SmoothScroll } from "@/components/ui/smooth-scroll";
 import { HeroShowcase } from "@/components/showcase/hero-showcase";
+import { IntroSection } from "@/components/sections/intro";
 import { ServicesSection } from "@/components/sections/services";
 import { ProcessSection } from "@/components/sections/process";
 import { NumbersSection } from "@/components/sections/numbers";
@@ -47,8 +48,9 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
       <main>
         <HeroShowcase
           cards={showcaseCards(lang, content)}
-          t={{ headline: sc.headline, subline: sc.subline, cta: sc.cta, scrollHint: sc.scrollHint, carouselLabel: sc.carouselLabel, carouselHelp: sc.carouselHelp, open: sc.open, prev: sc.prev, next: sc.next, loading: sc.loading }}
+          t={{ carouselLabel: sc.carouselLabel, carouselHelp: sc.carouselHelp, open: sc.open, loading: sc.loading }}
         />
+        <IntroSection headline={sc.headline} subline={sc.subline} cta={sc.cta} />
         <ServicesSection lang={lang} title={sc.sections.services} lead={sc.servicesLead} services={content.services} primaryLabel={t.tpl.cardPrimary} cta={sc.cta} />
         <ProcessSection title={sc.sections.process} lead={sc.processLead} steps={sc.process} qaNote={sc.qaNote} />
         <NumbersSection title={sc.sections.numbers} lead={t.tpl.statsText} stats={content.stats} logos={content.partnerLogos} clientsTitle={sc.sections.clients} />

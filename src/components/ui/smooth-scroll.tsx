@@ -31,7 +31,7 @@ export function SmoothScroll() {
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const coarse = matchMedia("(pointer: coarse)").matches;
     if (reduce || coarse) return;
-    lenis = new Lenis({ lerp: 0.12, wheelMultiplier: 1 });
+    lenis = new Lenis({ lerp: 0.12, wheelMultiplier: 1, anchors: true });
     let raf = 0;
     const loop = (t: number) => {
       lenis?.raf(t);

@@ -236,8 +236,8 @@ export const cardFragment = /* glsl */ `
       col = sampleCover(uv);
     }
 
-    // neighbours sit back in the dark
-    col *= mix(0.42, 1.0, uActive);
+    // neighbours sit back a little
+    col *= mix(0.78, 1.0, uActive);
     // film grain keeps the dark gradients from banding
     col += (hash2(uv * 900.0 + fract(uTime)) - 0.5) * 0.025;
 
