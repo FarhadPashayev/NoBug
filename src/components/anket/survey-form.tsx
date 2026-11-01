@@ -150,16 +150,16 @@ export function SurveyForm({ lang }: { lang: Locale }) {
   return (
     <div className="flex flex-wrap items-start gap-[clamp(24px,4vw,64px)]">
       {/* left: eyebrow, H1, note, step + progress rule */}
-      <div className="min-w-0 max-w-[340px] flex-[1_1_240px]">
-        <div className="mono-label text-muted">{sv.eyebrow}</div>
-        <h1 className="mt-3 text-[clamp(26px,2.8vw,36px)] font-medium leading-[1.1] tracking-[-0.025em]">{sv.title}</h1>
-        <p className="type-small mt-4 text-muted">{sv.note}</p>
+      <div className="min-w-0 max-w-[420px] flex-[1_1_260px]">
+        <div className="eyebrow text-paper/60">{sv.eyebrow}</div>
+        <h1 className="mt-4 text-[clamp(34px,4.4vw,64px)] font-medium leading-[1.02] tracking-[-0.04em]">{sv.title}</h1>
+        <p className="type-small mt-4 text-paper/60">{sv.note}</p>
         <div className="mt-6 flex items-center gap-4">
-          <div className="mono-label flex-none text-muted" aria-live="polite">
+          <div className="mono-label flex-none text-paper/60" aria-live="polite">
             {sent ? "—" : `${sv.step} ${step} / 3`}
           </div>
-          <div className="h-0.5 min-w-[80px] flex-1 bg-hairline" role="progressbar" aria-label={`${sv.step} ${sent ? 3 : step} / 3`} aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
-            <div className="h-full bg-accent transition-[width] duration-[320ms] ease-[var(--ease-brand)]" style={{ width: `${pct}%` }} />
+          <div className="h-0.5 min-w-[80px] flex-1 bg-ink-line" role="progressbar" aria-label={`${sv.step} ${sent ? 3 : step} / 3`} aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
+            <div className="h-full bg-yellow transition-[width] duration-[320ms] ease-[var(--ease-brand)]" style={{ width: `${pct}%` }} />
           </div>
         </div>
       </div>
@@ -167,22 +167,22 @@ export function SurveyForm({ lang }: { lang: Locale }) {
       {/* right: the active step */}
       <div className="min-w-0 flex-[2_1_420px]">
         {sent ? (
-          <div className="border-t border-navy pt-8" role="status">
+          <div className="border-t border-paper/30 pt-8" role="status">
             <h2 className="text-[clamp(22px,2.2vw,34px)] font-medium leading-[1.2] tracking-[-0.02em]">{sv.sentTitle}</h2>
             <p className="type-body mt-4 max-w-[56ch]">{sv.sentText}</p>
-            <p className="type-body mt-3 max-w-[56ch] text-muted">{sv.sentNext}</p>
+            <p className="type-body mt-3 max-w-[56ch] text-paper/60">{sv.sentNext}</p>
             <div className="mt-8 flex flex-wrap gap-3 *:flex-1 sm:*:flex-none">
-              <Link href={`/${lang}`} className="btn-primary">
+              <Link href={`/${lang}`} className="btn-ink-primary">
                 {sv.home}
               </Link>
-              <button type="button" onClick={reset} className="btn-secondary">
+              <button type="button" onClick={reset} className="btn-ink-secondary">
                 {sv.again}
               </button>
             </div>
           </div>
         ) : step === 1 ? (
           <div>
-            <h2 className="border-b border-navy pb-3 text-[17px] font-medium leading-[1.4]">{sv.pick}</h2>
+            <h2 className="border-b border-paper/30 pb-3 text-[17px] font-medium leading-[1.4]">{sv.pick}</h2>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-x-[clamp(16px,3vw,40px)]">
               {ACTIVE_SERVICES.map((id, n) => ({ i: serviceIndex(id), n, title: sv.services[serviceIndex(id)] })).map(({ i, n, title }) => (
                 <button
@@ -190,23 +190,23 @@ export function SurveyForm({ lang }: { lang: Locale }) {
                   type="button"
                   onClick={() => pickService(i)}
                   data-selected={service === i}
-                  className="group relative flex min-h-11 w-full items-baseline gap-4 border-0 border-b border-hairline bg-transparent px-3 py-[11px] text-left transition-colors duration-200 ease-[var(--ease-brand)] hover:bg-surface data-[selected=true]:bg-surface"
+                  className="group relative flex min-h-11 w-full items-baseline gap-4 border-0 border-b border-ink-line bg-transparent px-3 py-[11px] text-left transition-colors duration-200 ease-[var(--ease-brand)] hover:bg-ink-900 data-[selected=true]:bg-ink-900"
                 >
-                  <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 origin-left scale-x-0 bg-accent transition-transform duration-200 ease-[var(--ease-brand)] group-hover:scale-x-100 group-data-[selected=true]:scale-x-100" />
-                  <span className="w-6 flex-none font-mono text-xs tracking-[0.08em] text-muted transition-colors group-hover:text-navy group-data-[selected=true]:text-navy">{String(n + 1).padStart(2, "0")}</span>
+                  <span aria-hidden="true" className="absolute inset-y-0 left-0 w-0.5 origin-left scale-x-0 bg-yellow transition-transform duration-200 ease-[var(--ease-brand)] group-hover:scale-x-100 group-data-[selected=true]:scale-x-100" />
+                  <span className="w-6 flex-none font-mono text-xs tracking-[0.08em] text-paper/60 transition-colors group-hover:text-paper group-data-[selected=true]:text-paper">{String(n + 1).padStart(2, "0")}</span>
                   <span className="min-w-0 text-base font-medium leading-[1.3]">{title}</span>
                 </button>
               ))}
             </div>
-            <p className="mt-4 text-sm leading-[1.5] text-muted">{sv.pickNote}</p>
+            <p className="mt-4 text-sm leading-[1.5] text-paper/60">{sv.pickNote}</p>
           </div>
         ) : step === 2 && service !== null ? (
           <div>
-            <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-navy pb-4">
-              <h2 className="mono-label text-muted">
+            <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-paper/30 pb-4">
+              <h2 className="mono-label text-paper/60">
                 {sv.summary} — {serviceName}
               </h2>
-              <button type="button" onClick={() => setStep(1)} className="text-link">
+              <button type="button" onClick={() => setStep(1)} className="text-paper underline underline-offset-4 transition-colors hover:text-yellow">
                 {sv.change}
               </button>
             </div>
@@ -219,15 +219,15 @@ export function SurveyForm({ lang }: { lang: Locale }) {
                 return (
                   <fieldset key={label} id={`sq-q-${qi}`} tabIndex={-1} aria-invalid={missing.includes(qi) || undefined} aria-describedby={missing.includes(qi) ? `sq-q-${qi}-err` : undefined} className="m-0 border-0 p-0 outline-none">
                     <legend className="flex flex-wrap items-baseline gap-4 p-0">
-                      <span className="font-mono text-xs tracking-[0.08em] text-muted">0{qi + 1}</span>
+                      <span className="font-mono text-xs tracking-[0.08em] text-paper/60">0{qi + 1}</span>
                       <span className="text-[17px] font-medium leading-[1.4]">{label}</span>
-                      {multi && <span className="mono-label text-muted">{sv.multi}</span>}
+                      {multi && <span className="mono-label text-paper/60">{sv.multi}</span>}
                     </legend>
                     <div className="mt-4 flex flex-wrap gap-2">
                       {options.map((o) => {
                         const isSel = multi ? (selected as string[]).includes(o) : selected === o;
                         return (
-                          <button key={o} type="button" onClick={() => pickAnswer(qi, o, multi)} data-selected={isSel} aria-pressed={isSel} className="chip">
+                          <button key={o} type="button" onClick={() => pickAnswer(qi, o, multi)} data-selected={isSel} aria-pressed={isSel} className="chip-ink">
                             {o}
                           </button>
                         );
@@ -240,10 +240,10 @@ export function SurveyForm({ lang }: { lang: Locale }) {
             </div>
 
             <div className="mt-10 flex flex-wrap gap-3 *:flex-1 sm:*:flex-none">
-              <button type="button" onClick={() => setStep(1)} className="btn-secondary">
+              <button type="button" onClick={() => setStep(1)} className="btn-ink-secondary">
                 {sv.back}
               </button>
-              <button type="button" onClick={goToContact} className="btn-primary">
+              <button type="button" onClick={goToContact} className="btn-ink-primary">
                 {sv.next}
               </button>
             </div>
@@ -256,15 +256,15 @@ export function SurveyForm({ lang }: { lang: Locale }) {
               void submit();
             }}
           >
-            <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-navy pb-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-paper/30 pb-4">
               <h2 className="text-[17px] font-medium leading-[1.4]">{sv.contactTitle}</h2>
-              <div className="mono-label text-muted">{serviceName}</div>
+              <div className="mono-label text-paper/60">{serviceName}</div>
             </div>
 
             <div className="mt-8 flex flex-col gap-8">
               {/* name */}
               <div>
-                <label htmlFor="sq-name" className="mono-label mb-2 block text-muted">
+                <label htmlFor="sq-name" className="mono-label mb-2 block text-paper/60">
                   {sv.name}
                 </label>
                 <input
@@ -279,14 +279,14 @@ export function SurveyForm({ lang }: { lang: Locale }) {
                   required
                   aria-invalid={!!errors.name}
                   aria-describedby={errors.name ? "sq-name-err" : undefined}
-                  className="field-underline"
+                  className="field-ink"
                 />
                 {errors.name && <FieldError id="sq-name-err">{errors.name}</FieldError>}
               </div>
 
               {/* channel + exactly one matching field */}
               <fieldset className="m-0 border-0 p-0">
-                <legend className="mono-label mb-3 p-0 text-muted">{sv.channel}</legend>
+                <legend className="mono-label mb-3 p-0 text-paper/60">{sv.channel}</legend>
                 <div className="flex flex-wrap gap-2">
                   {sv.channels.map(([label], i) => (
                     <button
@@ -299,7 +299,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
                       }}
                       data-selected={chan === i}
                       aria-pressed={chan === i}
-                      className="chip"
+                      className="chip-ink"
                     >
                       {label}
                     </button>
@@ -323,7 +323,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
                       required
                       aria-invalid={!!errors.contact}
                       aria-describedby={errors.contact ? "sq-contact-err" : undefined}
-                      className="field-underline mt-4"
+                      className="field-ink mt-4"
                       autoFocus
                     />
                   </>
@@ -334,19 +334,19 @@ export function SurveyForm({ lang }: { lang: Locale }) {
               {/* optional phone — only when the chosen channel is email (otherwise the number is already captured) */}
               {channelId === "email" && (
                 <div>
-                  <label htmlFor="sq-phone" className="mono-label mb-2 block text-muted">
+                  <label htmlFor="sq-phone" className="mono-label mb-2 block text-paper/60">
                     {sv.phone} <span className="normal-case tracking-normal">({sv.optional})</span>
                   </label>
-                  <input id="sq-phone" name="tel" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+994 XX XXX XX XX" className="field-underline" />
+                  <input id="sq-phone" name="tel" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+994 XX XXX XX XX" className="field-ink" />
                 </div>
               )}
 
               {/* optional message */}
               <div>
-                <label htmlFor="sq-message" className="mono-label mb-2 block text-muted">
+                <label htmlFor="sq-message" className="mono-label mb-2 block text-paper/60">
                   {sv.message} <span className="normal-case tracking-normal">({sv.optional})</span>
                 </label>
-                <textarea id="sq-message" name="message" rows={3} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={2000} className="field-underline resize-y leading-[1.5]" />
+                <textarea id="sq-message" name="message" rows={3} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={2000} className="field-ink resize-y leading-[1.5]" />
               </div>
 
               {/* consent — required, links to the privacy policy */}
@@ -364,11 +364,11 @@ export function SurveyForm({ lang }: { lang: Locale }) {
                     required
                     aria-invalid={!!errors.consent}
                     aria-describedby={errors.consent ? "sq-consent-err" : undefined}
-                    className="mt-0.5 h-5 w-5 flex-none cursor-pointer accent-navy"
+                    className="mt-0.5 h-5 w-5 flex-none cursor-pointer accent-[#efa83c]"
                   />
                   <span className="type-small max-w-[62ch]">
                     {sv.consent}{" "}
-                    <Link href={legalHref(lang, "privacy")} className="text-link" target="_blank" rel="noopener">
+                    <Link href={legalHref(lang, "privacy")} className="text-paper underline underline-offset-4 transition-colors hover:text-yellow" target="_blank" rel="noopener">
                       {sv.consentLink}
                     </Link>
                   </span>
@@ -384,19 +384,19 @@ export function SurveyForm({ lang }: { lang: Locale }) {
             </div>
 
             {failed && (
-              <p className="type-small mt-6 text-error" role="alert">
+              <p className="type-small mt-6 text-[#ff8a80]" role="alert">
                 {sv.errorDirect}{" "}
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-link text-error">
+                <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-4 text-[#ff8a80]">
                   {CONTACT_EMAIL}
                 </a>
               </p>
             )}
 
             <div className="mt-10 flex flex-wrap gap-3 *:flex-1 sm:*:flex-none">
-              <button type="button" onClick={() => setStep(2)} className="btn-secondary" disabled={sending}>
+              <button type="button" onClick={() => setStep(2)} className="btn-ink-secondary" disabled={sending}>
                 {sv.back}
               </button>
-              <button type="submit" disabled={sending} aria-busy={sending} className="btn-primary">
+              <button type="submit" disabled={sending} aria-busy={sending} className="btn-ink-primary">
                 {sending ? sv.sending : sv.send}
               </button>
             </div>
@@ -409,7 +409,7 @@ export function SurveyForm({ lang }: { lang: Locale }) {
 
 function FieldError({ id, children }: { id: string; children: React.ReactNode }) {
   return (
-    <p id={id} className="type-small mt-2 text-error" role="alert">
+    <p id={id} className="type-small mt-2 text-[#ff8a80]" role="alert">
       {children}
     </p>
   );

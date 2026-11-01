@@ -33,7 +33,7 @@ export function ServicesSection({ lang, title, lead, services, primaryLabel, cta
           </StaggerItem>
         ))}
         <StaggerItem className={`bg-ink-950 ${sm} ${lg}`}>
-          <Link href={`/${lang}#elaqe`} className="group flex h-full min-h-[220px] items-end justify-between gap-6 bg-yellow/[0.06] p-6 transition-colors hover:bg-yellow/[0.12] sm:p-8">
+          <Link href={`/${lang}/anket`} className="group flex h-full min-h-[220px] items-end justify-between gap-6 bg-yellow/[0.06] p-6 transition-colors hover:bg-yellow/[0.12] sm:p-8">
             <span className="max-w-[18ch] text-[clamp(20px,1.8vw,26px)] font-medium leading-[1.15] tracking-[-0.02em] text-yellow">{cta}</span>
             <ArrowUpRight size={22} aria-hidden="true" className="flex-none text-yellow transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </Link>

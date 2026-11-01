@@ -42,7 +42,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const next = () => ++n;
 
   return (
-    <div className="theme-ink bg-ink-950 text-paper">
+    <div className="theme-ink home-intro bg-ink-950 text-paper">
       <SmoothScroll />
       <SiteChrome lang={lang} tone="ink" t={chromeCopy(lang)} about={aboutData(lang, content)} channels={channels} />
       <main>
@@ -50,7 +50,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           cards={showcaseCards(lang, content)}
           t={{ carouselLabel: sc.carouselLabel, carouselHelp: sc.carouselHelp, open: sc.open, loading: sc.loading }}
         />
-        <IntroSection headline={sc.headline} subline={sc.subline} cta={sc.cta} />
+        <IntroSection headline={sc.headline} subline={sc.subline} cta={sc.cta} href={`/${lang}/anket`} />
         <ServicesSection lang={lang} title={sc.sections.services} lead={sc.servicesLead} services={content.services} primaryLabel={t.tpl.cardPrimary} cta={sc.cta} />
         <ProcessSection title={sc.sections.process} lead={sc.processLead} steps={sc.process} qaNote={sc.qaNote} />
         <NumbersSection title={sc.sections.numbers} lead={t.tpl.statsText} stats={content.stats} logos={content.partnerLogos} clientsTitle={sc.sections.clients} />
