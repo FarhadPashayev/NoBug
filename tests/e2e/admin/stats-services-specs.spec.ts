@@ -51,7 +51,7 @@ test("SVC-01 / SVC-03 / SVC-04 / SVC-05 / SVC-07: categories, icons, images, vis
   await page.fill("#f-slug", "e2e-xidmet");
   await saveDialog(page);
   await toast(page, /Əlavə olundu/);
-  await page.getByPlaceholder("Xidmət axtar…").fill("E2E xidmət"); // the new row is on page 2 otherwise
+  await page.getByPlaceholder("Xidmət axtar…").filter({ visible: true }).fill("E2E xidmət"); // the new row is on page 2 otherwise
   await expect(row(page, "E2E xidmət")).toContainText("E2E kateqoriya");
 
   await page.goto("/az");
@@ -62,7 +62,7 @@ test("SVC-01 / SVC-03 / SVC-04 / SVC-05 / SVC-07: categories, icons, images, vis
   await expect(page.locator("main img").first()).toHaveAttribute("src", /services\.webp/); // SVC-04 uploaded image wins (case-study header; the carousel uses it as texture)
 
   await page.goto("/admin/services");
-  await page.getByPlaceholder("Xidmət axtar…").fill("E2E xidmət");
+  await page.getByPlaceholder("Xidmət axtar…").filter({ visible: true }).fill("E2E xidmət");
   await row(page, "E2E xidmət").getByRole("button", { name: "Redaktə et" }).click();
   await dialog(page).locator("#f-isActive").click();
   await saveDialog(page);

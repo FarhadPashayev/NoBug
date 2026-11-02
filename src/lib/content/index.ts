@@ -4,6 +4,7 @@ import { getDict } from "@/lib/i18n/dict";
 import { t } from "@/lib/i18n/localized";
 import { FOOTER_SERVICES, LEGACY_ORDER, PRIMARY_SERVICES, SECONDARY_SERVICES, serviceIndex } from "@/lib/services";
 import { CONTACT_EMAIL, LINKEDIN_URL } from "@/lib/site";
+import { PORTFOLIO } from "@/lib/portfolio";
 
 /**
  * What the public pages render, already resolved to one locale. Read from the
@@ -16,7 +17,7 @@ export type SiteContent = {
   fromDb: boolean;
   hero: { title: string; subtitle: string; primaryCta: { label: string; href: string } | null; secondaryCta: { label: string; href: string } | null; image: string | null };
   partnerLogos: { id: string; name: string; logoUrl: string; url: string }[];
-  projects: { id: string; slug: string; title: string; shortDescription: string; content: string; duration: string; year: string; coverUrl: string | null; tags: string[]; isFeatured: boolean }[];
+  projects: Project[];
   stats: { value: string; label: string; source: string }[];
   services: { id: string; slug: string; name: string; shortDescription: string; details: string; icon: string; imageUrl: string | null; primary: boolean; categorySlug: string | null }[];
   specs: { area: string; approach: string; tooling: string; status: string }[];
@@ -32,6 +33,30 @@ export type SiteContent = {
     legal: LegalEntity;
   };
 };
+
+/** A project as the pages render it; `url`, `gallery` and `service` are filled for the shipped portfolio (lib/portfolio.ts). */
+export type Project = { id: string; slug: string; title: string; shortDescription: string; content: string; duration: string; year: string; coverUrl: string | null; tags: string[]; isFeatured: boolean; url: string; gallery: { src: string; alt: string }[]; service: string | null };
+
+/** Portfolio entries in one locale; a panel project with the same slug wins. */
+function portfolioProjects(locale: Locale, existing: { slug: string }[]): Project[] {
+  const taken = new Set(existing.map((p) => p.slug));
+  return PORTFOLIO.filter((w) => !taken.has(w.slug)).map((w) => ({
+    id: `work-${w.slug}`,
+    slug: w.slug,
+    title: w.title[locale],
+    shortDescription: w.short[locale],
+    content: w.body[locale],
+    duration: "",
+    year: w.year,
+    coverUrl: w.cover,
+    tags: w.tags,
+    isFeatured: false,
+    url: w.url,
+    gallery: w.gallery.map((g) => ({ src: g.src, alt: g.alt[locale] })),
+    service: w.service,
+  }));
+}
+const fromPanel = { url: "", gallery: [] as Project["gallery"], service: null };
 
 /** Legal-entity details from Sayt parametrləri; every field may be empty until the client provides it. */
 export type LegalEntity = { name: string; taxId: string; address: string };
@@ -64,6 +89,7 @@ function fromDictionary(locale: Locale): SiteContent {
       coverUrl: null,
       tags: [],
       isFeatured: i === 0,
+      ...fromPanel,
     })),
     stats: [...d.figures, d.tpl.founded].map(([value, label, source]) => ({ value, label, source })),
     services: [...PRIMARY_SERVICES, ...SECONDARY_SERVICES].map((id) => {
@@ -130,6 +156,7 @@ async function fromDatabase(locale: Locale): Promise<SiteContent | null> {
       coverUrl: p.coverUrl,
       tags: p.tags.map((tg) => t(tg.name, locale)),
       isFeatured: p.isFeatured,
+      ...fromPanel,
     })),
     stats: stats.map((s) => ({ value: s.value, label: t(s.label, locale), source: t(s.source, locale) })),
     services: services.map((s) => ({
@@ -178,11 +205,12 @@ export async function getService(locale: Locale, slug: string): Promise<SiteCont
 }
 
 /** One published project by slug, for /[lang]/layiheler/[slug]; null when unknown, unpublished or no DB. */
-export async function getProject(locale: Locale, slug: string): Promise<SiteContent["projects"][number] | null> {
-  if (!hasDatabase) return null;
+export async function getProject(locale: Locale, slug: string): Promise<Project | null> {
+  const shipped = () => portfolioProjects(locale, []).find((p) => p.slug === slug) ?? null;
+  if (!hasDatabase) return shipped();
   try {
     const p = await prisma.project.findFirst({ where: { slug, isPublished: true }, include: { tags: true } });
-    if (!p) return null;
+    if (!p) return shipped();
     return {
       id: p.id,
       slug: p.slug,
@@ -194,20 +222,22 @@ export async function getProject(locale: Locale, slug: string): Promise<SiteCont
       coverUrl: p.coverUrl,
       tags: p.tags.map((tg) => t(tg.name, locale)),
       isFeatured: p.isFeatured,
+      ...fromPanel,
     };
   } catch (e) {
     console.error("[content] project read failed:", e);
-    return null;
+    return shipped();
   }
 }
 
 export async function getSiteContent(locale: Locale): Promise<SiteContent> {
-  if (!hasDatabase) return fromDictionary(locale);
+  const withPortfolio = (c: SiteContent): SiteContent => ({ ...c, projects: [...c.projects, ...portfolioProjects(locale, c.projects)] });
+  if (!hasDatabase) return withPortfolio(fromDictionary(locale));
   try {
-    return (await fromDatabase(locale)) ?? fromDictionary(locale);
+    return withPortfolio((await fromDatabase(locale)) ?? fromDictionary(locale));
   } catch (e) {
     console.error("[content] database read failed, using dictionary:", e);
-    return fromDictionary(locale);
+    return withPortfolio(fromDictionary(locale));
   }
 }
 

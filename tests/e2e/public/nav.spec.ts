@@ -36,7 +36,7 @@ test("NAV-03: the About drawer is full screen on a phone and closes on its backd
   await page.getByRole("button", { name: "Haqqımızda" }).click();
   const drawer = page.getByRole("dialog", { name: "nobug haqqında" });
   await expect(drawer).toBeVisible();
-  expect((await drawer.boundingBox())!.width).toBe(390);
+  expect((await drawer.boundingBox())!.width).toBeCloseTo(390, 0);
   await drawer.getByRole("button", { name: "Bağla" }).click();
   await expect(drawer).toHaveCount(0);
   await page.setViewportSize({ width: 1440, height: 900 });

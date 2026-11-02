@@ -145,7 +145,8 @@ function Card({
     const load = () => {
       new THREE.TextureLoader().setCrossOrigin("anonymous").load(src, (t) => {
         if (cancelled) return t.dispose();
-        t.colorSpace = THREE.SRGBColorSpace;
+        // no colour-space conversion: the shader writes the sampled sRGB values straight out (as the procedural covers do)
+        t.colorSpace = THREE.NoColorSpace;
         t.minFilter = THREE.LinearMipmapLinearFilter;
         tex = t;
         const img = t.image as HTMLImageElement;

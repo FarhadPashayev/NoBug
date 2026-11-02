@@ -14,12 +14,21 @@ import type { ShowcaseCardData } from "@/components/showcase/hero-showcase";
 export const serviceHref = (lang: Locale, slug: string) => `/${lang}/xidmetler/${slug}`;
 export const projectHref = (lang: Locale, slug: string) => `/${lang}/layiheler/${slug}`;
 
+/** The service a project belongs to: the portfolio says so, a panel project by a tag named like the service. */
+export function projectService(content: SiteContent, p: SiteContent["projects"][number]) {
+  const same = (a: string, b: string) => a.toLocaleLowerCase("az") === b.toLocaleLowerCase("az");
+  return content.services.find((s) => s.slug === p.service || p.tags.some((tg) => same(tg, s.name))) ?? null;
+}
+
+/** Carousel: every service card, followed by the cards of the work done in it. */
 export function showcaseCards(lang: Locale, content: SiteContent): ShowcaseCardData[] {
-  return content.services.map((s) => {
+  return content.services.flatMap((s) => {
     const cover = coverFor(s.slug);
-    return {
+    const service: ShowcaseCardData = {
       slug: s.slug,
+      kind: "service",
       title: s.name,
+      label: s.name,
       description: s.shortDescription,
       href: serviceHref(lang, s.slug),
       imageUrl: s.imageUrl,
@@ -27,6 +36,21 @@ export function showcaseCards(lang: Locale, content: SiteContent): ShowcaseCardD
       photo: cover.photo,
       alt: s.name,
     };
+    const work = content.projects
+      .filter((p) => p.coverUrl && projectService(content, p)?.slug === s.slug)
+      .map((p): ShowcaseCardData => ({
+        slug: `work-${p.slug}`,
+        kind: "project",
+        title: p.title,
+        label: `${p.title} · ${s.name}`,
+        description: p.shortDescription,
+        href: projectHref(lang, p.slug),
+        imageUrl: p.coverUrl,
+        pattern: cover.pattern,
+        photo: p.coverUrl ?? cover.photo,
+        alt: p.title,
+      }));
+    return [service, ...work];
   });
 }
 

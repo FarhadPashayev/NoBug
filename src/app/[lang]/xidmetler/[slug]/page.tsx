@@ -12,7 +12,7 @@ import { absoluteUrl, SITE_URL } from "@/lib/site";
 import { notFoundMetadata } from "@/lib/not-found";
 import { getShowcaseCopy } from "@/lib/i18n/showcase";
 import { coverFor } from "@/lib/covers";
-import { serviceHref } from "@/lib/showcase-data";
+import { projectService, serviceHref } from "@/lib/showcase-data";
 import { CaseLayout } from "@/components/case/case-layout";
 import { ProjectsSection } from "@/components/sections/projects";
 
@@ -62,7 +62,7 @@ export default async function ServicePage({ params }: Props) {
   const near = (i: number) => (list.length > 1 && at >= 0 ? list[(i + list.length) % list.length] : null);
   const toLink = (o: (typeof list)[number] | null) => (o && o.slug !== slug ? { title: o.name, href: serviceHref(lang, o.slug) } : null);
   // projects tagged with this service; otherwise the selected work in general
-  const tagged = content.projects.filter((p) => p.tags.some((tg) => tg.toLowerCase() === s.name.toLowerCase()));
+  const tagged = content.projects.filter((p) => projectService(content, p)?.slug === slug);
   const projects = tagged.length ? tagged : content.projects;
   const paths = Object.fromEntries(LOCALES.map((l) => [l, `/xidmetler/${slug}`])) as Record<Locale, string>;
   const jsonLd = {

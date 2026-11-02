@@ -4,6 +4,7 @@ import { absoluteUrl } from "@/lib/site";
 import { LEGAL_KEYS, legalHref } from "@/lib/legal";
 import { ACTIVE_SERVICES } from "@/lib/services";
 import { hasDatabase, prisma } from "@/lib/db";
+import { PORTFOLIO } from "@/lib/portfolio";
 
 // Locale home pages, legal pages, one page per service and per published
 // project; /anket stays noindex and is not listed.
@@ -17,7 +18,8 @@ const entry = (path: (l: string) => string, priority: number, changeFrequency: "
   }));
 
 async function slugs(): Promise<{ services: string[]; projects: string[] }> {
-  if (!hasDatabase) return { services: [...ACTIVE_SERVICES], projects: [] };
+  const shipped = PORTFOLIO.map((w) => w.slug);
+  if (!hasDatabase) return { services: [...ACTIVE_SERVICES], projects: shipped };
   try {
     const [services, projects] = await Promise.all([
       prisma.service.findMany({ where: { isActive: true }, select: { slug: true }, orderBy: { order: "asc" } }),
@@ -26,10 +28,10 @@ async function slugs(): Promise<{ services: string[]; projects: string[] }> {
     return {
       services: services.length ? services.map((s) => s.slug) : [...ACTIVE_SERVICES],
       // only projects with a write-up have a page worth indexing
-      projects: projects.filter((p) => Boolean((p.content as { az?: string } | null)?.az)).map((p) => p.slug),
+      projects: [...new Set([...projects.filter((p) => Boolean((p.content as { az?: string } | null)?.az)).map((p) => p.slug), ...shipped])],
     };
   } catch {
-    return { services: [...ACTIVE_SERVICES], projects: [] };
+    return { services: [...ACTIVE_SERVICES], projects: shipped };
   }
 }
 

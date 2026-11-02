@@ -19,7 +19,10 @@ const ShowcaseCanvas = dynamic(() => import("@/components/webgl/showcase-canvas"
 
 export type ShowcaseCardData = {
   slug: string;
+  kind: "service" | "project";
   title: string;
+  /** text of the bottom pill — "Kandar · Veb və e-ticarət" for work */
+  label: string;
   description: string;
   href: string;
   imageUrl: string | null;
@@ -33,7 +36,7 @@ type Mode = "pending" | "webgl" | "html";
 
 const STORAGE_KEY = "nobug:showcase-index";
 // scroll distance per card while the hero is pinned
-const STEP_SVH = 42;
+const STEP_SVH = 36;
 
 let seen: boolean | null = null;
 /** Only the first home visit of a browser session plays the intro. (cached — read during render) */
@@ -401,9 +404,9 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
                   open(active);
                 }}
                 className="pointer-events-auto flex h-full items-center"
-                aria-label={`${t.open}: ${current.title}`}
+                aria-label={`${t.open}: ${current.label}`}
               >
-                <SlotTitle text={current.title} direction={dir} />
+                <SlotTitle text={current.label} direction={dir} />
               </a>
             ) : (
               <span role="progressbar" aria-label={t.loading} aria-valuemin={0} aria-valuemax={100} aria-valuenow={loadPct} className="font-medium tabular-nums text-paper/60">
@@ -415,7 +418,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
             )}
           </div>
           <div className="sr-only" aria-live="polite">
-            {revealed && current ? `${active + 1} / ${n}: ${current.title}` : ""}
+            {revealed && current ? `${active + 1} / ${n}: ${current.label}` : ""}
           </div>
         </div>
 
@@ -428,7 +431,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
         {cards.map((c) => (
           <li key={c.slug}>
             <a href={c.href} tabIndex={-1}>
-              {c.title}
+              {c.label}
             </a>
             <p>{c.description}</p>
           </li>

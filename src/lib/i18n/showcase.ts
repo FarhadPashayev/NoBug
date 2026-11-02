@@ -25,7 +25,7 @@ export type ShowcaseCopy = {
   process: [string, string][]; // step, text
   qaNote: string;
   projectsEmpty: string;
-  case: { category: string; client: string; year: string; duration: string; stack: string; service: string; projects: string; projectsAll: string; ctaTitle: string; ctaText: string; asked: string; progress: string; backHome: string };
+  case: { viewLive: string; category: string; client: string; year: string; duration: string; stack: string; service: string; projects: string; projectsAll: string; ctaTitle: string; ctaText: string; asked: string; progress: string; backHome: string };
   drawer: { title: string; who: string; founded: string; mission: string; services: string; numbers: string; team: string; how: string };
   form: {
     name: string;
@@ -73,7 +73,7 @@ const az: ShowcaseCopy = {
   ],
   qaNote: "Hər layihə təhvildən əvvəl peşəkar testdən keçir — adımız buradan gəlir.",
   projectsEmpty: "Layihələr tezliklə əlavə olunacaq.",
-  case: { category: "Kateqoriya", client: "Müştəri", year: "İl", duration: "Müddət", stack: "Texnologiyalar", service: "Xidmət", projects: "Bu istiqamətdə layihələr", projectsAll: "Seçilmiş layihələr", ctaTitle: "Bu xidmət sizə lazımdır?", ctaText: "Üç qısa sual — bir iş günü ərzində cavab veririk.", asked: "Sorğuda nə soruşuruq", progress: "Səhifə irəliləyişi", backHome: "Ana səhifəyə qayıt" },
+  case: { viewLive: "Sayta bax", category: "Kateqoriya", client: "Müştəri", year: "İl", duration: "Müddət", stack: "Texnologiyalar", service: "Xidmət", projects: "Bu istiqamətdə layihələr", projectsAll: "Seçilmiş layihələr", ctaTitle: "Bu xidmət sizə lazımdır?", ctaText: "Üç qısa sual — bir iş günü ərzində cavab veririk.", asked: "Sorğuda nə soruşuruq", progress: "Səhifə irəliləyişi", backHome: "Ana səhifəyə qayıt" },
   drawer: { title: "nobug haqqında", who: "Kimik", founded: "Quruluş ili", mission: "Missiya", services: "Xidmətlər", numbers: "Rəqəmlər", team: "Komanda", how: "Necə işləyirik" },
   form: {
     name: "Ad, soyad",
@@ -121,7 +121,7 @@ const en: ShowcaseCopy = {
   ],
   qaNote: "Every project goes through professional testing before delivery — that's where our name comes from.",
   projectsEmpty: "Projects will be added soon.",
-  case: { category: "Category", client: "Client", year: "Year", duration: "Duration", stack: "Tech stack", service: "Service", projects: "Projects in this field", projectsAll: "Selected projects", ctaTitle: "Need this service?", ctaText: "Three short questions — we reply within one business day.", asked: "What the enquiry asks", progress: "Page progress", backHome: "Back to home" },
+  case: { viewLive: "View live", category: "Category", client: "Client", year: "Year", duration: "Duration", stack: "Tech stack", service: "Service", projects: "Projects in this field", projectsAll: "Selected projects", ctaTitle: "Need this service?", ctaText: "Three short questions — we reply within one business day.", asked: "What the enquiry asks", progress: "Page progress", backHome: "Back to home" },
   drawer: { title: "About nobug", who: "Who we are", founded: "Founded", mission: "Mission", services: "Services", numbers: "Numbers", team: "Team", how: "How we work" },
   form: {
     name: "Full name",
@@ -169,7 +169,7 @@ const ru: ShowcaseCopy = {
   ],
   qaNote: "Каждый проект проходит профессиональное тестирование перед сдачей — отсюда и наше название.",
   projectsEmpty: "Проекты скоро появятся.",
-  case: { category: "Категория", client: "Клиент", year: "Год", duration: "Срок", stack: "Технологии", service: "Услуга", projects: "Проекты в этом направлении", projectsAll: "Избранные проекты", ctaTitle: "Нужна эта услуга?", ctaText: "Три коротких вопроса — отвечаем в течение рабочего дня.", asked: "Что мы спрашиваем в заявке", progress: "Прогресс страницы", backHome: "На главную" },
+  case: { viewLive: "Открыть сайт", category: "Категория", client: "Клиент", year: "Год", duration: "Срок", stack: "Технологии", service: "Услуга", projects: "Проекты в этом направлении", projectsAll: "Избранные проекты", ctaTitle: "Нужна эта услуга?", ctaText: "Три коротких вопроса — отвечаем в течение рабочего дня.", asked: "Что мы спрашиваем в заявке", progress: "Прогресс страницы", backHome: "На главную" },
   drawer: { title: "О nobug", who: "Кто мы", founded: "Год основания", mission: "Миссия", services: "Услуги", numbers: "Цифры", team: "Команда", how: "Как мы работаем" },
   form: {
     name: "Имя, фамилия",

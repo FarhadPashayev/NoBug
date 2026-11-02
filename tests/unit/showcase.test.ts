@@ -5,7 +5,9 @@ import { carouselLayout } from "@/components/webgl/layout";
 import { getShowcaseCopy } from "@/lib/i18n/showcase";
 import { LOCALES } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
-import { heroCopy, realTestimonials } from "@/lib/showcase-data";
+import { heroCopy, realTestimonials, showcaseCards } from "@/lib/showcase-data";
+import { PORTFOLIO } from "@/lib/portfolio";
+import { existsSync } from "node:fs";
 import type { SiteContent } from "@/lib/content";
 
 describe("contact form schema", () => {
@@ -63,5 +65,26 @@ describe("panel content on the home page", () => {
   it("lets an edit in the panel take over", () => {
     const c = { ...base, hero: { ...base.hero, title: "Yeni başlıq", subtitle: "Yeni mətn", primaryCta: { label: "Yaz", href: "/az/anket" } } } as SiteContent;
     expect(heroCopy("az", c)).toEqual({ headline: "Yeni başlıq", subline: "Yeni mətn", cta: { label: "Yaz", href: "/az/anket" } });
+  });
+});
+
+describe("portfolio in the carousel", () => {
+  const svc = (slug: string, name: string) => ({ id: slug, slug, name, shortDescription: "", details: "", icon: "", imageUrl: null, primary: true, categorySlug: "esas" });
+  const work = (slug: string, service: string | null, tags: string[] = []) => ({ id: slug, slug, title: slug, shortDescription: "", content: "", duration: "", year: "", coverUrl: `/assets/work/${slug}/cover.webp`, tags, isFeatured: false, url: "", gallery: [], service });
+  const content = { services: [svc("web", "Veb və e-ticarət"), svc("qa", "Keyfiyyət təminatı")], projects: [work("kandar", "web"), work("panel-qa", null, ["Keyfiyyət təminatı"]), work("other", null)] } as unknown as SiteContent;
+
+  it("follows each service with its own work, labelled with the service", () => {
+    const cards = showcaseCards("az", content);
+    expect(cards.map((c) => c.slug)).toEqual(["web", "work-kandar", "qa", "work-panel-qa"]);
+    expect(cards[1]).toMatchObject({ kind: "project", label: "kandar · Veb və e-ticarət", href: "/az/layiheler/kandar", imageUrl: "/assets/work/kandar/cover.webp" });
+  });
+  it("ships the three delivered sites with covers and a live link", () => {
+    expect(PORTFOLIO.map((w) => w.slug)).toEqual(["kandar", "beic", "bormark"]);
+    for (const w of PORTFOLIO) {
+      expect(w.url).toMatch(/^https:\/\//);
+      expect(existsSync(`public${w.cover}`)).toBe(true);
+      for (const g of w.gallery) expect(existsSync(`public${g.src}`)).toBe(true);
+      for (const l of LOCALES) expect(w.short[l].length).toBeGreaterThan(20);
+    }
   });
 });

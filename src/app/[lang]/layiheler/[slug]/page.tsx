@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ArrowUpRight } from "lucide-react";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { getProject, getSiteContent } from "@/lib/content";
@@ -8,7 +9,7 @@ import { absoluteUrl } from "@/lib/site";
 import { notFoundMetadata } from "@/lib/not-found";
 import { getShowcaseCopy } from "@/lib/i18n/showcase";
 import { coverFor } from "@/lib/covers";
-import { projectHref } from "@/lib/showcase-data";
+import { projectHref, projectService, showcaseCards } from "@/lib/showcase-data";
 import { CaseLayout } from "@/components/case/case-layout";
 
 type Props = { params: Promise<{ lang: string; slug: string }> };
@@ -62,7 +63,11 @@ export default async function ProjectPage({ params }: Props) {
     const o = list.length > 1 && at >= 0 ? list[(i + list.length) % list.length] : null;
     return o && o.slug !== slug ? { title: o.title, href: projectHref(lang, o.slug) } : null;
   };
+  const service = projectService(content, p);
+  // opened from the carousel → ✕ returns to the same card
+  const card = showcaseCards(lang, content).findIndex((c) => c.href === projectHref(lang, slug));
   const info: [string, string][] = [
+    ...(service ? ([[sc.case.category, service.name]] as [string, string][]) : []),
     ...(p.year ? ([[sc.case.year, p.year]] as [string, string][]) : []),
     ...(p.duration ? ([[sc.case.duration, p.duration]] as [string, string][]) : []),
     ...(p.tags.length ? ([[sc.case.stack, p.tags.join(", ")]] as [string, string][]) : []),
@@ -75,10 +80,19 @@ export default async function ProjectPage({ params }: Props) {
       paths={paths}
       title={p.title}
       info={info}
-      media={[p.coverUrl ? { src: p.coverUrl, alt: p.title } : { src: coverFor(p.slug).photo, alt: p.title, pattern: coverFor(p.slug).pattern }]}
+      action={
+        p.url ? (
+          <a href={p.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-full bg-ink-950 px-6 text-[15px] font-medium text-paper transition-opacity hover:opacity-85">
+            {sc.case.viewLive}
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </a>
+        ) : undefined
+      }
+      media={[p.coverUrl ? { src: p.coverUrl, alt: p.title } : { src: coverFor(p.slug).photo, alt: p.title, pattern: coverFor(p.slug).pattern }, ...p.gallery]}
       prev={near(at - 1)}
       next={near(at + 1)}
-      closeHref={`/${lang}#layiheler`}
+      closeHref={card >= 0 ? `/${lang}` : `/${lang}#layiheler`}
+      homeIndex={card >= 0 ? card : undefined}
     >
       <div className="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <h2 className="eyebrow text-ink-950/60">{t.caseStudy.labels[2]}</h2>
