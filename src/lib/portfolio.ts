@@ -17,11 +17,20 @@ export type PortfolioItem = {
   body: L;
   tags: string[];
   year: string;
+  /** brand ground of the artwork and of the screen panels on the case page */
+  theme: { from: string; to: string; ink: string };
   cover: string;
-  gallery: { src: string; alt: L }[];
+  coverPortrait: string;
+  gallery: { src: string; alt: L; device: "desktop" | "phone" }[];
 };
 
+// artwork rendered by scripts/portfolio-covers.mjs
 const shot = (slug: string, file: string) => `/assets/work/${slug}/${file}.webp`;
+const screens = (slug: string, name: string, d: [L, L]): PortfolioItem["gallery"] => [
+  { src: shot(slug, "d1"), alt: d[0], device: "desktop" },
+  { src: shot(slug, "d2"), alt: d[1], device: "desktop" },
+  ...[1, 2, 3].map((i) => ({ src: shot(slug, `m${i}`), alt: { az: `${name} saytı telefonda, ekran ${i}`, en: `${name} site on a phone, screen ${i}`, ru: `Сайт ${name} на телефоне, экран ${i}` }, device: "phone" as const })),
+];
 
 export const PORTFOLIO: PortfolioItem[] = [
   {
@@ -41,12 +50,10 @@ export const PORTFOLIO: PortfolioItem[] = [
     },
     tags: ["Next.js"],
     year: "",
-    cover: shot("kandar", "cover"),
-    gallery: [
-      { src: shot("kandar", "s1"), alt: { az: "Kandar saytı: şirkət haqqında bölmə", en: "Kandar site: about section", ru: "Сайт Kandar: раздел о компании" } },
-      { src: shot("kandar", "s2"), alt: { az: "Kandar saytı: seçilmiş layihələr", en: "Kandar site: selected projects", ru: "Сайт Kandar: избранные проекты" } },
-      { src: shot("kandar", "mobile"), alt: { az: "Kandar saytının mobil görünüşü", en: "Kandar site on a phone", ru: "Сайт Kandar на телефоне" } },
-    ],
+    theme: { from: "#efe9e2", to: "#c7baab", ink: "#2b2620" },
+    cover: shot("kandar", "card"),
+    coverPortrait: shot("kandar", "card-portrait"),
+    gallery: screens("kandar", "Kandar", [{ az: "Kandar saytı: şirkət haqqında bölmə", en: "Kandar site: about section", ru: "Сайт Kandar: раздел о компании" }, { az: "Kandar saytı: seçilmiş layihələr", en: "Kandar site: selected projects", ru: "Сайт Kandar: избранные проекты" }]),
   },
   {
     slug: "beic",
@@ -65,12 +72,10 @@ export const PORTFOLIO: PortfolioItem[] = [
     },
     tags: ["Next.js"],
     year: "",
-    cover: shot("beic", "cover"),
-    gallery: [
-      { src: shot("beic", "s1"), alt: { az: "BEIC saytı: proqramlar", en: "BEIC site: programmes", ru: "Сайт BEIC: программы" } },
-      { src: shot("beic", "s2"), alt: { az: "BEIC saytı: xəbərlər və tədbirlər", en: "BEIC site: news and events", ru: "Сайт BEIC: новости и события" } },
-      { src: shot("beic", "mobile"), alt: { az: "BEIC saytının mobil görünüşü", en: "BEIC site on a phone", ru: "Сайт BEIC на телефоне" } },
-    ],
+    theme: { from: "#4f9a2c", to: "#22408c", ink: "#ffffff" },
+    cover: shot("beic", "card"),
+    coverPortrait: shot("beic", "card-portrait"),
+    gallery: screens("beic", "BEIC", [{ az: "BEIC saytı: proqramlar", en: "BEIC site: programmes", ru: "Сайт BEIC: программы" }, { az: "BEIC saytı: xəbərlər və tədbirlər", en: "BEIC site: news and events", ru: "Сайт BEIC: новости и события" }]),
   },
   {
     slug: "bormark",
@@ -89,11 +94,9 @@ export const PORTFOLIO: PortfolioItem[] = [
     },
     tags: ["Astro", "GSAP", "Lenis"],
     year: "",
-    cover: shot("bormark", "cover"),
-    gallery: [
-      { src: shot("bormark", "s1"), alt: { az: "Bormark saytı: marşrut animasiyası", en: "Bormark site: route animation", ru: "Сайт Bormark: анимация маршрута" } },
-      { src: shot("bormark", "s2"), alt: { az: "Bormark saytı: xidmətlər", en: "Bormark site: services", ru: "Сайт Bormark: услуги" } },
-      { src: shot("bormark", "mobile"), alt: { az: "Bormark saytının mobil görünüşü", en: "Bormark site on a phone", ru: "Сайт Bormark на телефоне" } },
-    ],
+    theme: { from: "#1d2b4a", to: "#3a4d76", ink: "#ffffff" },
+    cover: shot("bormark", "card"),
+    coverPortrait: shot("bormark", "card-portrait"),
+    gallery: screens("bormark", "Bormark", [{ az: "Bormark saytı: marşrut animasiyası", en: "Bormark site: route animation", ru: "Сайт Bormark: анимация маршрута" }, { az: "Bormark saytı: xidmətlər", en: "Bormark site: services", ru: "Сайт Bormark: услуги" }]),
   },
 ];

@@ -11,6 +11,7 @@ import { getShowcaseCopy } from "@/lib/i18n/showcase";
 import { coverFor } from "@/lib/covers";
 import { projectHref, projectService, showcaseCards } from "@/lib/showcase-data";
 import { CaseLayout } from "@/components/case/case-layout";
+import { BrowserFrame, PhoneFrame } from "@/components/case/device-frames";
 
 type Props = { params: Promise<{ lang: string; slug: string }> };
 
@@ -64,6 +65,9 @@ export default async function ProjectPage({ params }: Props) {
     return o && o.slug !== slug ? { title: o.title, href: projectHref(lang, o.slug) } : null;
   };
   const service = projectService(content, p);
+  const desktop = p.gallery.filter((g) => g.device === "desktop");
+  const phones = p.gallery.filter((g) => g.device === "phone");
+  const domain = p.url ? new URL(p.url).hostname.replace(/^www\./, "") : "";
   // opened from the carousel → ✕ returns to the same card
   const card = showcaseCards(lang, content).findIndex((c) => c.href === projectHref(lang, slug));
   const info: [string, string][] = [
@@ -88,7 +92,7 @@ export default async function ProjectPage({ params }: Props) {
           </a>
         ) : undefined
       }
-      media={[p.coverUrl ? { src: p.coverUrl, alt: p.title } : { src: coverFor(p.slug).photo, alt: p.title, pattern: coverFor(p.slug).pattern }, ...p.gallery]}
+      media={[p.coverUrl ? { src: p.coverUrl, alt: p.title } : { src: coverFor(p.slug).photo, alt: p.title, pattern: coverFor(p.slug).pattern }]}
       prev={near(at - 1)}
       next={near(at + 1)}
       closeHref={card >= 0 ? `/${lang}` : `/${lang}#layiheler`}
@@ -101,6 +105,31 @@ export default async function ProjectPage({ params }: Props) {
           {p.content ? <div className="rich-text case-media mt-8 text-ink-950/80" dangerouslySetInnerHTML={{ __html: sanitizeRichText(p.content) }} /> : null}
         </div>
       </div>
+
+      {(desktop.length > 0 || phones.length > 0) && (
+        <section aria-label={sc.case.screens} className="mt-[clamp(56px,8vw,112px)]">
+          <h2 className="eyebrow border-t border-black/10 pt-6 text-ink-950/60">{sc.case.screens}</h2>
+          {/* the screens sit on the project's own brand ground, in device frames */}
+          <div className="mt-8 overflow-hidden rounded-[14px] p-[clamp(16px,5vw,64px)]" style={{ background: p.theme ? `linear-gradient(140deg, ${p.theme.from}, ${p.theme.to})` : "#1b1b1b" }}>
+            {desktop.length > 0 && (
+              <div className="grid gap-[clamp(16px,3vw,36px)] md:grid-cols-2">
+                {desktop.map((g) => (
+                  <BrowserFrame key={g.src} src={g.src} alt={g.alt} domain={domain} />
+                ))}
+              </div>
+            )}
+            {phones.length > 0 && (
+              <div className={`flex items-start justify-center gap-[clamp(10px,3vw,40px)] ${desktop.length ? "mt-[clamp(24px,5vw,64px)]" : ""}`}>
+                {phones.map((g, i) => (
+                  <div key={g.src} className={i === 1 ? "md:-translate-y-6" : "md:translate-y-6"}>
+                    <PhoneFrame src={g.src} alt={g.alt} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
     </CaseLayout>
   );
 }

@@ -26,6 +26,8 @@ export type ShowcaseCardData = {
   description: string;
   href: string;
   imageUrl: string | null;
+  /** artwork for the portrait cards on phones; falls back to imageUrl */
+  imageUrlPortrait: string | null;
   pattern: number;
   photo: string;
   alt: string;
@@ -322,7 +324,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
   };
 
   const read = useCallback(() => (pinned ? carouselRef.current.current : activeRef.current), [pinned]);
-  const canvasCards = useMemo(() => cards.map((c) => ({ slug: c.slug, pattern: c.pattern, imageUrl: c.imageUrl })), [cards]);
+  const canvasCards = useMemo(() => cards.map((c) => ({ slug: c.slug, pattern: c.pattern, imageUrl: mobile ? (c.imageUrlPortrait ?? c.imageUrl) : c.imageUrl })), [cards, mobile]);
   const current = cards[active];
 
   return (
@@ -385,7 +387,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
                   className={`relative block aspect-[1/1.3] overflow-hidden rounded-[10px] bg-ink-900 transition-[opacity,transform] duration-500 sm:aspect-[1/0.72] ${i === active ? "opacity-100" : "scale-[0.92] opacity-45"}`}
                   tabIndex={-1}
                 >
-                  <Image src={c.imageUrl ?? c.photo} alt={c.alt} fill sizes="(min-width: 640px) 34vw, 68vw" className="object-cover" priority={i < 2} />
+                  <Image src={(mobile ? c.imageUrlPortrait : null) ?? c.imageUrl ?? c.photo} alt={c.alt} fill sizes="(min-width: 640px) 34vw, 68vw" className="object-cover" priority={i < 2} />
                 </Link>
               </li>
             ))}

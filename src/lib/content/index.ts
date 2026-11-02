@@ -35,7 +35,24 @@ export type SiteContent = {
 };
 
 /** A project as the pages render it; `url`, `gallery` and `service` are filled for the shipped portfolio (lib/portfolio.ts). */
-export type Project = { id: string; slug: string; title: string; shortDescription: string; content: string; duration: string; year: string; coverUrl: string | null; tags: string[]; isFeatured: boolean; url: string; gallery: { src: string; alt: string }[]; service: string | null };
+export type Project = {
+  id: string;
+  slug: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+  duration: string;
+  year: string;
+  coverUrl: string | null;
+  tags: string[];
+  isFeatured: boolean;
+  url: string;
+  /** portrait artwork for the phone carousel (portfolio only) */
+  coverPortrait: string | null;
+  gallery: { src: string; alt: string; device: "desktop" | "phone" }[];
+  theme: { from: string; to: string; ink: string } | null;
+  service: string | null;
+};
 
 /** Portfolio entries in one locale; a panel project with the same slug wins. */
 function portfolioProjects(locale: Locale, existing: { slug: string }[]): Project[] {
@@ -52,11 +69,13 @@ function portfolioProjects(locale: Locale, existing: { slug: string }[]): Projec
     tags: w.tags,
     isFeatured: false,
     url: w.url,
-    gallery: w.gallery.map((g) => ({ src: g.src, alt: g.alt[locale] })),
+    coverPortrait: w.coverPortrait,
+    gallery: w.gallery.map((g) => ({ src: g.src, alt: g.alt[locale], device: g.device })),
+    theme: w.theme,
     service: w.service,
   }));
 }
-const fromPanel = { url: "", gallery: [] as Project["gallery"], service: null };
+const fromPanel = { url: "", coverPortrait: null, gallery: [] as Project["gallery"], theme: null, service: null };
 
 /** Legal-entity details from Sayt parametrləri; every field may be empty until the client provides it. */
 export type LegalEntity = { name: string; taxId: string; address: string };
