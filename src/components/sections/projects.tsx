@@ -13,6 +13,8 @@ export function ProjectsSection({ lang, title, lead, projects, empty, tone = "in
   const muted = tone === "ink" ? "text-paper/55" : "text-ink-950/65";
   return (
     <section id="layiheler" className="scroll-mt-6 px-gutter py-[clamp(72px,10vw,160px)]">
+      {/* the previous site's case-study anchor still lands here */}
+      <span id="layihe-icmali" aria-hidden="true" className="block h-0" />
       {tone === "ink" ? (
         <SectionHead index={index} title={title} lead={lead} />
       ) : (

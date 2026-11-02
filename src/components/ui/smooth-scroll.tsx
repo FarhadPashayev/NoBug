@@ -9,14 +9,19 @@ import Lenis from "lenis";
 let lenis: Lenis | null = null;
 
 export function scrollToY(y: number, opts: { immediate?: boolean; duration?: number } = {}) {
-  if (lenis) lenis.scrollTo(y, { immediate: opts.immediate, duration: opts.duration ?? 1, easing: (t) => 1 - Math.pow(1 - t, 4) });
-  else window.scrollTo({ top: y, behavior: opts.immediate || matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+  if (lenis) {
+    // the pinned hero changes the page height after hydration — Lenis must clamp to the current limit
+    lenis.resize();
+    lenis.scrollTo(y, { immediate: opts.immediate, duration: opts.duration ?? 1, easing: (t) => 1 - Math.pow(1 - t, 4) });
+  } else window.scrollTo({ top: y, behavior: opts.immediate || matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
 }
 
-/** Scrolls to an in-page anchor, accounting for nothing fixed on top (sections carry their own padding). */
-export function scrollToHash(hash: string) {
-  const el = document.getElementById(hash.replace(/^#/, ""));
-  if (el) scrollToY(el.getBoundingClientRect().top + window.scrollY);
+/** Scrolls to an in-page anchor, honouring the section's scroll-margin-top (like a native anchor jump). */
+export function scrollToHash(hash: string, opts: { immediate?: boolean } = {}) {
+  const el = document.getElementById(decodeURIComponent(hash.replace(/^#/, "")));
+  if (!el) return;
+  const margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+  scrollToY(Math.round(el.getBoundingClientRect().top + window.scrollY - margin), opts);
 }
 
 /** Freezes page scrolling under an overlay (drawer, dialog). */

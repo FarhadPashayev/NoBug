@@ -55,11 +55,11 @@ test("SVC-01 / SVC-03 / SVC-04 / SVC-05 / SVC-07: categories, icons, images, vis
   await expect(row(page, "E2E xidmət")).toContainText("E2E kateqoriya");
 
   await page.goto("/az");
-  const card = page.locator('a[href*="xidmet=e2e-xidmet"]');
+  const card = page.locator('#xidmetler a[href$="/xidmetler/e2e-xidmet"]');
   await expect(card).toBeVisible();
   await expect(card.locator('[data-icon="Shield"] svg')).toBeVisible(); // SVC-03 renders the lucide icon
-  const webCard = page.locator('a[href*="xidmet=web"]');
-  await expect(webCard.locator("img").first()).toHaveAttribute("src", /services\.webp/); // SVC-04 uploaded image wins
+  await page.goto("/az/xidmetler/web");
+  await expect(page.locator("main img").first()).toHaveAttribute("src", /services\.webp/); // SVC-04 uploaded image wins (case-study header; the carousel uses it as texture)
 
   await page.goto("/admin/services");
   await page.getByPlaceholder("Xidmət axtar…").fill("E2E xidmət");
@@ -68,7 +68,7 @@ test("SVC-01 / SVC-03 / SVC-04 / SVC-05 / SVC-07: categories, icons, images, vis
   await saveDialog(page);
   await toast(page, /Yeniləndi/);
   await page.goto("/az");
-  await expect(page.locator('a[href*="xidmet=e2e-xidmet"]')).toHaveCount(0); // SVC-05
+  await expect(page.locator('a[href$="/xidmetler/e2e-xidmet"]')).toHaveCount(0); // SVC-05
 });
 
 test("SVC-02 / SVC-06: category with services cannot be deleted; empty one can; reorder both", async ({ page }) => {

@@ -3,6 +3,7 @@ import { LEGAL, LEGAL_KEYS, legalHref } from "@/lib/legal";
 import { getDict } from "@/lib/i18n/dict";
 import { LOCALES } from "@/lib/i18n/config";
 import { SITE_URL, absoluteUrl } from "@/lib/site";
+import { heroCopy } from "@/lib/showcase-data";
 
 // https://llmstxt.org — a short, link-rich map of the site for language
 // models. Built from the same content the pages render (database first,
@@ -17,7 +18,7 @@ export async function GET() {
     "",
     `> ${t.meta.description}`,
     "",
-    `${c.hero.title} ${c.hero.subtitle}`,
+    `${heroCopy("az", c).headline} ${heroCopy("az", c).subline}`,
     "",
     "## Xidmətlər",
     "",

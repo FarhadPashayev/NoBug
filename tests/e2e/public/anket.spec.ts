@@ -9,7 +9,7 @@ const answerAll = async (page: import("@playwright/test").Page) => {
   await expect(page.locator("fieldset").first()).toBeVisible();
   // single-choice chips toggle, so only click the ones that are not selected yet
   for (const fs of await page.locator("fieldset").all()) {
-    if ((await fs.locator("button.chip[data-selected='true']").count()) === 0) await fs.locator("button.chip").first().click();
+    if ((await fs.locator("button.chip-ink[data-selected='true']").count()) === 0) await fs.locator("button.chip-ink").first().click();
   }
 };
 const fillContact = async (page: import("@playwright/test").Page, name: string, email = "qa@example.com") => {
@@ -33,20 +33,19 @@ test("ANK-01 / ANK-06 / ANK-07: service selection drives the URL and the progres
   await expect(page.locator('main [role="alert"]')).toHaveCount(0);
 });
 
-test("ANK-14: arriving at the anket from a dark section of the home page keeps the light ground", async ({ page }) => {
+test("ANK-14: the home call to action opens the anket in the showcase design", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/az");
-  await page.locator("#elaqe").scrollIntoViewIfNeeded();
-  await page.waitForTimeout(800);
-  expect(await page.evaluate(() => document.documentElement.style.getPropertyValue("--page-bg"))).toBe("#0B1F3A");
-  await page.getByRole("button", { name: "Menyu" }).click();
-  await page.locator("nav[aria-label='Main mobile']").getByRole("link", { name: "Layihəni müzakirə et" }).click();
+  const cta = page.locator("main").getByRole("link", { name: "Layihəni müzakirə et" }).first();
+  await cta.scrollIntoViewIfNeeded();
+  await cta.click();
   await expect(page).toHaveURL(/\/az\/anket$/);
   await page.waitForTimeout(500);
-  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(248, 249, 250)");
+  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(8, 8, 8)");
   const first = page.getByRole("button", { name: "Veb və e-ticarət" });
   await expect(first).toBeVisible();
-  expect(await first.evaluate((el) => getComputedStyle(el).color)).toBe("rgb(11, 31, 58)");
+  expect(await first.evaluate((el) => getComputedStyle(el).color)).toBe("rgb(237, 235, 229)");
+  await expect(page.getByRole("button", { name: "Haqqımızda" })).toBeVisible(); // shared header + About drawer
 });
 
 test("ANK-02: each of the 7 services on offer shows its own three questions; retired ones fall back to the list", async ({ page }) => {
@@ -72,7 +71,7 @@ test("ANK-03 (OBS-01): 'Davam et' without answers shows an error per question an
   await expect(page.locator('main [role="alert"]')).toHaveCount(sv.q[LEGACY_ORDER.indexOf("qa")].length);
   await expect(page.locator('main [role="alert"]').first()).toHaveText(sv.errors.answer);
   await expect(page.getByText(/2 \/ 3/)).toBeVisible();
-  await page.locator("fieldset").first().locator("button.chip").first().click();
+  await page.locator("fieldset").first().locator("button.chip-ink").first().click();
   await expect(page.locator('main [role="alert"]')).toHaveCount(sv.q[LEGACY_ORDER.indexOf("qa")].length - 1);
   await answerAll(page);
   await page.getByRole("button", { name: sv.next }).click();
@@ -83,12 +82,12 @@ test("ANK-04: 'Geri' and 'Dəyiş' return to the previous step and keep the answ
   await page.goto("/az/anket");
   await page.getByRole("button", { name: sv.services[LEGACY_ORDER.indexOf("qa")] }).click();
   await answerAll(page);
-  const picked = await page.locator("button.chip[data-selected='true']").allTextContents();
+  const picked = await page.locator("button.chip-ink[data-selected='true']").allTextContents();
   await page.getByRole("button", { name: sv.next }).click();
   await expect(page).toHaveURL(/step=3$/);
   await page.getByRole("button", { name: sv.back }).click();
   await expect(page.getByText(/2 \/ 3/)).toBeVisible();
-  expect(await page.locator("button.chip[data-selected='true']").allTextContents()).toEqual(picked);
+  expect(await page.locator("button.chip-ink[data-selected='true']").allTextContents()).toEqual(picked);
   await page.getByRole("button", { name: sv.change }).click();
   await expect(page.getByText(/1 \/ 3/)).toBeVisible();
   await expect(page).toHaveURL(/\/az\/anket$/);

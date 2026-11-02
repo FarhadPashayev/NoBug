@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Plus } from "lucide-react";
 import type { Dictionary } from "@/lib/i18n/dict";
 import type { SiteContent } from "@/lib/content";
 import { Rise, Stagger, StaggerItem } from "@/components/ui/motion";
@@ -32,14 +33,15 @@ export function TestimonialsSection({ index, title, lead, items }: { index: numb
 }
 
 /** FAQ as native disclosure widgets: keyboard and screen-reader friendly with no script. */
-export function FaqSection({ index, title, lead, items }: { index: number; title: string; lead: string; items: SiteContent["faq"] }) {
+export function FaqSection({ index, title, lead, items, ask, cta }: { index: number; title: string; lead: string; items: SiteContent["faq"]; ask: string; cta: { label: string; href: string } }) {
   if (!items.length) return null;
   return (
-    <section id="faq" className="px-gutter py-[clamp(72px,10vw,160px)]">
+    <section id="sss" className="px-gutter py-[clamp(72px,10vw,160px)]">
       <SectionHead index={index} title={title} lead={lead} />
       <Rise className="mt-12 md:ml-[33.333%]">
-        {items.map((f) => (
-          <details key={f.id} className="group border-b border-ink-line first:border-t">
+        {items.map((f, i) => (
+          // one shared name: opening a question closes the previous one (exclusive accordion); the first starts open
+          <details key={f.id} name="faq" open={i === 0} className="group border-b border-ink-line first:border-t">
             <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-6 py-5 text-[clamp(17px,1.5vw,20px)] font-medium leading-[1.3] [&::-webkit-details-marker]:hidden">
               {f.question}
               <Plus size={18} aria-hidden="true" className="flex-none text-paper/60 transition-transform duration-300 group-open:rotate-45" />
@@ -47,6 +49,13 @@ export function FaqSection({ index, title, lead, items }: { index: number; title
             <p className="max-w-[64ch] pb-6 text-[15px] leading-[1.6] text-paper/65">{f.answer}</p>
           </details>
         ))}
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+          <p className="text-[15px] text-paper/65">{ask}</p>
+          <Link href={cta.href} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-paper/25 px-5 text-[15px] font-medium transition-colors hover:border-paper">
+            {cta.label}
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </div>
       </Rise>
     </section>
   );

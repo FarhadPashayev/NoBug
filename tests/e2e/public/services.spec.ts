@@ -13,7 +13,7 @@ test("SEO-04 (feedback A): every service has its own indexable page in three lan
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", DICT[l].services[LEGACY_ORDER.indexOf("qa")][1]);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`/${l}/xidmetler/qa$`));
     for (const hl of ["az", "en", "ru", "x-default"]) await expect(page.locator(`link[rel="alternate"][hreflang="${hl}"]`)).toHaveCount(1);
-    await expect(page.getByRole("link", { name: DICT[l].cta })).toHaveAttribute("href", `/${l}/anket?xidmet=qa`);
+    for (const cta of await page.getByRole("link", { name: DICT[l].cta }).all()) await expect(cta).toHaveAttribute("href", `/${l}/anket?xidmet=qa`);
     await expect(page.locator("main")).toContainText(SURVEY[l].q[LEGACY_ORDER.indexOf("qa")][0][0]);
     expect((await page.locator('script[type="application/ld+json"]').allTextContents()).join("")).toContain('"@type":"Service"');
     await expect(page.locator("html")).toHaveAttribute("lang", l);

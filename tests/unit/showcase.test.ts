@@ -4,6 +4,9 @@ import { coverFor, PATTERN_COUNT } from "@/lib/covers";
 import { carouselLayout } from "@/components/webgl/layout";
 import { getShowcaseCopy } from "@/lib/i18n/showcase";
 import { LOCALES } from "@/lib/i18n/config";
+import { getDict } from "@/lib/i18n/dict";
+import { heroCopy, realTestimonials } from "@/lib/showcase-data";
+import type { SiteContent } from "@/lib/content";
 
 describe("contact form schema", () => {
   const ok = { name: "Fərhad Paşayev", email: "a@b.az" };
@@ -41,5 +44,24 @@ describe("showcase copy", () => {
       expect(getShowcaseCopy(l).process).toHaveLength(5);
       expect(getShowcaseCopy(l).form.budgets).toHaveLength(5);
     }
+  });
+});
+
+describe("panel content on the home page", () => {
+  const base = { fromDb: true, testimonials: [], hero: { title: "", subtitle: "", primaryCta: null, secondaryCta: null, image: null } } as unknown as SiteContent;
+  const review = (name: string) => ({ id: name, name, role: "", quote: "q", rating: 5, avatarUrl: null, photoUrl: null, isFeatured: false });
+
+  it("never shows the placeholder reviews", () => {
+    const c = { ...base, testimonials: [review("Nümunə Müştəri"), review("Nümunə Müştəri 4"), review("Aysel Məmmədova")] } as SiteContent;
+    expect(realTestimonials(c).map((r) => r.name)).toEqual(["Aysel Məmmədova"]);
+  });
+  it("shows the redesign headline while Hero still holds the seed copy", () => {
+    const c = { ...base, hero: { ...base.hero, title: getDict("az").h1, subtitle: getDict("az").heroText } } as SiteContent;
+    expect(heroCopy("az", c).headline).toBe(getShowcaseCopy("az").headline);
+    expect(heroCopy("az", c).cta.href).toBe("/az/anket");
+  });
+  it("lets an edit in the panel take over", () => {
+    const c = { ...base, hero: { ...base.hero, title: "Yeni başlıq", subtitle: "Yeni mətn", primaryCta: { label: "Yaz", href: "/az/anket" } } } as SiteContent;
+    expect(heroCopy("az", c)).toEqual({ headline: "Yeni başlıq", subline: "Yeni mətn", cta: { label: "Yaz", href: "/az/anket" } });
   });
 });

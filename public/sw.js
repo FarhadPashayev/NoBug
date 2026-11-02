@@ -5,7 +5,7 @@
      • /assets/*, /_next/image: stale-while-revalidate
      • /admin, /api, non-GET: never touched
    Bump VERSION to drop old caches on deploy. */
-const VERSION = "v1";
+const VERSION = "v2"; // v2: showcase redesign
 const STATIC = `nobug-static-${VERSION}`;
 const PAGES = `nobug-pages-${VERSION}`;
 const OFFLINE_URL = "/offline.html";

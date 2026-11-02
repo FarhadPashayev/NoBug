@@ -10,16 +10,17 @@ test("RSP-01: no horizontal scroll and no overlapping header at 320 / 360 / 768 
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), `${width} ${path}`).toBe(true);
     }
     await page.goto("/az");
-    const burger = page.getByRole("button", { name: "Menyu" });
-    if (width < 1024) await expect(burger).toBeVisible();
-    else await expect(burger).toBeHidden();
+    // header: logo and navigation never overlap
+    const logo = await page.locator("header a[aria-label='nobug']").first().boundingBox();
+    const nav = await page.locator("header nav[aria-label='Main']").boundingBox();
+    expect(logo && nav && logo.x + logo.width <= nav.x, `${width} header overlap`).toBe(true);
   }
 });
 
 test("RSP-02: anket touch targets are at least 44 px on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto("/az/anket?xidmet=qa");
-  const small = await page.locator("button.chip, button.btn-primary, button.btn-secondary").evaluateAll((els) =>
+  const small = await page.locator("button.chip-ink, button.btn-ink-primary, button.btn-ink-secondary").evaluateAll((els) =>
     els.map((el) => ({ t: el.textContent?.trim(), h: el.getBoundingClientRect().height })).filter((x) => x.h < 44),
   );
   expect(small).toEqual([]);

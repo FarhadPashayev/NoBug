@@ -5,6 +5,7 @@ import type { SiteContent } from "@/lib/content";
 import { LEGAL_KEYS, legalHref } from "@/lib/legal";
 import { Logo } from "@/components/ui/logo";
 import { ChannelIcon, type Channel } from "@/components/chrome/channels";
+import { TrackedAnchor } from "@/components/ui/tracked";
 
 const LINK = "text-[15px] leading-[1.5] text-paper/60 transition-colors hover:text-paper [overflow-wrap:anywhere]";
 
@@ -16,9 +17,9 @@ export function SiteFooter({ lang, t, content, channels, rights }: { lang: Local
 
   return (
     <footer className="px-gutter pb-[max(2rem,env(safe-area-inset-bottom))] pt-[clamp(72px,8vw,128px)]">
-      <div className="grid grid-cols-2 gap-x-8 gap-y-12 border-t border-ink-line pt-10 md:grid-cols-4 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
+      <div className="grid grid-cols-2 gap-x-8 gap-y-12 border-t border-ink-line pt-10 md:grid-cols-4 lg:grid-cols-[1.6fr_1fr_1fr_1fr_1fr]">
         <div className="col-span-2 md:col-span-4 lg:col-span-1">
-          <Logo href={`/${lang}`} variant="brand-dark" height={30} />
+          <Logo href={`/${lang}#top`} variant="brand-dark" height={30} />
           <p className="mt-5 max-w-[36ch] text-[14px] leading-[1.6] text-paper/60">{t.meta.description}</p>
           {social.length > 0 && (
             <div className="mt-6 flex gap-2">
@@ -70,6 +71,25 @@ export function SiteFooter({ lang, t, content, channels, rights }: { lang: Local
               </Link>
             </li>
           ))}
+        </Col>
+        {/* contact details from Sayt parametrləri */}
+        <Col title={t.footerContact}>
+          {settings.email && (
+            <li>
+              <TrackedAnchor href={`mailto:${settings.email}`} event={{ name: "contact_email_click", params: { locale: lang } }} className={LINK}>
+                {settings.email}
+              </TrackedAnchor>
+            </li>
+          )}
+          {settings.phones.map((p) => (
+            <li key={p}>
+              <TrackedAnchor href={`tel:${p.replace(/\s+/g, "")}`} event={{ name: "contact_phone_click", params: { locale: lang } }} className={LINK}>
+                {p}
+              </TrackedAnchor>
+            </li>
+          ))}
+          {settings.address && <li className="text-[15px] leading-[1.5] text-paper/60">{settings.address}</li>}
+          {settings.hours && <li className="text-[13px] leading-[1.5] text-paper/60">{settings.hours}</li>}
         </Col>
       </div>
       <div className="mt-16 flex flex-wrap items-center justify-between gap-4 text-[13px] text-paper/60">

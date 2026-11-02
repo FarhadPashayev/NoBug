@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ShowcaseCopy } from "@/lib/i18n/showcase";
 import { carouselLayout, createCarouselState } from "@/components/webgl/layout";
-import { scrollToY } from "@/components/ui/smooth-scroll";
+import { scrollToHash, scrollToY } from "@/components/ui/smooth-scroll";
 import { ArcProgress } from "./arc-progress";
 import { SlotTitle } from "./slot-title";
 import { hasWebGL, useClientValue, useMediaQuery } from "@/lib/use-client";
@@ -192,6 +192,14 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
       window.clearTimeout(idle);
     };
   }, [pinned, n, setIndex, yForIndex]);
+
+  // a direct link to a section (/az#elaqe): the pinned hero grows after hydration and pushes
+  // the section down, so the browser's own jump lands too high — redo it once the height is final
+  useEffect(() => {
+    if (!pinned || !window.location.hash || window.location.hash === "#top") return;
+    const id = requestAnimationFrame(() => scrollToHash(window.location.hash, { immediate: true }));
+    return () => cancelAnimationFrame(id);
+  }, [pinned]);
 
   // coming back from a case study: land on the card that was opened
   useEffect(() => {

@@ -10,11 +10,16 @@ test("LEAD-08: the real public contact form creates a lead", async ({ page }) =>
   await page.waitForTimeout(3500); // the form rejects submits faster than 3 s
   const name = "Forma Testov";
   await db.lead.deleteMany({ where: { name } });
-  await page.fill("#k2-name", name);
-  await page.fill("#k2-mail", "forma@example.com");
-  await page.fill("#k2-msg", "Formadan sorğu");
-  await page.locator('form:has(#k2-name) button[type="submit"]').click();
-  await expect(page.locator('[role="status"]')).toBeVisible();
+  await page.fill("#cf-name", name);
+  await page.fill("#cf-email", "forma@example.com");
+  await page.fill("#cf-company", "Forma MMC");
+  await page.selectOption("#cf-budget", { index: 2 });
+  await page.fill("#cf-message", "Formadan sorğu");
+  await page.locator('form:has(#cf-name) button[type="submit"]').click();
+  await expect(page.locator('#elaqe [role="status"]')).toBeVisible();
+  const lead = await db.lead.findFirstOrThrow({ where: { name } });
+  expect(lead.message).toBe("Formadan sorğu");
+  expect(lead.answers).toMatchObject({ "Şirkət / Company": "Forma MMC" }); // the extended fields reach the inbox
   await page.goto("/admin/leads");
   await expect(row(page, name)).toBeVisible();
 });

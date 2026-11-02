@@ -56,3 +56,28 @@ export function chromeCopy(lang: Locale) {
   const sc = getShowcaseCopy(lang);
   return { about: sc.about, contact: sc.contact, close: sc.close };
 }
+
+/**
+ * Placeholder reviews typed into the panel while it was being set up
+ * ("Nümunə Müştəri", "Nümunə Müştəri 2", …) are never shown as real
+ * clients. The section comes back by itself once a real review is added.
+ */
+export function realTestimonials(content: SiteContent) {
+  return content.testimonials.filter((r) => !r.name.trim().toLocaleLowerCase("az").startsWith("nümunə müştəri"));
+}
+
+/**
+ * Headline, sub line and call to action of the home page, owned by the
+ * panel's Hero module. While Hero still holds the original seed copy (the
+ * previous site's headline) the redesign's statement is shown instead, so
+ * the first edit in the panel takes over.
+ */
+export function heroCopy(lang: Locale, content: SiteContent) {
+  const sc = getShowcaseCopy(lang);
+  const seeded = !content.fromDb || !content.hero.title || content.hero.title === getDict(lang).h1;
+  return {
+    headline: seeded ? sc.headline : content.hero.title,
+    subline: seeded || !content.hero.subtitle ? sc.subline : content.hero.subtitle,
+    cta: content.hero.primaryCta ?? { label: sc.cta, href: `/${lang}/anket` },
+  };
+}

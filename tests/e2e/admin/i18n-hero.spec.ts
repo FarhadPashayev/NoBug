@@ -60,7 +60,7 @@ test("HERO-06 / HERO-07 / HERO-08: logos reorder by drag, toggle hides publicly,
   expect(rows.map((r) => r.name)).toEqual(after);
 
   await page.goto("/az");
-  await expect(page.locator('ul[aria-label="Partners"] li')).toHaveCount(3);
+  await expect(page.getByRole("list", { name: "Müştərilər" }).getByRole("listitem")).toHaveCount(3);
   await page.goto("/admin/hero");
   const first = page.locator("li:has(button[aria-label='Sürüşdür'])").first();
   const firstName = (await first.locator("span.font-medium").textContent())!;
@@ -70,8 +70,8 @@ test("HERO-06 / HERO-07 / HERO-08: logos reorder by drag, toggle hides publicly,
   await toast(page, /Loqo yeniləndi/);
   await expect(first.getByText("Gizli")).toBeVisible();
   await page.goto("/az");
-  await expect(page.locator('ul[aria-label="Partners"] li')).toHaveCount(2);
-  await expect(page.locator('ul[aria-label="Partners"]')).not.toContainText(firstName);
+  await expect(page.locator('ul[aria-label="Müştərilər"] li')).toHaveCount(2);
+  await expect(page.locator('ul[aria-label="Müştərilər"]')).not.toContainText(firstName);
 
   await page.goto("/admin/hero");
   await confirmDelete(page, page.locator("li:has(button[aria-label='Sürüşdür'])").last().getByRole("button", { name: "Sil" }));

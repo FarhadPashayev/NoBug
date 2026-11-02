@@ -4,39 +4,37 @@ import { ACTIVE_SERVICES } from "../../../src/lib/services";
 // Checklist items: FAQ section (16), llms.txt (19), service share image (18),
 // project x-default (14), service-card accessible name (9).
 
-test("FAQ-01: the FAQ thread renders from the panel, one answer open at a time, with FAQPage JSON-LD", async ({ page }) => {
+test("FAQ-01: the FAQ renders from the panel, one answer open at a time, with FAQPage JSON-LD", async ({ page }) => {
   await page.goto("/az");
   const faq = page.locator("#sss");
   await faq.scrollIntoViewIfNeeded();
-  await expect(faq.getByRole("heading", { level: 2 })).toHaveText("Tez-tez verilən suallar");
-  const buttons = faq.locator("button[aria-expanded]");
-  const n = await buttons.count();
+  await expect(faq).toContainText("Tez-tez verilən suallar");
+  const items = faq.locator("details");
+  const n = await items.count();
   expect(n).toBeGreaterThanOrEqual(3);
   // first open by default
-  await expect(buttons.first()).toHaveAttribute("aria-expanded", "true");
-  await expect(faq.locator('[role="region"]').first()).toHaveAttribute("aria-hidden", "false");
-  // opening the third closes the first
-  await buttons.nth(2).click();
-  await expect(buttons.nth(2)).toHaveAttribute("aria-expanded", "true");
-  await expect(buttons.first()).toHaveAttribute("aria-expanded", "false");
+  await expect(items.first()).toHaveAttribute("open", "");
+  // opening the third closes the first (exclusive accordion)
+  await items.nth(2).locator("summary").click();
+  await expect(items.nth(2)).toHaveAttribute("open", "");
+  await expect(items.first()).not.toHaveAttribute("open", "");
   // the answer is readable text, not a placeholder
-  const answer = await faq.locator('[role="region"]').nth(2).textContent();
+  const answer = await items.nth(2).locator("p").textContent();
   expect((answer ?? "").trim().length).toBeGreaterThan(40);
   // structured data mirrors the thread
   const ld = (await page.locator('script[type="application/ld+json"]').allTextContents()).find((s) => s.includes('"FAQPage"'));
   expect(ld).toBeTruthy();
   expect(JSON.parse(ld!).mainEntity).toHaveLength(n);
-  // both calls to action
   await expect(faq.getByRole("link", { name: /Layihəni müzakirə et/ })).toHaveAttribute("href", "/az/anket");
 });
 
-test("FAQ-02: the FAQ is in all three languages and hides nothing on a phone", async ({ page }) => {
+test("FAQ-02: the FAQ is in all three languages", async ({ page }) => {
   for (const [l, title] of [
     ["en", "Frequently asked questions"],
     ["ru", "Частые вопросы"],
   ] as const) {
     await page.goto(`/${l}`);
-    await expect(page.locator("#sss h2")).toHaveText(title);
+    await expect(page.locator("#sss")).toContainText(title);
   }
 });
 
@@ -73,7 +71,7 @@ test("SEO-05: service pages carry a share image; project pages an x-default; ser
   }
 
   await page.goto("/az");
-  const card = page.locator("#xidmetler a[href*='xidmet=']").first();
+  const card = page.locator("#xidmetler a[href^='/az/xidmetler/']").first();
   await expect(card).not.toHaveAttribute("aria-label", /.+/);
-  await expect(card).toContainText("Xidməti seç");
+  await expect(card).toContainText("Veb və e-ticarət");
 });

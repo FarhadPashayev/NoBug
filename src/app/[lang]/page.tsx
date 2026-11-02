@@ -4,7 +4,7 @@ import { isLocale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { getSiteContent } from "@/lib/content";
 import { getShowcaseCopy } from "@/lib/i18n/showcase";
-import { aboutData, chromeCopy, contactChannels, showcaseCards } from "@/lib/showcase-data";
+import { aboutData, chromeCopy, contactChannels, heroCopy, realTestimonials, showcaseCards } from "@/lib/showcase-data";
 import { SiteChrome } from "@/components/chrome/site-chrome";
 import { SmoothScroll } from "@/components/ui/smooth-scroll";
 import { HeroShowcase } from "@/components/showcase/hero-showcase";
@@ -38,6 +38,8 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const sc = getShowcaseCopy(lang);
   const content = await getSiteContent(lang);
   const channels = contactChannels(lang, content);
+  const hero = heroCopy(lang, content);
+  const testimonials = realTestimonials(content);
   let n = 4;
   const next = () => ++n;
 
@@ -50,14 +52,14 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
           cards={showcaseCards(lang, content)}
           t={{ carouselLabel: sc.carouselLabel, carouselHelp: sc.carouselHelp, open: sc.open, loading: sc.loading }}
         />
-        <IntroSection headline={sc.headline} subline={sc.subline} cta={sc.cta} href={`/${lang}/anket`} />
+        <IntroSection headline={hero.headline} subline={hero.subline} cta={hero.cta.label} href={hero.cta.href} />
         <ServicesSection lang={lang} title={sc.sections.services} lead={sc.servicesLead} services={content.services} primaryLabel={t.tpl.cardPrimary} cta={sc.cta} />
         <ProcessSection title={sc.sections.process} lead={sc.processLead} steps={sc.process} qaNote={sc.qaNote} />
         <NumbersSection title={sc.sections.numbers} lead={t.tpl.statsText} stats={content.stats} logos={content.partnerLogos} clientsTitle={sc.sections.clients} />
         <ProjectsSection lang={lang} title={sc.sections.projects} lead={t.tpl.showcaseTitle} projects={content.projects} empty={sc.projectsEmpty} />
-        {content.testimonials.length > 0 && <TestimonialsSection index={next()} title={sc.sections.testimonials} lead={t.testimonials.title} items={content.testimonials} />}
+        {testimonials.length > 0 && <TestimonialsSection index={next()} title={sc.sections.testimonials} lead={t.testimonials.title} items={testimonials} />}
         {content.specs.length > 0 && <StandardsSection index={next()} t={t} rows={content.specs} />}
-        {content.faq.length > 0 && <FaqSection index={next()} title={sc.sections.faq} lead={t.faq.title} items={content.faq} />}
+        {content.faq.length > 0 && <FaqSection index={next()} title={sc.sections.faq} lead={t.faq.title} items={content.faq} ask={t.faq.ask} cta={hero.cta} />}
         <ContactSection index={next()} lang={lang} t={t} sc={sc} channels={channels} services={content.services.map((s) => s.name)} address={content.settings.address} hours={content.settings.hours} />
       </main>
       {content.faq.length > 0 && (
