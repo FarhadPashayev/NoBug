@@ -24,7 +24,7 @@ export function ServicesSection({ lang, title, lead, services, primaryLabel, cta
             <TrackedLink
               href={serviceHref(lang, s.slug)}
               event={{ name: "service_click", params: { service_id: s.slug, position: s.primary ? "primary" : "secondary", locale: lang } }}
-              className="group flex h-full min-h-[220px] flex-col justify-between gap-10 p-6 transition-colors hover:bg-ink-900 sm:p-8">
+              className="group flex h-full flex-col justify-between gap-6 p-5 transition-colors hover:bg-ink-900 sm:min-h-[220px] sm:gap-10 sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <span className="flex items-center gap-3">
                   <span className="font-mono text-[12px] text-paper/60">{String(i + 1).padStart(2, "0")}</span>
@@ -48,7 +48,7 @@ export function ServicesSection({ lang, title, lead, services, primaryLabel, cta
           );
         })}
         <StaggerItem className={`bg-ink-950 ${sm} ${lg}`}>
-          <Link href={`/${lang}/anket`} className="group flex h-full min-h-[220px] items-end justify-between gap-6 bg-yellow/[0.06] p-6 transition-colors hover:bg-yellow/[0.12] sm:p-8">
+          <Link href={`/${lang}/anket`} className="group flex h-full min-h-[120px] items-end justify-between gap-6 bg-yellow/[0.06] p-5 transition-colors hover:bg-yellow/[0.12] sm:min-h-[220px] sm:p-8">
             <span className="max-w-[18ch] text-[clamp(20px,1.8vw,26px)] font-medium leading-[1.15] tracking-[-0.02em] text-yellow">{cta}</span>
             <ArrowUpRight size={22} aria-hidden="true" className="flex-none text-yellow transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </Link>

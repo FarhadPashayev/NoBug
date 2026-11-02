@@ -12,7 +12,7 @@ export function TestimonialsSection({ index, title, lead, items }: { index: numb
   return (
     <section id="reyler" className="px-gutter py-[clamp(72px,10vw,160px)]">
       <SectionHead index={index} title={title} lead={lead} />
-      <Stagger className="no-scrollbar -mx-gutter mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto px-gutter md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0">
+      <Stagger className="no-scrollbar -mx-gutter mt-12 flex snap-x snap-mandatory scroll-px-gutter gap-4 overflow-x-auto px-gutter md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0">
         {items.map((r) => (
           <StaggerItem key={r.id} className="flex w-[82vw] flex-none snap-center flex-col justify-between gap-10 rounded-[10px] bg-ink-900 p-6 sm:w-[60vw] md:w-auto sm:p-8">
             <figure className="contents">
@@ -61,14 +61,15 @@ export function FaqSection({ index, title, lead, items, ask, cta }: { index: num
   );
 }
 
-/** Practices and tooling (SpecGroup / SpecItem) — certification is not claimed. */
-export function StandardsSection({ index, t, rows }: { index: number; t: Dictionary; rows: SiteContent["specs"] }) {
+/** Practices and tooling (SpecGroup / SpecItem) — certification is not claimed; a table on wide screens, cards on phones. */
+export function StandardsSection({ index, t, rows, lead }: { index: number; t: Dictionary; rows: SiteContent["specs"]; lead: string }) {
   if (!rows.length) return null;
+  const [hArea, hApproach, hTool, hStatus] = t.techHead;
   return (
     <section id="texnologiya" className="px-gutter py-[clamp(72px,10vw,160px)]">
-      <SectionHead index={index} title={t.techTitle} lead={t.techNote} />
-      <Rise className="mt-12 overflow-x-auto">
-        <table className="w-full min-w-[640px] border-collapse">
+      <SectionHead index={index} title={t.techTitle} lead={lead} />
+      <Rise className="mt-12">
+        <table className="hidden w-full border-collapse md:table">
           <thead>
             <tr>
               {t.techHead.map((h) => (
@@ -86,12 +87,45 @@ export function StandardsSection({ index, t, rows }: { index: number; t: Diction
                 </th>
                 <td className="border-b border-ink-line py-4 pr-4 text-[15px] leading-[1.5] text-paper/60">{r.approach}</td>
                 <td className="whitespace-nowrap border-b border-ink-line py-4 pr-4 text-[15px]">{r.tooling}</td>
-                <td className="whitespace-nowrap border-b border-ink-line py-4 font-mono text-[12px] tracking-[0.06em] text-paper/60">{r.status}</td>
+                <td className="whitespace-nowrap border-b border-ink-line py-4">
+                  <Status value={r.status} />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+        <ul className="grid gap-3 md:hidden">
+          {rows.map((r, i) => (
+            <li key={`${r.area}-${i}`} className="rounded-[10px] bg-ink-900 p-5">
+              <div className="flex items-start justify-between gap-3">
+                <span className="text-[16px] font-medium leading-[1.35]">{r.area}</span>
+                <Status value={r.status} />
+              </div>
+              <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-[14px] leading-[1.45]">
+                <dt className="text-paper/45">{hApproach}</dt>
+                <dd className="text-paper/75">{r.approach}</dd>
+                <dt className="text-paper/45">{hTool}</dt>
+                <dd>{r.tooling}</dd>
+              </dl>
+              <span className="sr-only">
+                {hArea}: {r.area}. {hStatus}: {r.status}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-6 max-w-[64ch] text-[13px] leading-[1.6] text-paper/60">{t.techNote}</p>
       </Rise>
     </section>
+  );
+}
+
+/** "Tətbiq olunur" reads as done (amber dot), anything else as planned (hollow). */
+function Status({ value }: { value: string }) {
+  const done = /tətbiq|in place|внедр|применя|applied/i.test(value);
+  return (
+    <span className={`inline-flex flex-none items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] ${done ? "bg-yellow/10 text-yellow" : "bg-white/[0.06] text-paper/60"}`}>
+      <span className={`size-1.5 rounded-full ${done ? "bg-yellow" : "border border-paper/50"}`} aria-hidden="true" />
+      {value}
+    </span>
   );
 }

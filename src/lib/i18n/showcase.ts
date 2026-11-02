@@ -15,6 +15,9 @@ export type ShowcaseCopy = {
   scrollHint: string;
   carouselLabel: string; // aria-roledescription region label
   carouselHelp: string; // screen-reader instructions
+  dragHint: string; // one-time hint under the carousel
+  standardsLead: string;
+  work: { kind: string; nextLabel: string; ctaTitle: string; ctaText: string; cta: string };
   open: string;
   prev: string;
   next: string;
@@ -57,6 +60,9 @@ const az: ShowcaseCopy = {
   scrollHint: "Aşağı sürüşdür",
   carouselLabel: "Xidmətlər karuseli",
   carouselHelp: "Xidmətlər arasında keçid üçün sol və sağ oxlardan, açmaq üçün Enter düyməsindən istifadə edin.",
+  dragHint: "Sürüşdürün və ya karta toxunun",
+  standardsLead: "Məlumatın qorunması, giriş idarəsi, buraxılış və monitorinq — hər layihədə eyni qaydalar.",
+  work: { kind: "Layihə", nextLabel: "Növbəti layihə", ctaTitle: "Bənzər layihə istəyirsiniz?", ctaText: "Üç qısa sual — bir iş günü ərzində qiymətləndirmə ilə qayıdırıq.", cta: "Layihəni müzakirə et" },
   open: "Aç",
   prev: "Əvvəlki",
   next: "Növbəti",
@@ -105,6 +111,9 @@ const en: ShowcaseCopy = {
   scrollHint: "Scroll down",
   carouselLabel: "Services carousel",
   carouselHelp: "Use the left and right arrow keys to move between services and Enter to open one.",
+  dragHint: "Swipe or tap a card",
+  standardsLead: "Data protection, access control, releases and monitoring — the same rules on every project.",
+  work: { kind: "Project", nextLabel: "Next project", ctaTitle: "Want something similar?", ctaText: "Three short questions — we come back with an estimate within one business day.", cta: "Discuss your project" },
   open: "Open",
   prev: "Previous",
   next: "Next",
@@ -153,6 +162,9 @@ const ru: ShowcaseCopy = {
   scrollHint: "Прокрутите вниз",
   carouselLabel: "Карусель услуг",
   carouselHelp: "Используйте стрелки влево и вправо для перехода между услугами и Enter, чтобы открыть.",
+  dragHint: "Листайте или нажмите на карточку",
+  standardsLead: "Защита данных, управление доступом, релизы и мониторинг — одни правила в каждом проекте.",
+  work: { kind: "Проект", nextLabel: "Следующий проект", ctaTitle: "Нужно что-то похожее?", ctaText: "Три коротких вопроса — вернёмся с оценкой в течение рабочего дня.", cta: "Обсудить проект" },
   open: "Открыть",
   prev: "Назад",
   next: "Далее",

@@ -29,6 +29,3 @@ export function coverFor(slug: string): Cover {
   for (const ch of slug) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   return { pattern: h % PATTERN_COUNT, photo: PHOTOS[h % PHOTOS.length] };
 }
-
-/** Grid fallback by position, so neighbouring cards never share a photo. */
-export const photoAt = (i: number) => PHOTOS[[5, 0, 2, 1, 4, 3, 6][i % PHOTOS.length] ?? 0];

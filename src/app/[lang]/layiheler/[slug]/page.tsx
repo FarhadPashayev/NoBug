@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { LOCALES, isLocale, type Locale } from "@/lib/i18n/config";
 import { getDict } from "@/lib/i18n/dict";
 import { getProject, getSiteContent } from "@/lib/content";
@@ -60,10 +62,15 @@ export default async function ProjectPage({ params }: Props) {
   const paths = Object.fromEntries(LOCALES.map((l) => [l, `/layiheler/${slug}`])) as Record<Locale, string>;
   const list = content.projects;
   const at = list.findIndex((o) => o.slug === slug);
-  const near = (i: number) => {
+  const neighbour = (i: number) => {
     const o = list.length > 1 && at >= 0 ? list[(i + list.length) % list.length] : null;
-    return o && o.slug !== slug ? { title: o.title, href: projectHref(lang, o.slug) } : null;
+    return o && o.slug !== slug ? o : null;
   };
+  const near = (i: number) => {
+    const o = neighbour(i);
+    return o ? { title: o.title, href: projectHref(lang, o.slug) } : null;
+  };
+  const following = neighbour(at + 1);
   const service = projectService(content, p);
   const desktop = p.gallery.filter((g) => g.device === "desktop");
   const phones = p.gallery.filter((g) => g.device === "phone");
@@ -129,6 +136,49 @@ export default async function ProjectPage({ params }: Props) {
             )}
           </div>
         </section>
+      )}
+
+      {/* a similar project? → the enquiry, with this project's service preselected */}
+      <section className="mt-[clamp(56px,8vw,112px)] flex flex-col items-start justify-between gap-6 rounded-[14px] bg-ink-950 p-8 text-paper sm:flex-row sm:items-center sm:p-12">
+        <div>
+          <h2 className="text-[clamp(24px,2.6vw,36px)] font-medium leading-[1.1] tracking-[-0.025em]">{sc.work.ctaTitle}</h2>
+          <p className="mt-2 max-w-[48ch] text-[15px] text-paper/60">{sc.work.ctaText}</p>
+        </div>
+        <Link href={`/${lang}/anket${service ? `?xidmet=${service.slug}` : ""}`} className="inline-flex min-h-12 flex-none items-center gap-2 rounded-full bg-yellow px-6 text-[15px] font-medium text-ink-950 transition-colors hover:bg-yellow-600">
+          {sc.work.cta}
+          <ArrowRight size={16} aria-hidden="true" />
+        </Link>
+      </section>
+
+      {following && (
+        <Link href={projectHref(lang, following.slug)} className="group mt-6 grid overflow-hidden rounded-[14px] bg-black/[0.04] ring-1 ring-black/[0.06] transition-colors hover:bg-black/[0.07] sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+          <div className="relative aspect-[16/10] overflow-hidden bg-ink-900 sm:aspect-auto sm:min-h-[260px]">
+            {following.coverUrl ? (
+              <Image src={following.coverUrl} alt="" fill sizes="(min-width: 640px) 50vw, 100vw" className="object-cover transition-transform duration-[1200ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.04]" />
+            ) : (
+              // no artwork: the brand grid, the name is already on the right
+              <span aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(120%_90%_at_85%_10%,#2a2416_0%,transparent_55%),linear-gradient(140deg,#16181c,#0b0b0c)]">
+                <span className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,.9)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.9)_1px,transparent_1px)] [background-size:40px_40px]" />
+                <span className="absolute left-6 top-6 flex items-center gap-2 text-[12px] text-paper/60">
+                  <span className="size-1.5 rounded-full bg-yellow" />
+                  nobug
+                </span>
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col justify-between gap-8 p-6 sm:p-10">
+            <span className="eyebrow text-ink-950/60">{sc.work.nextLabel}</span>
+            <span className="flex items-end justify-between gap-4">
+              <span>
+                <span className="block text-[clamp(26px,3vw,44px)] font-medium leading-[1] tracking-[-0.03em]">{following.title}</span>
+                {following.shortDescription && <span className="mt-3 block max-w-[40ch] text-[15px] leading-[1.5] text-ink-950/65">{following.shortDescription}</span>}
+              </span>
+              <span className="flex size-12 flex-none items-center justify-center rounded-full bg-ink-950 text-paper transition-transform group-hover:translate-x-1">
+                <ArrowRight size={18} aria-hidden="true" />
+              </span>
+            </span>
+          </div>
+        </Link>
       )}
     </CaseLayout>
   );

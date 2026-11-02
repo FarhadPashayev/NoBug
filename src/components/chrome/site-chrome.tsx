@@ -37,6 +37,16 @@ export function SiteChrome({ lang, tone, t, about, channels, paths, fab = true }
   const pathname = usePathname();
   const onHome = pathname === `/${lang}`;
   const whatsapp = channels.find((c) => c.id === "whatsapp");
+  // on the home page the contact button waits until the carousel is behind (its controls sit in the same corner)
+  const [pastHero, setPastHero] = useState(true);
+  useEffect(() => {
+    const hero = document.getElementById("top");
+    if (!hero) return;
+    // the button returns as the carousel releases the page (hero bottom above the lower 40 % of the screen)
+    const io = new IntersectionObserver(([e]) => setPastHero(!e.isIntersecting), { rootMargin: "0px 0px -60% 0px" });
+    io.observe(hero);
+    return () => io.disconnect();
+  }, [pathname]);
 
   const close = useCallback(() => {
     setOpen(false);
@@ -81,7 +91,7 @@ export function SiteChrome({ lang, tone, t, about, channels, paths, fab = true }
         onClick={whatsapp ? undefined : contact}
         {...(whatsapp ? { target: "_blank", rel: "noopener noreferrer" } : {})}
         aria-label={whatsapp ? whatsapp.label : t.contact}
-        className="intro-fade fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-yellow text-ink-950 shadow-[0_8px_30px_rgba(0,0,0,0.35)] md:hidden"
+        className={`intro-fade fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-yellow text-ink-950 shadow-[0_8px_30px_rgba(0,0,0,0.35)] transition-[opacity,scale] duration-300 md:hidden ${pastHero ? "" : "pointer-events-none scale-90 opacity-0"}`}
       >
         {whatsapp ? <ChannelIcon id="whatsapp" size={24} /> : <MessageCircle size={22} aria-hidden="true" />}
       </a>

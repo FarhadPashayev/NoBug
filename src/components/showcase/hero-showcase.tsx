@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Hand } from "lucide-react";
 import type { ShowcaseCopy } from "@/lib/i18n/showcase";
 import { carouselLayout, createCarouselState } from "@/components/webgl/layout";
 import { scrollToHash, scrollToY } from "@/components/ui/smooth-scroll";
@@ -33,7 +34,7 @@ export type ShowcaseCardData = {
   alt: string;
 };
 
-type Copy = Pick<ShowcaseCopy, "carouselLabel" | "carouselHelp" | "open" | "loading">;
+type Copy = Pick<ShowcaseCopy, "carouselLabel" | "carouselHelp" | "open" | "loading" | "dragHint" | "prev" | "next">;
 type Mode = "pending" | "webgl" | "html";
 
 const STORAGE_KEY = "nobug:showcase-index";
@@ -121,6 +122,13 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
   const [dragging, setDragging] = useState(false);
   const [hoverCard, setHoverCard] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  // one-time "swipe" hint: gone after the first move or after 7 s
+  const [hinted, setHinted] = useState(false);
+  useEffect(() => {
+    if (!revealed || hinted) return;
+    const id = window.setTimeout(() => setHinted(true), 7000);
+    return () => window.clearTimeout(id);
+  }, [revealed, hinted]);
 
   const carouselRef = useRef(createCarouselState());
   const section = useRef<HTMLElement>(null);
@@ -138,6 +146,7 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
       setDir(i > activeRef.current ? 1 : -1);
       activeRef.current = i;
       setActive(i);
+      setHinted(true);
     },
     [],
   );
@@ -394,30 +403,63 @@ export function HeroShowcase({ cards, t }: { cards: ShowcaseCardData[]; t: Copy 
           </ol>
         )}
 
-        {/* bottom centre: line → arc, and a pill with the load counter, then the rolling title */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-[22px] pb-[max(25px,calc(env(safe-area-inset-bottom)+12px))] md:gap-7 md:pb-12">
+        {/* bottom centre: line → arc; prev · pill (load counter, then the rolling title) · next; position and a one-time hint */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-[18px] px-3 pb-[max(20px,calc(env(safe-area-inset-bottom)+8px))] md:gap-6 md:pb-10">
           <ArcProgress count={n} read={read} loading={loadPct} bent={revealed} />
-          <div className="relative flex h-[38px] min-w-[162px] items-center justify-center rounded-[3px] bg-ink-900 px-5 text-[15px] md:h-[46px] md:min-w-[208px] md:text-[18px]">
-            {revealed && current ? (
-              <a
-                href={current.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  open(active);
-                }}
-                className="pointer-events-auto flex h-full items-center"
-                aria-label={`${t.open}: ${current.label}`}
-              >
-                <SlotTitle text={current.label} direction={dir} />
-              </a>
-            ) : (
-              <span role="progressbar" aria-label={t.loading} aria-valuemin={0} aria-valuemax={100} aria-valuenow={loadPct} className="font-medium tabular-nums text-paper/60">
-                {/* each digit is its own reel: only the ones that change roll */}
-                {Array.from(String(loadPct).padStart(3, "0")).map((d, i) => (
-                  <SlotTitle key={i} text={d} direction={1} />
-                ))}
-              </span>
-            )}
+          <div className="flex items-center gap-2 md:gap-3">
+            <button
+              type="button"
+              onClick={() => goTo(active - 1)}
+              disabled={!revealed || active === 0}
+              aria-label={t.prev}
+              className={`round-btn pointer-events-auto bg-ink-950/60 backdrop-blur transition-opacity duration-500 ${revealed ? "opacity-100" : "opacity-0"}`}
+            >
+              <ArrowLeft size={16} aria-hidden="true" />
+            </button>
+            <div className="relative flex h-11 min-w-[162px] max-w-[calc(100vw-128px)] items-center justify-center rounded-full bg-ink-900 px-5 text-[15px] ring-1 ring-white/[0.06] md:h-[46px] md:min-w-[208px] md:px-6 md:text-[18px]">
+              {revealed && current ? (
+                <a
+                  href={current.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    open(active);
+                  }}
+                  className="pointer-events-auto flex h-full min-w-0 items-center gap-2"
+                  aria-label={`${t.open}: ${current.label}`}
+                >
+                  <span className="min-w-0 truncate">
+                    <SlotTitle text={current.label} direction={dir} />
+                  </span>
+                  <ArrowRight size={15} aria-hidden="true" className="flex-none text-paper/50" />
+                </a>
+              ) : (
+                <span role="progressbar" aria-label={t.loading} aria-valuemin={0} aria-valuemax={100} aria-valuenow={loadPct} className="font-medium tabular-nums text-paper/60">
+                  {/* each digit is its own reel: only the ones that change roll */}
+                  {Array.from(String(loadPct).padStart(3, "0")).map((d, i) => (
+                    <SlotTitle key={i} text={d} direction={1} />
+                  ))}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => goTo(active + 1)}
+              disabled={!revealed || active === n - 1}
+              aria-label={t.next}
+              className={`round-btn pointer-events-auto bg-ink-950/60 backdrop-blur transition-opacity duration-500 ${revealed ? "opacity-100" : "opacity-0"}`}
+            >
+              <ArrowRight size={16} aria-hidden="true" />
+            </button>
+          </div>
+          <div aria-hidden="true" className={`flex h-4 items-center gap-2 font-mono text-[11px] tracking-[0.08em] text-paper/60 transition-opacity duration-500 ${revealed ? "opacity-100" : "opacity-0"}`}>
+            <span className="tabular-nums">
+              {String(active + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}
+            </span>
+            <span className={`flex items-center gap-1.5 transition-opacity duration-700 ${hinted ? "opacity-0" : "opacity-100"}`}>
+              <span className="text-paper/30">·</span>
+              <Hand size={12} aria-hidden="true" className="drag-hint" />
+              {t.dragHint}
+            </span>
           </div>
           <div className="sr-only" aria-live="polite">
             {revealed && current ? `${active + 1} / ${n}: ${current.label}` : ""}
