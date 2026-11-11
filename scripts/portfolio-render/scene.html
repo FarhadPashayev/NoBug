@@ -1,0 +1,355 @@
+<!doctype html>
+<!--
+  Studio render of a delivered site: a laptop or a phone with the site's
+  screens, physically based materials, soft shadows. Opened by
+  scripts/portfolio-shots.mjs as  scene.html?shot=1..5&slug=<slug>
+  and screenshotted once window.__done is true.
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html, body { margin: 0; background: #0b0b0c; overflow: hidden; }
+      canvas { display: block; }
+      .vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(115% 95% at 50% 45%, transparent 52%, rgba(0, 0, 0, 0.62)); }
+      .grain { position: fixed; inset: 0; pointer-events: none; opacity: 0.07; mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+    </style>
+    <script type="importmap">
+      { "imports": { "three": "/node_modules/three/build/three.module.js", "three/addons/": "/node_modules/three/examples/jsm/" } }
+    </script>
+  </head>
+  <body>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+    <script type="module">
+      import * as THREE from "three";
+      import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+      import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+
+      const q = new URLSearchParams(location.search);
+      const SHOT = Number(q.get("shot") ?? 1);
+      const SLUG = q.get("slug") ?? "beic";
+      const W = innerWidth, H = innerHeight;
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+      renderer.setPixelRatio(devicePixelRatio);
+      renderer.setSize(W, H);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFShadowMap;
+      document.body.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.03).texture;
+      scene.environmentIntensity = 0.72;
+
+      const loader = new THREE.TextureLoader();
+      const tex = (url) =>
+        new Promise((res) =>
+          loader.load(url, (t) => {
+            t.colorSpace = THREE.SRGBColorSpace;
+            t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            res(t);
+          }),
+        );
+      const shot = (n) => tex(`/scripts/portfolio-src/${SLUG}-${n}.webp`);
+
+      // ── procedural surfaces ───────────────────────────────────────────
+      function canvasTex(size, draw, srgb = true, repeat = 1) {
+        const c = document.createElement("canvas");
+        c.width = c.height = size;
+        draw(c.getContext("2d"), size);
+        const t = new THREE.CanvasTexture(c);
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.repeat.set(repeat, repeat);
+        t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+        return t;
+      }
+      // value noise, several octaves — concrete
+      function noise(ctx, s, base, spread) {
+        const img = ctx.createImageData(s, s);
+        const grid = (n) => {
+          const g = new Float32Array((n + 1) * (n + 1));
+          for (let i = 0; i < g.length; i++) g[i] = Math.random();
+          return (x, y) => {
+            const fx = (x / s) * n, fy = (y / s) * n;
+            const ix = Math.floor(fx), iy = Math.floor(fy), tx = fx - ix, ty = fy - iy;
+            const at = (a, b) => g[(b % (n + 1)) * (n + 1) + (a % (n + 1))];
+            const sx = tx * tx * (3 - 2 * tx), sy = ty * ty * (3 - 2 * ty);
+            return (at(ix, iy) * (1 - sx) + at(ix + 1, iy) * sx) * (1 - sy) + (at(ix, iy + 1) * (1 - sx) + at(ix + 1, iy + 1) * sx) * sy;
+          };
+        };
+        const oct = [grid(8), grid(32), grid(128), grid(512)];
+        for (let y = 0; y < s; y++)
+          for (let x = 0; x < s; x++) {
+            const v = oct[0](x, y) * 0.25 + oct[1](x, y) * 0.3 + oct[2](x, y) * 0.25 + oct[3](x, y) * 0.2 + (Math.random() - 0.5) * 0.1;
+            const k = base + (v - 0.5) * spread;
+            const i = (y * s + x) * 4;
+            img.data[i] = img.data[i + 1] = img.data[i + 2] = Math.max(0, Math.min(255, k));
+            img.data[i + 3] = 255;
+          }
+        ctx.putImageData(img, 0, 0);
+      }
+      // diagonal ridges (normal map) like a ribbed rubber mat
+      function ridges(ctx, s, period) {
+        const img = ctx.createImageData(s, s);
+        for (let y = 0; y < s; y++)
+          for (let x = 0; x < s; x++) {
+            const t = ((x + y) % period) / period;
+            const slope = Math.cos(t * Math.PI * 2) * 0.85;
+            const nx = slope * 0.7071, ny = slope * 0.7071, nz = 1;
+            const l = Math.hypot(nx, ny, nz);
+            const i = (y * s + x) * 4;
+            img.data[i] = ((nx / l) * 0.5 + 0.5) * 255;
+            img.data[i + 1] = ((-ny / l) * 0.5 + 0.5) * 255;
+            img.data[i + 2] = ((nz / l) * 0.5 + 0.5) * 255;
+            img.data[i + 3] = 255;
+          }
+        ctx.putImageData(img, 0, 0);
+      }
+
+      const GROUNDS = {
+        stone: () => {
+          const map = canvasTex(1024, (c, s) => noise(c, s, 88, 34), true, 4);
+          const bump = canvasTex(1024, (c, s) => noise(c, s, 128, 120), false, 4);
+          return { bg: 0x121214, mat: new THREE.MeshStandardMaterial({ map, roughness: 0.94, bumpMap: bump, bumpScale: 0.8, color: 0x9a9a9e }) };
+        },
+        dusk: () => {
+          const map = canvasTex(1024, (c, s) => noise(c, s, 90, 30), true, 4);
+          const bump = canvasTex(1024, (c, s) => noise(c, s, 128, 110), false, 4);
+          return { bg: 0x0d1118, mat: new THREE.MeshStandardMaterial({ map, roughness: 0.9, bumpMap: bump, bumpScale: 0.7, color: 0x7b879c }) };
+        },
+        stripes: () => {
+          const normal = canvasTex(1024, (c, s) => ridges(c, s, 64), false, 6);
+          return { bg: 0x0a0a0b, mat: new THREE.MeshStandardMaterial({ color: 0x18191b, roughness: 0.55, metalness: 0.1, normalMap: normal, normalScale: new THREE.Vector2(1.6, 1.6) }) };
+        },
+      };
+
+      function floor(kind) {
+        const g = GROUNDS[kind]();
+        scene.background = new THREE.Color(g.bg);
+        scene.fog = new THREE.Fog(g.bg, 140, 260);
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), g.mat);
+        m.rotation.x = -Math.PI / 2;
+        m.receiveShadow = true;
+        scene.add(m);
+        return m;
+      }
+
+      // ── materials ─────────────────────────────────────────────────────
+      const aluminium = new THREE.MeshPhysicalMaterial({ color: 0x4a4c51, metalness: 1, roughness: 0.34, clearcoat: 0.25, clearcoatRoughness: 0.35 });
+      const keyMat = new THREE.MeshStandardMaterial({ color: 0x0d0e10, roughness: 0.7, metalness: 0, envMapIntensity: 0.25 });
+      const glassBlack = new THREE.MeshPhysicalMaterial({ color: 0x050506, roughness: 0.06, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.03 });
+      const titanium = new THREE.MeshPhysicalMaterial({ color: 0x6b6e73, metalness: 1, roughness: 0.32, clearcoat: 0.3 });
+
+      function rounded(w, h, r) {
+        const s = new THREE.Shape();
+        s.moveTo(-w / 2 + r, -h / 2);
+        s.lineTo(w / 2 - r, -h / 2);
+        s.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+        s.lineTo(w / 2, h / 2 - r);
+        s.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2);
+        s.lineTo(-w / 2 + r, h / 2);
+        s.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+        s.lineTo(-w / 2, -h / 2 + r);
+        s.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+        const g = new THREE.ShapeGeometry(s, 24);
+        const uv = g.attributes.uv, pos = g.attributes.position;
+        for (let i = 0; i < uv.count; i++) uv.setXY(i, pos.getX(i) / w + 0.5, pos.getY(i) / h + 0.5);
+        return g;
+      }
+      // the screen: the page image + a faint glass sheen on top
+      function screen(map, w, h, r, z) {
+        const g = new THREE.Group();
+        map.offset.set(0, 0);
+        const img = new THREE.Mesh(rounded(w, h, r), new THREE.MeshBasicMaterial({ map, toneMapped: false }));
+        img.position.z = z;
+        g.add(img);
+        const sheen = new THREE.Mesh(rounded(w, h, r), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.05, roughness: 0.05, metalness: 0, clearcoat: 1 }));
+        sheen.position.z = z + 0.01;
+        g.add(sheen);
+        return g;
+      }
+
+      // ── laptop (cm) ───────────────────────────────────────────────────
+      function laptop(map, open = 112) {
+        const L = new THREE.Group();
+        const W = 31.2, D = 22, T = 0.95;
+        const base = new THREE.Mesh(new RoundedBoxGeometry(W, T, D, 6, 0.55), aluminium);
+        base.position.y = T / 2;
+        base.castShadow = base.receiveShadow = true;
+        L.add(base);
+        // keyboard well
+        const well = new THREE.Mesh(new RoundedBoxGeometry(27.2, 0.2, 11.3, 4, 0.35), new THREE.MeshStandardMaterial({ color: 0x0c0c0d, roughness: 0.8 }));
+        well.position.set(0, T - 0.05, -3.1);
+        L.add(well);
+        // keys
+        const keyGeo = new RoundedBoxGeometry(1.62, 0.16, 1.55, 3, 0.18);
+        const keys = [];
+        const rows = [14, 14, 13, 12, 0];
+        const pitch = 1.9;
+        // every row centred on the deck, like a real keyboard
+        rows.forEach((n, r) => {
+          const z = -7.6 + r * pitch;
+          for (let i = 0; i < n; i++) keys.push([-(n * pitch) / 2 + pitch / 2 + i * pitch, z, 1]);
+        });
+        const im = new THREE.InstancedMesh(keyGeo, keyMat, keys.length);
+        const m4 = new THREE.Matrix4();
+        keys.forEach(([x, z], i) => im.setMatrixAt(i, m4.makeTranslation(x, T + 0.08, z)));
+        im.castShadow = true;
+        L.add(im);
+        // bottom row: modifiers + space bar
+        const space = new THREE.Mesh(new RoundedBoxGeometry(9.5, 0.16, 1.55, 3, 0.18), keyMat);
+        space.position.set(0, T + 0.08, -7.6 + 4 * pitch);
+        L.add(space);
+        [-8.6, -6.6, 6.6, 8.6, -10.6, 10.6, -12.4, 12.4].forEach((x) => {
+          const k = new THREE.Mesh(keyGeo, keyMat);
+          k.position.set(x, T + 0.08, -7.6 + 4 * pitch);
+          L.add(k);
+        });
+        // trackpad
+        const pad = new THREE.Mesh(new RoundedBoxGeometry(13.4, 0.04, 8.2, 4, 0.5), new THREE.MeshPhysicalMaterial({ color: 0x3a3c40, metalness: 0.6, roughness: 0.28, clearcoat: 0.6 }));
+        pad.position.set(0, T + 0.005, 5.9);
+        L.add(pad);
+        // hinge
+        const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 26, 24), new THREE.MeshStandardMaterial({ color: 0x1c1d20, roughness: 0.5, metalness: 0.6 }));
+        hinge.rotation.z = Math.PI / 2;
+        hinge.position.set(0, T + 0.2, -D / 2 + 0.3);
+        L.add(hinge);
+        // lid, pivoting on the back edge
+        const pivot = new THREE.Group();
+        pivot.position.set(0, T, -D / 2 + 0.25);
+        const LH = 21.4, LT = 0.5;
+        const lid = new THREE.Mesh(new RoundedBoxGeometry(W, LH, LT, 6, 0.24), aluminium);
+        lid.position.set(0, LH / 2, 0);
+        lid.castShadow = true;
+        const front = new THREE.Group();
+        const glass = new THREE.Mesh(rounded(W - 0.4, LH - 0.4, 0.7), glassBlack);
+        glass.position.z = LT / 2 + 0.005;
+        front.add(glass);
+        front.add(screen(map, 29.6, 18.5, 0.25, LT / 2 + 0.012));
+        front.children[1].position.y = 0.35;
+        const notch = new THREE.Mesh(rounded(2.6, 0.6, 0.25), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+        notch.position.set(0, 9.6 + 0.35 - 0.3, LT / 2 + 0.03);
+        front.add(notch);
+        front.position.y = LH / 2;
+        pivot.add(lid, front);
+        pivot.rotation.x = -THREE.MathUtils.degToRad(open - 90);
+        L.add(pivot);
+        return L;
+      }
+
+      // ── phone (cm) ────────────────────────────────────────────────────
+      function phone(map) {
+        const P = new THREE.Group();
+        const w = 7.15, h = 14.7, t = 0.82;
+        const body = new THREE.Mesh(new RoundedBoxGeometry(w, h, t, 8, 0.38), titanium);
+        body.castShadow = true;
+        P.add(body);
+        const face = new THREE.Mesh(rounded(w - 0.12, h - 0.12, 1.05), glassBlack);
+        face.position.z = t / 2 + 0.004;
+        P.add(face);
+        P.add(screen(map, w - 0.62, h - 0.62, 0.86, t / 2 + 0.01));
+        const island = new THREE.Mesh(rounded(2.1, 0.62, 0.31), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+        island.position.set(0, h / 2 - 0.85, t / 2 + 0.03);
+        P.add(island);
+        [[w / 2 + 0.02, 2.8, 1.6], [-w / 2 - 0.02, 3.6, 0.9], [-w / 2 - 0.02, 2.2, 0.9]].forEach(([x, y, len]) => {
+          const b = new THREE.Mesh(new RoundedBoxGeometry(0.12, len, 0.32, 2, 0.05), titanium);
+          b.position.set(x, y, 0);
+          P.add(b);
+        });
+        return P;
+      }
+
+      // ── lights ────────────────────────────────────────────────────────
+      function lights({ key = [-30, 60, 30], keyI = 2.4, rim = null, rimColor = 0xffffff } = {}) {
+        const k = new THREE.DirectionalLight(0xfff4e8, keyI);
+        k.position.set(...key);
+        k.castShadow = true;
+        k.shadow.mapSize.set(4096, 4096);
+        k.shadow.camera.left = k.shadow.camera.bottom = -45;
+        k.shadow.camera.right = k.shadow.camera.top = 45;
+        k.shadow.radius = 14;
+        k.shadow.blurSamples = 25;
+        k.shadow.bias = -0.0004;
+        scene.add(k);
+        const back = new THREE.DirectionalLight(0xffffff, 0.9);
+        back.position.set(0, 30, -60);
+        scene.add(back);
+        const fill = new THREE.DirectionalLight(0xdfe8ff, 0.35);
+        fill.position.set(40, 25, 40);
+        scene.add(fill);
+        if (rim) {
+          const r = new THREE.DirectionalLight(rimColor, 1.4);
+          r.position.set(...rim);
+          scene.add(r);
+        }
+      }
+
+      // ── shots ─────────────────────────────────────────────────────────
+      const camera = new THREE.PerspectiveCamera(30, W / H, 1, 1000);
+      const look = (p, t) => {
+        camera.position.set(...p);
+        camera.lookAt(...t);
+      };
+
+      if (SHOT === 1) {
+        floor("stone");
+        scene.add(laptop(await shot("cover")));
+        lights({ key: [-26, 64, 34], keyI: 2.2 });
+        look([0, 52, 66], [0, 7, -1.5]);
+      } else if (SHOT === 2) {
+        floor("stripes");
+        const l = laptop(await shot("s1"), 116);
+        l.rotation.y = -0.62;
+        scene.add(l);
+        lights({ key: [-34, 58, 22], keyI: 2.6, rim: [30, 20, -40] });
+        look([30, 58, 64], [3, 5, -1]);
+      } else if (SHOT === 3) {
+        floor("dusk");
+        const l = laptop(await shot("s2"), 110);
+        l.rotation.y = 0.58;
+        scene.add(l);
+        lights({ key: [30, 60, 30], keyI: 2.2, rim: [-40, 18, -30], rimColor: 0x9db4ff });
+        look([-36, 54, 66], [0, 5.5, -2]);
+      } else if (SHOT === 4) {
+        // phone lying on the ribbed mat, seen from above
+        floor("stripes");
+        const p = phone(await shot("m1"));
+        p.rotation.x = -Math.PI / 2;
+        p.rotation.z = 0.22;
+        p.position.y = 0.42;
+        scene.add(p);
+        lights({ key: [-14, 40, 12], keyI: 2.4 });
+        look([0, 34, 10], [0, 0, 0]);
+      } else {
+        // phone standing on a stone plinth, dusk light
+        floor("dusk");
+        const plinthBump = canvasTex(512, (c, s) => noise(c, s, 128, 70), false, 1);
+        const plinthMat = new THREE.MeshStandardMaterial({ color: 0xcfc8bd, roughness: 0.86, bumpMap: plinthBump, bumpScale: 0.5 });
+        const plinth = new THREE.Mesh(new RoundedBoxGeometry(12, 9, 12, 4, 0.25), plinthMat);
+        plinth.position.y = 4.5;
+        plinth.castShadow = plinth.receiveShadow = true;
+        scene.add(plinth);
+        const p = phone(await shot("m2"));
+        p.position.set(0, 9 + 7.35, 0);
+        p.rotation.y = -0.18;
+        scene.add(p);
+        const wall = new THREE.Mesh(new THREE.PlaneGeometry(400, 200), GROUNDS.dusk().mat);
+        wall.position.set(0, 0, -40);
+        wall.receiveShadow = true;
+        scene.add(wall);
+        lights({ key: [-22, 40, 30], keyI: 2.3, rim: [30, 30, -20], rimColor: 0xa9bdff });
+        look([0, 17, 46], [0, 13.5, 0]);
+      }
+
+      renderer.render(scene, camera);
+      window.__done = true;
+    </script>
+  </body>
+</html>

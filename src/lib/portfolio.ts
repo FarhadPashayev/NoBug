@@ -25,7 +25,7 @@ export type PortfolioItem = {
   coverPortrait: string;
   /** the client's logo for dark and for light grounds */
   logo: { light: string; dark: string };
-  /** studio shots of the work (scripts/portfolio-shots.mjs): three laptop, two phone */
+  /** studio renders of the work (scripts/portfolio-shots.mjs): three laptop, two phone */
   shots: string[];
 };
 
@@ -54,7 +54,7 @@ export const PORTFOLIO: PortfolioItem[] = [
     cover: art("kandar", "logo-card.webp"),
     coverPortrait: art("kandar", "logo-card-portrait.webp"),
     logo: { light: art("kandar", "logo-light.svg"), dark: art("kandar", "logo-dark.svg") },
-    shots: [1, 2, 3, 4, 5].map((i) => art("kandar", `shot-${i}.webp`)),
+    shots: [1, 2, 3, 4, 5].map((i) => art("kandar", `render-${i}.webp`)),
   },
   {
     slug: "beic",
@@ -77,7 +77,7 @@ export const PORTFOLIO: PortfolioItem[] = [
     cover: art("beic", "logo-card.webp"),
     coverPortrait: art("beic", "logo-card-portrait.webp"),
     logo: { light: art("beic", "logo-light.png"), dark: art("beic", "logo-dark.png") },
-    shots: [1, 2, 3, 4, 5].map((i) => art("beic", `shot-${i}.webp`)),
+    shots: [1, 2, 3, 4, 5].map((i) => art("beic", `render-${i}.webp`)),
   },
   {
     slug: "bormark",
@@ -100,6 +100,6 @@ export const PORTFOLIO: PortfolioItem[] = [
     cover: art("bormark", "logo-card.webp"),
     coverPortrait: art("bormark", "logo-card-portrait.webp"),
     logo: { light: art("bormark", "logo-light.svg"), dark: art("bormark", "logo-dark.svg") },
-    shots: [1, 2, 3, 4, 5].map((i) => art("bormark", `shot-${i}.webp`)),
+    shots: [1, 2, 3, 4, 5].map((i) => art("bormark", `render-${i}.webp`)),
   },
 ];
