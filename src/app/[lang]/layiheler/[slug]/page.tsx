@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = await getProject(lang, slug);
   if (!p) return notFoundMetadata(lang);
   return {
-    title: p.title,
+    title: p.headline || p.title,
     description: p.shortDescription,
     alternates: {
       canonical: absoluteUrl(`/${lang}/layiheler/${slug}`),
@@ -74,6 +74,7 @@ export default async function ProjectPage({ params }: Props) {
   // opened from the carousel → ✕ returns to the same card
   const card = showcaseCards(lang, content).findIndex((c) => c.href === projectHref(lang, slug));
   const info: [string, string][] = [
+    ...(p.headline ? ([[sc.case.client, p.title]] as [string, string][]) : []),
     ...(service ? ([[sc.case.category, service.name]] as [string, string][]) : []),
     ...(p.year ? ([[sc.case.year, p.year]] as [string, string][]) : []),
     ...(p.duration ? ([[sc.case.duration, p.duration]] as [string, string][]) : []),
@@ -85,7 +86,7 @@ export default async function ProjectPage({ params }: Props) {
       lang={lang}
       content={content}
       paths={paths}
-      title={p.title}
+      title={p.headline || p.title}
       info={info}
       action={
         p.url ? (
@@ -109,20 +110,17 @@ export default async function ProjectPage({ params }: Props) {
         </div>
       </div>
 
-      {p.logo && (
-        <section aria-label={sc.case.brand} className="mt-[clamp(56px,8vw,112px)]">
-          <h2 className="eyebrow border-t border-black/10 pt-6 text-ink-950/60">{sc.case.brand}</h2>
-          {/* the client's mark on a light ground and on its own brand ground */}
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <div className="flex aspect-[16/10] items-center justify-center rounded-[14px] bg-white p-[12%] ring-1 ring-black/[0.06]">
-              {/* eslint-disable-next-line @next/next/no-img-element -- vector logo, nothing for the optimizer to do */}
-              <img src={p.logo.dark} alt={p.title} className="max-h-full w-full max-w-[340px] object-contain" />
-            </div>
-            <div className="flex aspect-[16/10] items-center justify-center rounded-[14px] p-[12%]" style={{ background: p.theme ? `linear-gradient(140deg, ${p.theme.from}, ${p.theme.to})` : "#111" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- vector logo, nothing for the optimizer to do */}
-              <img src={p.theme?.ink === "#ffffff" ? p.logo.light : p.logo.dark} alt="" className="max-h-full w-full max-w-[340px] object-contain" />
-            </div>
-          </div>
+      {/* the work itself: laptop shots full width, the phone shots side by side */}
+      {p.shots.length > 0 && (
+        <section aria-label={sc.case.screens} className="mt-[clamp(56px,8vw,112px)] grid gap-[clamp(12px,1.6vw,20px)] sm:grid-cols-2">
+          {p.shots.map((src, i) => {
+            const phone = i >= 3;
+            return (
+              <div key={src} className={`relative overflow-hidden rounded-[14px] bg-ink-900 ${phone ? "aspect-[4/3]" : "aspect-[4/3] sm:col-span-2"}`}>
+                <Image src={src} alt={`${p.title} — ${phone ? sc.case.shotPhone : sc.case.shotDesktop} ${phone ? i - 2 : i + 1}`} fill sizes={phone ? "(min-width: 640px) 50vw, 100vw" : "100vw"} className="object-cover" />
+              </div>
+            );
+          })}
         </section>
       )}
 

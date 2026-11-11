@@ -39,6 +39,8 @@ export type Project = {
   id: string;
   slug: string;
   title: string;
+  /** case-study headline when it differs from the title (portfolio: "… üçün korporativ sayt") */
+  headline: string;
   shortDescription: string;
   content: string;
   duration: string;
@@ -53,6 +55,8 @@ export type Project = {
   theme: { from: string; to: string; ink: string } | null;
   /** client logo for dark / light grounds (portfolio only) */
   logo: { light: string; dark: string } | null;
+  /** studio shots of the work, laptop shots first then phones (portfolio only) */
+  shots: string[];
   service: string | null;
 };
 
@@ -63,6 +67,7 @@ function portfolioProjects(locale: Locale, existing: { slug: string }[]): Projec
     id: `work-${w.slug}`,
     slug: w.slug,
     title: w.title[locale],
+    headline: w.headline[locale],
     shortDescription: w.short[locale],
     content: w.body[locale],
     duration: "",
@@ -75,10 +80,11 @@ function portfolioProjects(locale: Locale, existing: { slug: string }[]): Projec
     gallery: [],
     theme: w.theme,
     logo: w.logo,
+    shots: w.shots,
     service: w.service,
   }));
 }
-const fromPanel = { url: "", coverPortrait: null, gallery: [] as Project["gallery"], theme: null, logo: null, service: null };
+const fromPanel = { headline: "", url: "", coverPortrait: null, gallery: [] as Project["gallery"], theme: null, logo: null, shots: [] as string[], service: null };
 
 /** Legal-entity details from Sayt parametrləri; every field may be empty until the client provides it. */
 export type LegalEntity = { name: string; taxId: string; address: string };

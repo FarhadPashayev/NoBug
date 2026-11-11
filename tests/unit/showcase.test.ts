@@ -70,7 +70,7 @@ describe("panel content on the home page", () => {
 
 describe("portfolio in the carousel", () => {
   const svc = (slug: string, name: string) => ({ id: slug, slug, name, shortDescription: "", details: "", icon: "", imageUrl: null, primary: true, categorySlug: "esas" });
-  const work = (slug: string, service: string | null, tags: string[] = []) => ({ id: slug, slug, title: slug, shortDescription: "", content: "", duration: "", year: "", coverUrl: `/assets/work/${slug}/cover.webp`, tags, isFeatured: false, url: "", coverPortrait: null, gallery: [], theme: null, logo: null, service });
+  const work = (slug: string, service: string | null, tags: string[] = []) => ({ id: slug, slug, title: slug, shortDescription: "", content: "", duration: "", year: "", coverUrl: `/assets/work/${slug}/cover.webp`, tags, isFeatured: false, url: "", coverPortrait: null, gallery: [], theme: null, logo: null, shots: [], service });
   const content = { services: [svc("web", "Veb və e-ticarət"), svc("qa", "Keyfiyyət təminatı")], projects: [work("kandar", "web"), work("panel-qa", null, ["Keyfiyyət təminatı"]), work("other", null)] } as unknown as SiteContent;
 
   it("follows each service with its own work, labelled with the service", () => {
@@ -84,7 +84,8 @@ describe("portfolio in the carousel", () => {
       expect(w).not.toHaveProperty("url");
       expect(existsSync(`public${w.cover}`)).toBe(true);
       expect(existsSync(`public${w.coverPortrait}`)).toBe(true);
-      for (const l of [w.logo.light, w.logo.dark]) expect(existsSync(`public${l}`)).toBe(true);
+      for (const l of [w.logo.light, w.logo.dark, ...w.shots]) expect(existsSync(`public${l}`)).toBe(true);
+      expect(w.shots).toHaveLength(5);
       for (const l of LOCALES) expect(w.short[l].length).toBeGreaterThan(20);
     }
   });

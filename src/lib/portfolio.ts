@@ -13,6 +13,8 @@ export type PortfolioItem = {
   /** service slug the work belongs to — it follows that card in the carousel */
   service: string;
   title: L;
+  /** the case-study headline: the work, not the client ("New website for …") */
+  headline: L;
   short: L;
   body: L;
   tags: string[];
@@ -23,6 +25,8 @@ export type PortfolioItem = {
   coverPortrait: string;
   /** the client's logo for dark and for light grounds */
   logo: { light: string; dark: string };
+  /** studio shots of the work (scripts/portfolio-shots.mjs): three laptop, two phone */
+  shots: string[];
 };
 
 // artwork rendered by scripts/portfolio-covers.mjs from the logos next to it
@@ -33,6 +37,7 @@ export const PORTFOLIO: PortfolioItem[] = [
     slug: "kandar",
     service: "web",
     title: { az: "Kandar", en: "Kandar", ru: "Kandar" },
+    headline: { az: "Kandar üçün korporativ sayt", en: "Corporate website for Kandar", ru: "Корпоративный сайт для Kandar" },
     short: {
       az: "Fərdi mebel istehsalçısı KANDAR Concept Store üçün korporativ sayt.",
       en: "Corporate website for KANDAR Concept Store, a bespoke furniture maker.",
@@ -49,11 +54,13 @@ export const PORTFOLIO: PortfolioItem[] = [
     cover: art("kandar", "logo-card.webp"),
     coverPortrait: art("kandar", "logo-card-portrait.webp"),
     logo: { light: art("kandar", "logo-light.svg"), dark: art("kandar", "logo-dark.svg") },
+    shots: [1, 2, 3, 4, 5].map((i) => art("kandar", `shot-${i}.webp`)),
   },
   {
     slug: "beic",
     service: "web",
     title: { az: "BEIC", en: "BEIC", ru: "BEIC" },
+    headline: { az: "BEIC üçün yeni sayt", en: "New website for BEIC", ru: "Новый сайт для BEIC" },
     short: {
       az: "1997-ci ildən fəaliyyət göstərən xaricdə təhsil mərkəzi BEIC üçün sayt.",
       en: "Website for BEIC, an education-abroad centre operating since 1997.",
@@ -70,11 +77,13 @@ export const PORTFOLIO: PortfolioItem[] = [
     cover: art("beic", "logo-card.webp"),
     coverPortrait: art("beic", "logo-card-portrait.webp"),
     logo: { light: art("beic", "logo-light.png"), dark: art("beic", "logo-dark.png") },
+    shots: [1, 2, 3, 4, 5].map((i) => art("beic", `shot-${i}.webp`)),
   },
   {
     slug: "bormark",
     service: "web",
     title: { az: "Bormark Supply", en: "Bormark Supply", ru: "Bormark Supply" },
+    headline: { az: "Bormark Supply üçün üçdilli sayt", en: "Trilingual website for Bormark Supply", ru: "Трёхъязычный сайт для Bormark Supply" },
     short: {
       az: "Çindən Azərbaycana təchizat tərəfdaşı Bormark Supply üçün üçdilli sayt.",
       en: "Trilingual website for Bormark Supply, a China-to-Azerbaijan sourcing partner.",
@@ -91,5 +100,6 @@ export const PORTFOLIO: PortfolioItem[] = [
     cover: art("bormark", "logo-card.webp"),
     coverPortrait: art("bormark", "logo-card-portrait.webp"),
     logo: { light: art("bormark", "logo-light.svg"), dark: art("bormark", "logo-dark.svg") },
+    shots: [1, 2, 3, 4, 5].map((i) => art("bormark", `shot-${i}.webp`)),
   },
 ];
