@@ -1,7 +1,8 @@
 import type { Locale } from "@/lib/i18n/config";
 
-// Delivered client sites, shipped with the code so they can be previewed on
-// dev before they reach production (dev and production share one database).
+// Delivered client work, shipped with the code so it can be previewed on dev
+// before it reaches production (dev and production share one database). We
+// show the client's logo only — never the live site, its address or screens.
 // A project created in the panel with the same slug replaces the entry here.
 // Facts only: what each site is and what it contains — no invented figures.
 // TODO(content): year and duration once the team confirms them.
@@ -9,7 +10,6 @@ import type { Locale } from "@/lib/i18n/config";
 type L = Record<Locale, string>;
 export type PortfolioItem = {
   slug: string;
-  url: string;
   /** service slug the work belongs to — it follows that card in the carousel */
   service: string;
   title: L;
@@ -21,21 +21,16 @@ export type PortfolioItem = {
   theme: { from: string; to: string; ink: string };
   cover: string;
   coverPortrait: string;
-  gallery: { src: string; alt: L; device: "desktop" | "phone" }[];
+  /** the client's logo for dark and for light grounds */
+  logo: { light: string; dark: string };
 };
 
-// artwork rendered by scripts/portfolio-covers.mjs
-const shot = (slug: string, file: string) => `/assets/work/${slug}/${file}.webp`;
-const screens = (slug: string, name: string, d: [L, L]): PortfolioItem["gallery"] => [
-  { src: shot(slug, "d1"), alt: d[0], device: "desktop" },
-  { src: shot(slug, "d2"), alt: d[1], device: "desktop" },
-  ...[1, 2, 3].map((i) => ({ src: shot(slug, `m${i}`), alt: { az: `${name} saytı telefonda, ekran ${i}`, en: `${name} site on a phone, screen ${i}`, ru: `Сайт ${name} на телефоне, экран ${i}` }, device: "phone" as const })),
-];
+// artwork rendered by scripts/portfolio-covers.mjs from the logos next to it
+const art = (slug: string, file: string) => `/assets/work/${slug}/${file}`;
 
 export const PORTFOLIO: PortfolioItem[] = [
   {
     slug: "kandar",
-    url: "https://kandar.az/az",
     service: "web",
     title: { az: "Kandar", en: "Kandar", ru: "Kandar" },
     short: {
@@ -51,13 +46,12 @@ export const PORTFOLIO: PortfolioItem[] = [
     tags: ["Next.js"],
     year: "",
     theme: { from: "#efe9e2", to: "#c7baab", ink: "#2b2620" },
-    cover: shot("kandar", "card"),
-    coverPortrait: shot("kandar", "card-portrait"),
-    gallery: screens("kandar", "Kandar", [{ az: "Kandar saytı: şirkət haqqında bölmə", en: "Kandar site: about section", ru: "Сайт Kandar: раздел о компании" }, { az: "Kandar saytı: seçilmiş layihələr", en: "Kandar site: selected projects", ru: "Сайт Kandar: избранные проекты" }]),
+    cover: art("kandar", "logo-card.webp"),
+    coverPortrait: art("kandar", "logo-card-portrait.webp"),
+    logo: { light: art("kandar", "logo-light.svg"), dark: art("kandar", "logo-dark.svg") },
   },
   {
     slug: "beic",
-    url: "https://beic.az/",
     service: "web",
     title: { az: "BEIC", en: "BEIC", ru: "BEIC" },
     short: {
@@ -73,13 +67,12 @@ export const PORTFOLIO: PortfolioItem[] = [
     tags: ["Next.js"],
     year: "",
     theme: { from: "#4f9a2c", to: "#22408c", ink: "#ffffff" },
-    cover: shot("beic", "card"),
-    coverPortrait: shot("beic", "card-portrait"),
-    gallery: screens("beic", "BEIC", [{ az: "BEIC saytı: proqramlar", en: "BEIC site: programmes", ru: "Сайт BEIC: программы" }, { az: "BEIC saytı: xəbərlər və tədbirlər", en: "BEIC site: news and events", ru: "Сайт BEIC: новости и события" }]),
+    cover: art("beic", "logo-card.webp"),
+    coverPortrait: art("beic", "logo-card-portrait.webp"),
+    logo: { light: art("beic", "logo-light.png"), dark: art("beic", "logo-dark.png") },
   },
   {
     slug: "bormark",
-    url: "https://bormarkglobal.com/",
     service: "web",
     title: { az: "Bormark Supply", en: "Bormark Supply", ru: "Bormark Supply" },
     short: {
@@ -95,8 +88,8 @@ export const PORTFOLIO: PortfolioItem[] = [
     tags: ["Astro", "GSAP", "Lenis"],
     year: "",
     theme: { from: "#1d2b4a", to: "#3a4d76", ink: "#ffffff" },
-    cover: shot("bormark", "card"),
-    coverPortrait: shot("bormark", "card-portrait"),
-    gallery: screens("bormark", "Bormark", [{ az: "Bormark saytı: marşrut animasiyası", en: "Bormark site: route animation", ru: "Сайт Bormark: анимация маршрута" }, { az: "Bormark saytı: xidmətlər", en: "Bormark site: services", ru: "Сайт Bormark: услуги" }]),
+    cover: art("bormark", "logo-card.webp"),
+    coverPortrait: art("bormark", "logo-card-portrait.webp"),
+    logo: { light: art("bormark", "logo-light.svg"), dark: art("bormark", "logo-dark.svg") },
   },
 ];

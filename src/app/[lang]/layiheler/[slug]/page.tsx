@@ -13,7 +13,6 @@ import { getShowcaseCopy } from "@/lib/i18n/showcase";
 import { coverFor } from "@/lib/covers";
 import { projectHref, projectService, showcaseCards } from "@/lib/showcase-data";
 import { CaseLayout } from "@/components/case/case-layout";
-import { BrowserFrame, PhoneFrame } from "@/components/case/device-frames";
 
 type Props = { params: Promise<{ lang: string; slug: string }> };
 
@@ -72,9 +71,6 @@ export default async function ProjectPage({ params }: Props) {
   };
   const following = neighbour(at + 1);
   const service = projectService(content, p);
-  const desktop = p.gallery.filter((g) => g.device === "desktop");
-  const phones = p.gallery.filter((g) => g.device === "phone");
-  const domain = p.url ? new URL(p.url).hostname.replace(/^www\./, "") : "";
   // opened from the carousel → ✕ returns to the same card
   const card = showcaseCards(lang, content).findIndex((c) => c.href === projectHref(lang, slug));
   const info: [string, string][] = [
@@ -113,27 +109,19 @@ export default async function ProjectPage({ params }: Props) {
         </div>
       </div>
 
-      {(desktop.length > 0 || phones.length > 0) && (
-        <section aria-label={sc.case.screens} className="mt-[clamp(56px,8vw,112px)]">
-          <h2 className="eyebrow border-t border-black/10 pt-6 text-ink-950/60">{sc.case.screens}</h2>
-          {/* the screens sit on the project's own brand ground, in device frames */}
-          <div className="mt-8 overflow-hidden rounded-[14px] p-[clamp(16px,5vw,64px)]" style={{ background: p.theme ? `linear-gradient(140deg, ${p.theme.from}, ${p.theme.to})` : "#1b1b1b" }}>
-            {desktop.length > 0 && (
-              <div className="grid gap-[clamp(16px,3vw,36px)] md:grid-cols-2">
-                {desktop.map((g) => (
-                  <BrowserFrame key={g.src} src={g.src} alt={g.alt} domain={domain} />
-                ))}
-              </div>
-            )}
-            {phones.length > 0 && (
-              <div className={`flex items-start justify-center gap-[clamp(10px,3vw,40px)] ${desktop.length ? "mt-[clamp(24px,5vw,64px)]" : ""}`}>
-                {phones.map((g, i) => (
-                  <div key={g.src} className={i === 1 ? "md:-translate-y-6" : "md:translate-y-6"}>
-                    <PhoneFrame src={g.src} alt={g.alt} />
-                  </div>
-                ))}
-              </div>
-            )}
+      {p.logo && (
+        <section aria-label={sc.case.brand} className="mt-[clamp(56px,8vw,112px)]">
+          <h2 className="eyebrow border-t border-black/10 pt-6 text-ink-950/60">{sc.case.brand}</h2>
+          {/* the client's mark on a light ground and on its own brand ground */}
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="flex aspect-[16/10] items-center justify-center rounded-[14px] bg-white p-[12%] ring-1 ring-black/[0.06]">
+              {/* eslint-disable-next-line @next/next/no-img-element -- vector logo, nothing for the optimizer to do */}
+              <img src={p.logo.dark} alt={p.title} className="max-h-full w-full max-w-[340px] object-contain" />
+            </div>
+            <div className="flex aspect-[16/10] items-center justify-center rounded-[14px] p-[12%]" style={{ background: p.theme ? `linear-gradient(140deg, ${p.theme.from}, ${p.theme.to})` : "#111" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- vector logo, nothing for the optimizer to do */}
+              <img src={p.theme?.ink === "#ffffff" ? p.logo.light : p.logo.dark} alt="" className="max-h-full w-full max-w-[340px] object-contain" />
+            </div>
           </div>
         </section>
       )}

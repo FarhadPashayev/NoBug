@@ -51,6 +51,8 @@ export type Project = {
   coverPortrait: string | null;
   gallery: { src: string; alt: string; device: "desktop" | "phone" }[];
   theme: { from: string; to: string; ink: string } | null;
+  /** client logo for dark / light grounds (portfolio only) */
+  logo: { light: string; dark: string } | null;
   service: string | null;
 };
 
@@ -68,14 +70,15 @@ function portfolioProjects(locale: Locale, existing: { slug: string }[]): Projec
     coverUrl: w.cover,
     tags: w.tags,
     isFeatured: false,
-    url: w.url,
+    url: "", // the live site is not published
     coverPortrait: w.coverPortrait,
-    gallery: w.gallery.map((g) => ({ src: g.src, alt: g.alt[locale], device: g.device })),
+    gallery: [],
     theme: w.theme,
+    logo: w.logo,
     service: w.service,
   }));
 }
-const fromPanel = { url: "", coverPortrait: null, gallery: [] as Project["gallery"], theme: null, service: null };
+const fromPanel = { url: "", coverPortrait: null, gallery: [] as Project["gallery"], theme: null, logo: null, service: null };
 
 /** Legal-entity details from Sayt parametrləri; every field may be empty until the client provides it. */
 export type LegalEntity = { name: string; taxId: string; address: string };
