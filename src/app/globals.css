@@ -8,10 +8,12 @@
   --color-navy: #0b1f3a; /* dark surfaces, ink on light */
   --color-navy-800: #16294a; /* cards / tiles on the navy band */
   --color-navy-line: #24354f; /* 1px rules on navy */
-  --color-yellow: #efa83c; /* accent: CTAs, badges, active states — text on it is navy */
-  --color-yellow-600: #e0982a; /* hover on yellow fills */
-  --color-yellow-700: #b57a1e; /* accent TEXT on light grounds (contrast) */
-  --color-yellow-soft: rgba(239, 168, 60, 0.16); /* tinted badge grounds */
+  /* the accent is electric blue (the amber stays in the logo only); the
+     "yellow" names are kept so the existing classes keep working */
+  --color-yellow: #3d7bff; /* accent: CTAs, badges, active states — text on it is ink (5.2:1) */
+  --color-yellow-600: #5c90ff; /* hover on accent fills: lighter, so the ink keeps its contrast */
+  --color-yellow-700: #1f4fd8; /* accent TEXT on light grounds (contrast) */
+  --color-yellow-soft: rgba(61, 123, 255, 0.16); /* tinted badge grounds */
 
   /* neutrals */
   --color-light: #f8f9fa; /* page ground */
@@ -509,7 +511,7 @@ body {
     --g-fg: #0b1f3a; /* ink */
     --g-muted: #5c6b80; /* grey */
     --g-line: #e3e7ee; /* fog */
-    --g-accent: #b57a1e; /* yellow-700: accent text on light */
+    --g-accent: #1f4fd8; /* yellow-700: accent text on light */
     --g-faint: #5c6b80; /* the quietest line: full grey on light (a 60% tint is unreadable there) */
     /* the ink flips in the middle of the 700ms ground fade, where both the
        old and the new colour still read against the half-way ground */
@@ -524,7 +526,7 @@ body {
     --g-fg: #ffffff;
     --g-muted: #a9b7cb; /* grey-navy */
     --g-line: #24354f; /* navy-line */
-    --g-accent: #efa83c; /* yellow */
+    --g-accent: #3d7bff; /* yellow (accent) */
     --g-faint: #6a7a91; /* grey-navy at 60% over navy */
   }
   body {

@@ -23,7 +23,7 @@ type Props = {
 };
 
 const FOV = 30;
-const ACCENT = new THREE.Color("#efa83c");
+const ACCENT = new THREE.Color("#3d7bff");
 
 /** One <canvas> for the whole hero — a row of bent, shaded planes. */
 export default function ShowcaseCanvas({ cards, state, reduced, paused, mobile, onReady, onFail, onCardClick, onHover }: Props) {

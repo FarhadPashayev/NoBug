@@ -48,7 +48,7 @@ export default function CoverCanvas({ pattern, onFail }: { pattern: number; onFa
         uOpacity: { value: 1 },
         uBend: { value: 0 },
         uExpand: { value: 1 },
-        uAccent: { value: new THREE.Color("#efa83c") },
+        uAccent: { value: new THREE.Color("#3d7bff") },
         uTex: { value: null },
       },
     });

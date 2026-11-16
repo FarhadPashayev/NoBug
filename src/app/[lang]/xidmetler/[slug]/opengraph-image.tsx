@@ -47,7 +47,7 @@ export default async function Image({ params }: { params: Promise<{ lang: string
       >
         <img src={wordmarkSrc} alt="" width={254} height={72} style={{ width: 254, height: 72 }} />
         <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-          <div style={{ width: 96, height: 2, background: "#EFA83C" }} />
+          <div style={{ width: 96, height: 2, background: "#3D7BFF" }} />
           <div style={{ fontSize: title.length > 28 ? 56 : 68, lineHeight: 1.05, letterSpacing: "-0.03em", maxWidth: 1040 }}>{title}</div>
           <div style={{ fontSize: 26, lineHeight: 1.35, color: "#A9B7CB", maxWidth: 1000 }}>{text}</div>
         </div>
