@@ -123,8 +123,8 @@ export function StandardsSection({ index, t, rows, lead }: { index: number; t: D
 function Status({ value }: { value: string }) {
   const done = /tətbiq|in place|внедр|применя|applied/i.test(value);
   return (
-    <span className={`inline-flex flex-none items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] ${done ? "bg-yellow/10 text-yellow" : "bg-white/[0.06] text-paper/60"}`}>
-      <span className={`size-1.5 rounded-full ${done ? "bg-yellow" : "border border-paper/50"}`} aria-hidden="true" />
+    <span className={`inline-flex flex-none items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] ${done ? "bg-blue/15 text-blue" : "bg-white/[0.06] text-paper/60"}`}>
+      <span className={`size-1.5 rounded-full ${done ? "bg-blue" : "border border-paper/50"}`} aria-hidden="true" />
       {value}
     </span>
   );

@@ -27,9 +27,9 @@ export function ServicesSection({ lang, title, lead, services, primaryLabel, cta
               className="group flex h-full flex-col justify-between gap-6 p-5 transition-colors hover:bg-ink-900 sm:min-h-[220px] sm:gap-10 sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <span className="flex items-center gap-3">
-                  <span className="font-mono text-[12px] text-paper/60">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="font-mono text-[12px] text-blue">{String(i + 1).padStart(2, "0")}</span>
                   {Icon && (
-                    <span data-icon={s.icon} className="grid size-9 place-items-center rounded-full bg-ink-900 text-paper/80 transition-colors group-hover:text-yellow">
+                    <span data-icon={s.icon} className="grid size-9 place-items-center rounded-full bg-ink-900 text-paper/80 transition-colors group-hover:text-blue">
                       <Icon size={17} aria-hidden="true" />
                     </span>
                   )}
@@ -39,7 +39,7 @@ export function ServicesSection({ lang, title, lead, services, primaryLabel, cta
               <div>
                 <h3 className="flex items-start justify-between gap-4 text-[clamp(20px,1.8vw,26px)] font-medium leading-[1.15] tracking-[-0.02em]">
                   {s.name}
-                  <ArrowUpRight size={20} aria-hidden="true" className="mt-1 flex-none text-paper/60 transition-[color,translate] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-yellow" />
+                  <ArrowUpRight size={20} aria-hidden="true" className="mt-1 flex-none text-paper/60 transition-[color,translate] duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-blue" />
                 </h3>
                 <p className="mt-3 text-[15px] leading-[1.5] text-paper/55">{s.shortDescription}</p>
               </div>

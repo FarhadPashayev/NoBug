@@ -5,7 +5,7 @@ export function SectionHead({ index, title, lead, aside }: { index: number; titl
   return (
     <Rise className="grid gap-6 border-t border-ink-line pt-6 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-10">
       <h2 className="eyebrow flex gap-3 font-medium text-paper/60">
-        <span aria-hidden="true">{String(index).padStart(2, "0")}</span>
+        <span aria-hidden="true" className="text-blue">{String(index).padStart(2, "0")}</span>
         <span>{title}</span>
       </h2>
       <div className="flex flex-wrap items-end justify-between gap-6">

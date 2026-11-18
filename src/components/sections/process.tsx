@@ -26,7 +26,7 @@ export function ProcessSection({ title, lead, steps, qaNote }: { title: string; 
         })}
       </Stagger>
       <Rise className="mt-8 flex items-start gap-3 text-[15px] leading-[1.5] text-paper/70">
-        <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-yellow" aria-hidden="true" />
+        <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-blue" aria-hidden="true" />
         <p className="max-w-[60ch]">{qaNote}</p>
       </Rise>
     </section>

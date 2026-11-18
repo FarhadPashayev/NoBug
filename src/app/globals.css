@@ -12,6 +12,7 @@
   --color-yellow-600: #e0982a; /* hover on yellow fills */
   --color-yellow-700: #b57a1e; /* accent TEXT on light grounds (contrast) */
   --color-yellow-soft: rgba(239, 168, 60, 0.16); /* tinted badge grounds */
+  --color-blue: #3d7bff; /* second accent, small details only: indices, icons, hovers, status — 5.3:1 on the home ground */
 
   /* neutrals */
   --color-light: #f8f9fa; /* page ground */
@@ -21,7 +22,7 @@
   --color-error: #b3121d; /* form errors only — never decorative */
 
   /* aliases kept for the anket / legal pages */
-  --color-paper: #ffffff; /* white: text on navy, ground of the case studies */
+  --color-paper: #edebe5;
   --color-surface: #f6f4ef;
   --color-hairline: #d9d6cf;
   --color-muted: #6b6862;
@@ -39,10 +40,10 @@
   --ease-brand: cubic-bezier(0.2, 0, 0, 1);
 
   /* ── showcase redesign: near-black home, paper case studies ── */
-  --color-ink-950: #0f1b3d; /* navy: home ground */
-  --color-ink-900: #172650; /* cards / tiles on the navy ground */
-  --color-ink-800: #1f3163;
-  --color-ink-line: rgba(255, 255, 255, 0.12); /* hairlines on the home ground */
+  --color-ink-950: #080808; /* home ground */
+  --color-ink-900: #111111; /* cards / tiles on the home ground */
+  --color-ink-800: #1b1b1b;
+  --color-ink-line: rgba(237, 235, 229, 0.12); /* hairlines on the home ground */
   --spacing-gutter: clamp(20px, 4.2vw, 56px);
   --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -858,7 +859,7 @@ textarea.field-ink {
 }
 select.field-ink {
   padding-right: 28px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23ffffff' stroke-opacity='.6' stroke-width='1.5'%3E%3Cpath d='M2 4.5l4 4 4-4'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23edebe5' stroke-opacity='.6' stroke-width='1.5'%3E%3Cpath d='M2 4.5l4 4 4-4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 4px center;
 }
@@ -867,7 +868,7 @@ select.field-ink option {
   color: var(--color-paper);
 }
 .field-ink::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(237, 235, 229, 0.3);
 }
 .field-ink:focus {
   outline: none;
@@ -925,7 +926,7 @@ html:not([data-intro="done"]) .home-intro .intro-fade {
 }
 @media (hover: hover) {
   .chip-ink:hover {
-    border-color: rgba(255, 255, 255, 0.45);
+    border-color: rgba(237, 235, 229, 0.45);
   }
 }
 .chip-ink[data-selected="true"] {
@@ -954,7 +955,7 @@ html:not([data-intro="done"]) .home-intro .intro-fade {
   color: var(--color-ink-950);
 }
 .btn-ink-secondary {
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(237, 235, 229, 0.25);
   color: var(--color-paper);
 }
 @media (hover: hover) {
@@ -980,52 +981,4 @@ html:not([data-intro="done"]) .home-intro .intro-fade {
 }
 @media (prefers-reduced-motion: reduce) {
   .drag-hint { animation: none; }
-}
-
-/* ── navy and white: the hero, the process and the contact sit on navy
-   with a soft light and a faint grid; the reading sections are white bands.
-   A band swaps the two ink tokens, so every section works on either. ── */
-.home-ground {
-  background-color: var(--color-ink-950);
-  background-image:
-    radial-gradient(60% 50% at 50% 0%, rgba(92, 124, 222, 0.38) 0%, transparent 72%),
-    radial-gradient(40% 40% at 85% 70%, rgba(239, 168, 60, 0.07) 0%, transparent 70%),
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 100% 110vh, 100% 110vh, 56px 56px, 56px 56px;
-  background-repeat: no-repeat, no-repeat, repeat, repeat;
-}
-.band-light {
-  --color-paper: #0f1b3d;
-  --color-ink-950: #ffffff;
-  --color-ink-900: #f3f5fa;
-  --color-ink-800: #e8ecf5;
-  --color-ink-line: rgba(15, 27, 61, 0.1);
-  background: #ffffff;
-  color: #0f1b3d;
-}
-.band-soft {
-  --color-ink-950: #f6f8fc;
-  --color-ink-900: #ffffff;
-  background: #f6f8fc;
-}
-/* amber fills keep navy ink; amber text darkens to read on white */
-.band-light :is(.bg-yellow, .btn-ink-primary, .chip-ink[data-selected="true"]) {
-  --color-ink-950: #0f1b3d;
-  --color-paper: #ffffff;
-}
-/* the typographic cover is navy artwork: it keeps the navy-ground ink */
-.band-light .type-cover {
-  --color-paper: #ffffff;
-  --color-ink-950: #0f1b3d;
-}
-.band-light .text-yellow {
-  color: var(--color-yellow-700);
-}
-.band-light .bg-ink-900 {
-  box-shadow: 0 1px 2px rgba(15, 27, 61, 0.04), 0 12px 32px -18px rgba(15, 27, 61, 0.18);
-}
-.theme-ink :is(a, button).bg-yellow,
-.btn-ink-primary {
-  box-shadow: 0 10px 32px -8px rgba(239, 168, 60, 0.6);
 }

@@ -44,7 +44,7 @@ export function LangSwitcher({
             className={`mono-label border-b py-1 transition-colors duration-140 ${
               tone === "page"
                 ? active
-                  ? "border-yellow text-current"
+                  ? "border-blue text-current"
                   : "border-transparent text-current opacity-80 hover:opacity-100"
                 : tone === "light"
                   ? active
