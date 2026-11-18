@@ -143,7 +143,7 @@ export default async function ProjectPage({ params }: Props) {
               <Image src={following.coverUrl} alt="" fill sizes="(min-width: 640px) 50vw, 100vw" className="object-cover transition-transform duration-[1200ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.04]" />
             ) : (
               // no artwork: the brand grid, the name is already on the right
-              <span aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(120%_90%_at_85%_10%,#2a2416_0%,transparent_55%),linear-gradient(140deg,#16181c,#0b0b0c)]">
+              <span aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(120%_90%_at_85%_10%,#2b3d80_0%,transparent_55%),linear-gradient(140deg,#172650,#0f1b3d)]">
                 <span className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,255,255,.9)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.9)_1px,transparent_1px)] [background-size:40px_40px]" />
                 <span className="absolute left-6 top-6 flex items-center gap-2 text-[12px] text-paper/60">
                   <span className="size-1.5 rounded-full bg-yellow" />

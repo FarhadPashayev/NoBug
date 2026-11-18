@@ -78,7 +78,7 @@ export function SiteChrome({ lang, tone, t, about, channels, paths, fab = true }
           >
             {t.about}
           </button>
-          <Link href={`/${lang}#elaqe`} onClick={contact} className="hidden min-h-11 items-center transition-opacity hover:opacity-45 sm:inline-flex">
+          <Link href={`/${lang}#elaqe`} onClick={contact} className={`hidden items-center sm:inline-flex ${tone === "ink" ? "h-9 rounded-full bg-paper px-4 font-medium text-ink-950 transition-colors hover:bg-yellow" : "min-h-11 transition-opacity hover:opacity-45"}`}>
             {t.contact}
           </Link>
         </nav>

@@ -39,9 +39,9 @@
   --ease-brand: cubic-bezier(0.2, 0, 0, 1);
 
   /* ── showcase redesign: near-black home, paper case studies ── */
-  --color-ink-950: #0f1b2d; /* navy: home ground */
-  --color-ink-900: #16243a; /* cards / tiles on the navy ground */
-  --color-ink-800: #1e2e48;
+  --color-ink-950: #0f1b3d; /* navy: home ground */
+  --color-ink-900: #172650; /* cards / tiles on the navy ground */
+  --color-ink-800: #1f3163;
   --color-ink-line: rgba(255, 255, 255, 0.12); /* hairlines on the home ground */
   --spacing-gutter: clamp(20px, 4.2vw, 56px);
   --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
@@ -980,4 +980,20 @@ html:not([data-intro="done"]) .home-intro .intro-fade {
 }
 @media (prefers-reduced-motion: reduce) {
   .drag-hint { animation: none; }
+}
+
+/* ── navy ground: a soft light from the top and a faint grid, the amber
+   CTAs glow — the rest of the design is unchanged ── */
+.home-ground {
+  background-color: var(--color-ink-950);
+  background-image:
+    radial-gradient(70% 55% at 50% 0%, rgba(74, 104, 196, 0.32) 0%, transparent 70%),
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 100% 100vh, 56px 56px, 56px 56px;
+  background-repeat: no-repeat, repeat, repeat;
+}
+.theme-ink :is(a, button).bg-yellow,
+.btn-ink-primary {
+  box-shadow: 0 10px 32px -8px rgba(239, 168, 60, 0.6);
 }

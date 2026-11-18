@@ -44,7 +44,7 @@ export default async function HomePage({ params }: { params: Promise<{ lang: str
   const next = () => ++n;
 
   return (
-    <div className="theme-ink home-intro bg-ink-950 text-paper">
+    <div className="theme-ink home-intro home-ground text-paper">
       <SmoothScroll />
       <SiteChrome lang={lang} tone="ink" t={chromeCopy(lang)} about={aboutData(lang, content)} channels={channels} />
       <main>

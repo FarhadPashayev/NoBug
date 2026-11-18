@@ -38,7 +38,7 @@ export const cardFragment = /* glsl */ `
   uniform sampler2D uTex;
   varying vec2 vUv;
 
-  const vec3 GROUND = vec3(0.059, 0.106, 0.176);
+  const vec3 GROUND = vec3(0.059, 0.106, 0.239);
   const vec3 INK = vec3(0.86, 0.85, 0.82);
 
   float hash(float n) { return fract(sin(n * 127.1) * 43758.5453); }
