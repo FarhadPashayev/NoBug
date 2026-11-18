@@ -48,7 +48,7 @@ export function SiteChrome({ lang, tone, t, about, channels, paths, fab = true }
     return () => io.disconnect();
   }, [pathname]);
 
-  // the home page alternates navy and white bands: the header follows the band beneath it
+  // the home page alternates navy and white bands: the header follows the band under its logo line
   const [overLight, setOverLight] = useState(false);
   useEffect(() => {
     const bands = document.querySelectorAll("[data-band='light']");
@@ -62,7 +62,7 @@ export function SiteChrome({ lang, tone, t, about, channels, paths, fab = true }
         }
         setOverLight(under.size > 0);
       },
-      { rootMargin: "0px 0px -96% 0px" },
+      { rootMargin: "-5% 0px -94.5% 0px" },
     );
     bands.forEach((b) => io.observe(b));
     return () => io.disconnect();
