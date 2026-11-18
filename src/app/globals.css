@@ -41,7 +41,7 @@
 
   /* ── showcase redesign: near-black home, paper case studies ── */
   --color-ink-950: #080808; /* home ground */
-  --color-ink-900: #111111; /* cards / tiles on the home ground */
+  --color-ink-900: #0f1b3d; /* navy: cards, tiles, pills and icon discs on the home ground (the ground itself stays near-black) */
   --color-ink-800: #1b1b1b;
   --color-ink-line: rgba(237, 235, 229, 0.12); /* hairlines on the home ground */
   --spacing-gutter: clamp(20px, 4.2vw, 56px);
