@@ -21,7 +21,7 @@
   --color-error: #b3121d; /* form errors only — never decorative */
 
   /* aliases kept for the anket / legal pages */
-  --color-paper: #edebe5;
+  --color-paper: #ffffff; /* white: text on navy, ground of the case studies */
   --color-surface: #f6f4ef;
   --color-hairline: #d9d6cf;
   --color-muted: #6b6862;
@@ -39,10 +39,10 @@
   --ease-brand: cubic-bezier(0.2, 0, 0, 1);
 
   /* ── showcase redesign: near-black home, paper case studies ── */
-  --color-ink-950: #080808; /* home ground */
-  --color-ink-900: #111111; /* cards / tiles on the home ground */
-  --color-ink-800: #1b1b1b;
-  --color-ink-line: rgba(237, 235, 229, 0.12); /* hairlines on the home ground */
+  --color-ink-950: #0f1b2d; /* navy: home ground */
+  --color-ink-900: #16243a; /* cards / tiles on the navy ground */
+  --color-ink-800: #1e2e48;
+  --color-ink-line: rgba(255, 255, 255, 0.12); /* hairlines on the home ground */
   --spacing-gutter: clamp(20px, 4.2vw, 56px);
   --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -858,7 +858,7 @@ textarea.field-ink {
 }
 select.field-ink {
   padding-right: 28px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23edebe5' stroke-opacity='.6' stroke-width='1.5'%3E%3Cpath d='M2 4.5l4 4 4-4'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23ffffff' stroke-opacity='.6' stroke-width='1.5'%3E%3Cpath d='M2 4.5l4 4 4-4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 4px center;
 }
@@ -867,7 +867,7 @@ select.field-ink option {
   color: var(--color-paper);
 }
 .field-ink::placeholder {
-  color: rgba(237, 235, 229, 0.3);
+  color: rgba(255, 255, 255, 0.3);
 }
 .field-ink:focus {
   outline: none;
@@ -925,7 +925,7 @@ html:not([data-intro="done"]) .home-intro .intro-fade {
 }
 @media (hover: hover) {
   .chip-ink:hover {
-    border-color: rgba(237, 235, 229, 0.45);
+    border-color: rgba(255, 255, 255, 0.45);
   }
 }
 .chip-ink[data-selected="true"] {
@@ -954,7 +954,7 @@ html:not([data-intro="done"]) .home-intro .intro-fade {
   color: var(--color-ink-950);
 }
 .btn-ink-secondary {
-  border: 1px solid rgba(237, 235, 229, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   color: var(--color-paper);
 }
 @media (hover: hover) {
