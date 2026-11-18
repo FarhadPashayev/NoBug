@@ -41,10 +41,10 @@ test("ANK-14: the home call to action opens the anket in the showcase design", a
   await cta.click();
   await expect(page).toHaveURL(/\/az\/anket$/);
   await page.waitForTimeout(500);
-  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(8, 8, 8)");
+  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(15, 27, 61)");
   const first = page.getByRole("button", { name: "Veb və e-ticarət" });
   await expect(first).toBeVisible();
-  expect(await first.evaluate((el) => getComputedStyle(el).color)).toBe("rgb(237, 235, 229)");
+  expect(await first.evaluate((el) => getComputedStyle(el).color)).toBe("rgb(255, 255, 255)");
   await expect(page.getByRole("button", { name: "Haqqımızda" })).toBeVisible(); // shared header + About drawer
 });
 

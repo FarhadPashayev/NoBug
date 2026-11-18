@@ -48,6 +48,27 @@ export function SiteChrome({ lang, tone, t, about, channels, paths, fab = true }
     return () => io.disconnect();
   }, [pathname]);
 
+  // the home page alternates navy and white bands: the header follows the band beneath it
+  const [overLight, setOverLight] = useState(false);
+  useEffect(() => {
+    const bands = document.querySelectorAll("[data-band='light']");
+    if (!bands.length) return;
+    const under = new Set<Element>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) under.add(e.target);
+          else under.delete(e.target);
+        }
+        setOverLight(under.size > 0);
+      },
+      { rootMargin: "0px 0px -96% 0px" },
+    );
+    bands.forEach((b) => io.observe(b));
+    return () => io.disconnect();
+  }, [pathname]);
+  const look = tone === "ink" && overLight ? "paper" : tone;
+
   const close = useCallback(() => {
     setOpen(false);
     trigger.current?.focus();
@@ -62,11 +83,11 @@ export function SiteChrome({ lang, tone, t, about, channels, paths, fab = true }
 
   return (
     <>
-      <header className={`intro-fade pointer-events-none fixed inset-x-0 top-0 z-50 flex items-start justify-between gap-4 bg-gradient-to-b px-[25px] pb-8 pt-[max(25px,env(safe-area-inset-top))] md:px-[47px] md:pt-[46px] ${tone === "ink" ? "from-ink-950 via-ink-950/70" : "from-paper via-paper/80"} to-transparent`}>
+      <header className={`intro-fade pointer-events-none fixed inset-x-0 top-0 z-50 flex items-start justify-between gap-4 bg-gradient-to-b px-[25px] pb-8 pt-[max(25px,env(safe-area-inset-top))] md:px-[47px] md:pt-[46px] ${look === "ink" ? "from-ink-950 via-ink-950/70" : "from-paper via-paper/80"} to-transparent`}>
         <div className="pointer-events-auto">
-          <Logo href={`/${lang}`} variant={tone === "ink" ? "brand-dark" : "brand"} height={21} />
+          <Logo href={`/${lang}`} variant={look === "ink" ? "brand-dark" : "brand"} height={21} />
         </div>
-        <nav aria-label="Main" className={`pointer-events-auto -mt-3 flex items-center gap-x-5 text-[13px] md:gap-x-7 md:text-[14px] ${tone === "ink" ? "text-paper" : "text-ink-950"}`}>
+        <nav aria-label="Main" className={`pointer-events-auto -mt-3 flex items-center gap-x-5 text-[13px] md:gap-x-7 md:text-[14px] ${look === "ink" ? "text-paper" : "text-ink-950"}`}>
           <LangSwitcher current={lang} tone="page" paths={paths} />
           <button
             ref={trigger}
@@ -78,7 +99,7 @@ export function SiteChrome({ lang, tone, t, about, channels, paths, fab = true }
           >
             {t.about}
           </button>
-          <Link href={`/${lang}#elaqe`} onClick={contact} className={`hidden items-center sm:inline-flex ${tone === "ink" ? "h-9 rounded-full bg-paper px-4 font-medium text-ink-950 transition-colors hover:bg-yellow" : "min-h-11 transition-opacity hover:opacity-45"}`}>
+          <Link href={`/${lang}#elaqe`} onClick={contact} className={`hidden h-9 items-center rounded-full px-4 font-medium transition-colors hover:bg-yellow hover:text-ink-950 sm:inline-flex ${look === "ink" ? "bg-paper text-ink-950" : "bg-ink-950 text-paper"}`}>
             {t.contact}
           </Link>
         </nav>

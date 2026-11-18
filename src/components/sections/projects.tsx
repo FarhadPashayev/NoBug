@@ -77,7 +77,7 @@ export function ProjectsSection({ lang, title, lead, projects, empty, tone = "in
 /** Cover for a project without artwork: the name set large on the brand's dark ground. */
 function TypeCover({ title }: { title: string }) {
   return (
-    <div className="absolute inset-0 flex flex-col justify-between bg-[radial-gradient(120%_90%_at_85%_10%,#2b3d80_0%,transparent_55%),linear-gradient(140deg,#172650,#0f1b3d)] p-[clamp(20px,3vw,36px)] text-paper">
+    <div className="type-cover absolute inset-0 flex flex-col justify-between bg-[radial-gradient(120%_90%_at_85%_10%,#2b3d80_0%,transparent_55%),linear-gradient(140deg,#172650,#0f1b3d)] p-[clamp(20px,3vw,36px)] text-paper">
       <span aria-hidden="true" className="absolute inset-0 opacity-[0.07] [background-image:linear-gradient(rgba(255,255,255,.9)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.9)_1px,transparent_1px)] [background-size:44px_44px]" />
       <span className="relative flex items-center gap-2 text-[12px] text-paper/60">
         <span className="size-1.5 rounded-full bg-yellow" aria-hidden="true" />

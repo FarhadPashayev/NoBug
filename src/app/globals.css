@@ -982,16 +982,48 @@ html:not([data-intro="done"]) .home-intro .intro-fade {
   .drag-hint { animation: none; }
 }
 
-/* ── navy ground: a soft light from the top and a faint grid, the amber
-   CTAs glow — the rest of the design is unchanged ── */
+/* ── navy and white: the hero, the process and the contact sit on navy
+   with a soft light and a faint grid; the reading sections are white bands.
+   A band swaps the two ink tokens, so every section works on either. ── */
 .home-ground {
   background-color: var(--color-ink-950);
   background-image:
-    radial-gradient(70% 55% at 50% 0%, rgba(74, 104, 196, 0.32) 0%, transparent 70%),
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 100% 100vh, 56px 56px, 56px 56px;
-  background-repeat: no-repeat, repeat, repeat;
+    radial-gradient(60% 50% at 50% 0%, rgba(92, 124, 222, 0.38) 0%, transparent 72%),
+    radial-gradient(40% 40% at 85% 70%, rgba(239, 168, 60, 0.07) 0%, transparent 70%),
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 100% 110vh, 100% 110vh, 56px 56px, 56px 56px;
+  background-repeat: no-repeat, no-repeat, repeat, repeat;
+}
+.band-light {
+  --color-paper: #0f1b3d;
+  --color-ink-950: #ffffff;
+  --color-ink-900: #f3f5fa;
+  --color-ink-800: #e8ecf5;
+  --color-ink-line: rgba(15, 27, 61, 0.1);
+  background: #ffffff;
+  color: #0f1b3d;
+}
+.band-soft {
+  --color-ink-950: #f6f8fc;
+  --color-ink-900: #ffffff;
+  background: #f6f8fc;
+}
+/* amber fills keep navy ink; amber text darkens to read on white */
+.band-light :is(.bg-yellow, .btn-ink-primary, .chip-ink[data-selected="true"]) {
+  --color-ink-950: #0f1b3d;
+  --color-paper: #ffffff;
+}
+/* the typographic cover is navy artwork: it keeps the navy-ground ink */
+.band-light .type-cover {
+  --color-paper: #ffffff;
+  --color-ink-950: #0f1b3d;
+}
+.band-light .text-yellow {
+  color: var(--color-yellow-700);
+}
+.band-light .bg-ink-900 {
+  box-shadow: 0 1px 2px rgba(15, 27, 61, 0.04), 0 12px 32px -18px rgba(15, 27, 61, 0.18);
 }
 .theme-ink :is(a, button).bg-yellow,
 .btn-ink-primary {
